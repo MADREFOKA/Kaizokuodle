@@ -20,7 +20,6 @@
              /* Cambié el color del texto para que se vea mejor sobre el fondo */
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
         }
         .boton {
           border-radius: 25px;
@@ -76,6 +75,8 @@
             align-items: center;
             width: 100%; /* Hace que el contenedor ocupe todo el ancho disponible */
         }
+
+        /* Tabla con desplazamiento horizontal */
         .tabla-datos {
             position: relative;
             margin-top: 30px;
@@ -89,11 +90,10 @@
         }
         /* Contenedor de la tabla con márgenes adecuados */
         .contenedor-tabla {
-            padding-left: 5%;
-            padding-right: 5%;
-            width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
-            box-sizing: border-box; /* Incluye padding en el cálculo del ancho */
-            overflow-x: auto; /* Solo el contenedor de la tabla podrá desplazarse horizontalmente */
+            padding-left: 5%;  /* Ajusta este valor para el margen izquierdo */
+            padding-right: 5%; /* Ajusta este valor para el margen derecho */
+            width: 100%; /* Asegura que el contenedor ocupe el 100% del ancho disponible */
+            box-sizing: border-box; /* Asegura que el padding se incluya en el cálculo del ancho total */
         }
 
         
@@ -147,6 +147,15 @@
             font-size: 18px;
             cursor: pointer;
         }
+        #btn-reinicio {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #caffed;
+            color: black;
+            font-size: 18px;
+            cursor: pointer;
+        }
         h1{
             margin-top: 0;
             font-family: cursive; 
@@ -175,12 +184,15 @@
         }
       /* MEDIA QUERIES PARA RESPONSIVIDAD */
         @media (max-width: 768px) {
+            /* Ajustar la tabla para pantallas más pequeñas */
             .tabla-datos {
-                overflow-x: auto; /* Habilita el desplazamiento horizontal solo para la tabla */
+                width: 100%; /* Asegura que la tabla no sea más ancha que la pantalla */
+                overflow-x: hidden; /* Elimina la barra de desplazamiento horizontal */
             }
+            /* Ajustar el contenedor de la tabla para que ocupe todo el ancho disponible */
             .contenedor-tabla {
-                padding-left: 2%;
-                padding-right: 2%;
+                padding-left: 2%; /* Reducir los márgenes */
+                padding-right: 2%; /* Reducir los márgenes */
             }
             h1 {
                 font-size: 24px;
@@ -201,12 +213,15 @@
             }
         }
         @media (max-width: 480px) {
+            /* Ajustar la tabla para pantallas más pequeñas */
             .tabla-datos {
-                overflow-x: auto; /* Habilita el desplazamiento horizontal solo para la tabla */
+                width: 100%; /* Asegura que la tabla no sea más ancha que la pantalla */
+                overflow-x: hidden; /* Elimina la barra de desplazamiento horizontal */
             }
+            /* Ajustar el contenedor de la tabla para que ocupe todo el ancho disponible */
             .contenedor-tabla {
-                padding-left: 2%;
-                padding-right: 2%;
+                padding-left: 2%; /* Reducir los márgenes */
+                padding-right: 2%; /* Reducir los márgenes */
             }
             h1 {
                 font-size: 20px;
@@ -249,7 +264,7 @@
         <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
         <div id="autocomplete-list"></div>
         <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
-        
+        <button id="btn-reinicio" onclick="reiniciarJuego();">Reiniciar</button>      
         <div id="mensaje-felicidades"></div>
         <div class="contenedor-tabla" id="resultado-comparacion" style="display:none;">
             <table class="tabla-datos">
@@ -439,16 +454,47 @@
             // Mensaje de éxito si se adivina todo
             const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
             if (adivinados === columnas.length) {
-                 $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+                $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+        
+                // Deshabilitar la búsqueda y las sugerencias después de acertar
+                $('#busqueda').prop('disabled', true); // Deshabilitar el input de búsqueda
+                $('#autocomplete-list').empty(); // Limpiar sugerencias
             }
+          
+          /* Mensaje de éxito si se adivina todo
+            const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
+            if (adivinados === columnas.length) {
+                 $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+            }*/
         }
-
-        //Mostrar el personaje correcto si se rinden
+        // Modificar la función de "Rendirse"
+        function mostrarPersonajeCorrecto() {
+            $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
+        
+            // Deshabilitar la búsqueda y las sugerencias después de rendirse
+            $('#busqueda').prop('disabled', true); // Deshabilitar el input de búsqueda
+            $('#autocomplete-list').empty(); // Limpiar sugerencias
+        }
+        /* Mostrar el personaje correcto si se rinden
         function mostrarPersonajeCorrecto() {
             $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
         }
-
+        */
         // Configurar dificultad al presionar el botón correspondiente
+        $('#facil').click(function() {
+            cargarDatos('facil');
+            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
+        });
+        $('#medio').click(function() {
+            cargarDatos('medio');
+            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
+        });
+        $('#dificil').click(function() {
+            cargarDatos('dificil');
+            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
+        });
+      
+        /* Configurar dificultad al presionar el botón correspondiente
         $('#facil').click(function() {
             cargarDatos('facil');
         });
@@ -457,6 +503,21 @@
         });
         $('#dificil').click(function() {
             cargarDatos('dificil');
+        });
+        */
+        // Función para reiniciar el juego
+        function reiniciarJuego() {
+            $('#mensaje-felicidades').hide(); // Ocultar mensaje de felicitaciones
+            $('#busqueda').prop('disabled', false); // Habilitar el input de búsqueda
+            $('#busqueda').val(''); // Limpiar el campo de búsqueda
+            $('#autocomplete-list').empty(); // Limpiar las sugerencias
+            $('#resultado-comparacion').hide(); // Ocultar la tabla de comparaciones
+            $('#comparacion-cuerpo').empty(); // Limpiar las filas de la tabla
+        }
+        
+        // Reiniciar el juego al presionar un botón
+        $('#reiniciar').click(function() {
+            reiniciarJuego();
         });
     </script>
 </body>
