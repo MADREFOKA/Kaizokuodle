@@ -20,6 +20,7 @@
              /* Cambié el color del texto para que se vea mejor sobre el fondo */
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
         .boton {
           border-radius: 25px;
@@ -50,8 +51,8 @@
         }
         #autocomplete-list {
             position: relative;
-            width: 100%;
-            max-width: 417px;
+            width: 80%;
+            max-width: 400px;
             border-top: none;
             max-height: 200px;
             overflow-y: auto;
@@ -70,19 +71,31 @@
             background-color: #ddd;
         }
         #resultado-comparacion {
-            margin-top: 20px;
-            display: none;
+            display: flex;
+            justify-content: center; /* Asegura que la tabla esté centrada en su contenedor */
+            align-items: center;
+            width: 100%; /* Hace que el contenedor ocupe todo el ancho disponible */
         }
         .tabla-datos {
+            position: relative;
             margin-top: 30px;
             border-collapse: separate;
-            width: 100%;
+            width: 100%; /* Se asegura que ocupe todo el ancho */
             max-width: 100%;
-            margin: 0 auto;
             border-spacing: 5px;
-            display: block;
-            overflow-x: auto;  /* Para permitir el desplazamiento horizontal */
+            overflow-x: auto;  /* Permite el desplazamiento horizontal */
+            white-space: nowrap; /* Evita que el contenido se ajuste a la siguiente línea */
+            table-layout: auto; /* Ajusta el ancho de las columnas automáticamente */
         }
+        /* Contenedor de la tabla con márgenes adecuados */
+        .contenedor-tabla {
+            padding-left: 5%;
+            padding-right: 5%;
+            width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+            box-sizing: border-box; /* Incluye padding en el cálculo del ancho */
+            overflow-x: auto; /* Solo el contenedor de la tabla podrá desplazarse horizontalmente */
+        }
+
         
         .tabla-datos th, .tabla-datos td {
             border: 1px solid #ddd;
@@ -160,10 +173,63 @@
             color: white; /* Color de texto blanco para visibilidad */
             font-size: 14px; /* Tamaño del texto */
         }
+      /* MEDIA QUERIES PARA RESPONSIVIDAD */
+        @media (max-width: 768px) {
+            .tabla-datos {
+                overflow-x: auto; /* Habilita el desplazamiento horizontal solo para la tabla */
+            }
+            .contenedor-tabla {
+                padding-left: 2%;
+                padding-right: 2%;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .boton {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+            #busqueda {
+                font-size: 16px;
+                width: 90%;
+                max-width: 350px;
+            }
+            .cuadro {
+                width: 60px;
+                height: 60px;
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .tabla-datos {
+                overflow-x: auto; /* Habilita el desplazamiento horizontal solo para la tabla */
+            }
+            .contenedor-tabla {
+                padding-left: 2%;
+                padding-right: 2%;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .boton {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+            #busqueda {
+                font-size: 14px;
+                width: 100%;
+                max-width: 320px;
+            }
+            .cuadro {
+                width: 50px;
+                height: 50px;
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" padding="0">
+    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" style="max-width: 100%; height: auto;">
     <h1>Elige la dificultad:</h1>
     <button class="boton" id="facil">Fácil</button>
     <button class="boton" id="medio">Medio</button>
@@ -185,7 +251,7 @@
         <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
         
         <div id="mensaje-felicidades"></div>
-        <div id="resultado-comparacion" style="display:none;">
+        <div class="contenedor-tabla" id="resultado-comparacion" style="display:none;">
             <table class="tabla-datos">
                 <thead>
                     <tr>
@@ -377,7 +443,7 @@
             }
         }
 
-        // Mostrar el personaje correcto si se rinden
+        //Mostrar el personaje correcto si se rinden
         function mostrarPersonajeCorrecto() {
             $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
         }
