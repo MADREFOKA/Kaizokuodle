@@ -13,6 +13,7 @@
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover; 
+            height:90%;
             font-family: Arial, sans-serif;
             text-align: center;
             color: white;
@@ -74,16 +75,22 @@
         }
         .tabla-datos {
             margin-top: 30px;
-            border-collapse: separate; /* Usar separación entre celdas */
-            width: 80%;
+            border-collapse: separate;
+            width: 100%;
+            max-width: 100%;
             margin: 0 auto;
-            border-spacing: 5px; /* Separación de 5px entre celdas */
+            border-spacing: 5px;
+            display: block;
+            overflow-x: auto;  /* Para permitir el desplazamiento horizontal */
         }
+        
         .tabla-datos th, .tabla-datos td {
             border: 1px solid #ddd;
-            padding: 15px; /* Aumentamos el espaciado */
+            padding: 12px;  /* Menor padding para evitar que se haga demasiado grande */
             text-align: center;
-            border-radius: 10px; /* Bordes redondeados */
+            border-radius: 10px;
+            white-space: nowrap; /* Evita que el contenido se divida en varias líneas */
+            font-size: 14px;  /* Tamaño de texto más pequeño */
         }
         .tabla-datos th {
             background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro para el encabezado */
@@ -134,6 +141,25 @@
             text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
              1px 1px #000, -1px -1px #fff, 1px -1px #000, -1px 1px #000;
         }
+        #leyenda {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Espacio entre los cuadros */
+            margin-top: 30px;
+        }
+        
+        .cuadro {
+            width: 75px;
+            height: 75px;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Centra el texto vertical y horizontalmente */
+            border-radius: 5px;  /* Bordes redondeados */
+            text-align: center; /* Centra el texto */
+            font-weight: bold;
+            color: white; /* Color de texto blanco para visibilidad */
+            font-size: 14px; /* Tamaño del texto */
+        }
     </style>
 </head>
 <body>
@@ -142,8 +168,18 @@
     <button class="boton" id="facil">Fácil</button>
     <button class="boton" id="medio">Medio</button>
     <button class="boton" id="dificil">Difícil</button>
-
-    <div id="busqueda-section">
+    <div id="leyenda">
+      <div class="cuadro correcto">
+        <span>Correcto</span>
+      </div>
+      <div class="cuadro parcial">
+        <span>Parcial</span>
+      </div>
+      <div class="cuadro incorrecto">
+        <span>Incorrecto</span>
+      </div>
+    </div>
+   <div id="busqueda-section">
         <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
         <div id="autocomplete-list"></div>
         <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
@@ -276,25 +312,58 @@
 
                 let clase = "incorrecto";
                 let flecha = "";
-                
+
                 if (valorAleatorio === valorSeleccionado) {
                     clase = "correcto"; // Si es igual, verde
-                } else if (valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) {
+                } else if (!isNaN(valorAleatorio) && !isNaN(valorSeleccionado)) {
+                    clase = "incorrecto"; // Si son números y no son iguales, incorrecto
+                } else if ((valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) && !(isNaN(valorAleatorio) || isNaN(valorSeleccionado))) {
                     clase = "parcial"; // Si es parcialmente parecido, amarillo
+                } else {
+                    clase = "incorrecto"; // Si no es correcto ni parcial, incorrecto
                 }
 
                 // Agregar flecha para columnas numéricas
-                if (index === 1 || index === 7 || index === 8 || index === 9 || index === 11) {
-                    const valorAleatorioNumerico = parseFloat(valorAleatorio);
-                    const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
-                    if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
-                        if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
-                            flecha = '↑'; // Flecha hacia abajo si es más bajo
-                        } else if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
-                            flecha = '↓'; // Flecha hacia arriba si es más alto
+              if (index === 1 || index === 7 || index === 8 || index === 9 || index === 12) {
+                const valorAleatorioNumerico = parseFloat(valorAleatorio);
+                const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
+                
+                // Si el valor es nulo ("---"), siempre mostrar flecha hacia abajo
+                if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+                    flecha = '↓'; // Flecha hacia abajo si el valor aleatorio es "---" y el valor seleccionado no lo es
+                } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
+                    flecha = '↑'; // Flecha hacia arriba si el valor aleatorio no es "---" y el valor seleccionado es "---"
+                }
+                // Comprobamos si ambos valores son números
+                if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
+                    if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
+                        flecha = '↓';
+                    } else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
+                        flecha = '↑'; 
+                    }
+                } 
+                else if (index === 9 || index === 12) {
+                    if (index === 9) {
+                        const valorAleatorioFecha = new Date(valorAleatorio);
+                        const valorSeleccionadoFecha = new Date(valorSeleccionado);
+                        
+                        if (valorSeleccionadoFecha > valorAleatorioFecha) {
+                            flecha = '↓'; 
+                        } else if (valorSeleccionadoFecha < valorAleatorioFecha) {
+                            flecha = '↑';
+                        }
+                    } else if (index === 12) { 
+                        const valorAleatorioMoneda = parseFloat(valorAleatorio);
+                        const valorSeleccionadoMoneda = parseFloat(valorSeleccionado);
+                        
+                        if (valorSeleccionadoMoneda > valorAleatorioMoneda) {
+                            flecha = '↓'; 
+                        } else if (valorSeleccionadoMoneda < valorAleatorioMoneda) {
+                            flecha = '↑'; 
                         }
                     }
                 }
+            }
 
                 filaComparacion.push(`<td class="${clase}">${valorSeleccionado} ${flecha}</td>`);
             });
