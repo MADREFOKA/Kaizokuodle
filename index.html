@@ -13,6 +13,7 @@
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover; 
+            height:90%;
             font-family: Arial, sans-serif;
             text-align: center;
             color: white;
@@ -49,8 +50,8 @@
         }
         #autocomplete-list {
             position: relative;
-            width: 100%;
-            max-width: 417px;
+            width: 80%;
+            max-width: 400px;
             border-top: none;
             max-height: 200px;
             overflow-y: auto;
@@ -69,21 +70,40 @@
             background-color: #ddd;
         }
         #resultado-comparacion {
-            margin-top: 20px;
-            display: none;
+            display: flex;
+            justify-content: center; /* Asegura que la tabla esté centrada en su contenedor */
+            align-items: center;
+            width: 100%; /* Hace que el contenedor ocupe todo el ancho disponible */
         }
+
+        /* Tabla con desplazamiento horizontal */
         .tabla-datos {
+            position: relative;
             margin-top: 30px;
-            border-collapse: separate; /* Usar separación entre celdas */
-            width: 80%;
-            margin: 0 auto;
-            border-spacing: 5px; /* Separación de 5px entre celdas */
+            border-collapse: separate;
+            width: 100%; /* Se asegura que ocupe todo el ancho */
+            max-width: 100%;
+            border-spacing: 5px;
+            overflow-x: auto;  /* Permite el desplazamiento horizontal */
+            white-space: nowrap; /* Evita que el contenido se ajuste a la siguiente línea */
+            table-layout: auto; /* Ajusta el ancho de las columnas automáticamente */
         }
+        /* Contenedor de la tabla con márgenes adecuados */
+        .contenedor-tabla {
+            padding-left: 5%;  /* Ajusta este valor para el margen izquierdo */
+            padding-right: 5%; /* Ajusta este valor para el margen derecho */
+            width: 100%; /* Asegura que el contenedor ocupe el 100% del ancho disponible */
+            box-sizing: border-box; /* Asegura que el padding se incluya en el cálculo del ancho total */
+        }
+
+        
         .tabla-datos th, .tabla-datos td {
             border: 1px solid #ddd;
-            padding: 15px; /* Aumentamos el espaciado */
+            padding: 12px;  /* Menor padding para evitar que se haga demasiado grande */
             text-align: center;
-            border-radius: 10px; /* Bordes redondeados */
+            border-radius: 10px;
+            white-space: nowrap; /* Evita que el contenido se divida en varias líneas */
+            font-size: 14px;  /* Tamaño de texto más pequeño */
         }
         .tabla-datos th {
             background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro para el encabezado */
@@ -127,6 +147,15 @@
             font-size: 18px;
             cursor: pointer;
         }
+        #btn-reinicio {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #caffed;
+            color: black;
+            font-size: 18px;
+            cursor: pointer;
+        }
         h1{
             margin-top: 0;
             font-family: cursive; 
@@ -134,22 +163,110 @@
             text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
              1px 1px #000, -1px -1px #fff, 1px -1px #000, -1px 1px #000;
         }
+        #leyenda {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Espacio entre los cuadros */
+            margin-top: 30px;
+        }
+        
+        .cuadro {
+            width: 75px;
+            height: 75px;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Centra el texto vertical y horizontalmente */
+            border-radius: 5px;  /* Bordes redondeados */
+            text-align: center; /* Centra el texto */
+            font-weight: bold;
+            color: white; /* Color de texto blanco para visibilidad */
+            font-size: 14px; /* Tamaño del texto */
+        }
+      /* MEDIA QUERIES PARA RESPONSIVIDAD */
+        @media (max-width: 768px) {
+            /* Ajustar la tabla para pantallas más pequeñas */
+            .tabla-datos {
+                width: 100%; /* Asegura que la tabla no sea más ancha que la pantalla */
+                overflow-x: hidden; /* Elimina la barra de desplazamiento horizontal */
+            }
+            /* Ajustar el contenedor de la tabla para que ocupe todo el ancho disponible */
+            .contenedor-tabla {
+                padding-left: 2%; /* Reducir los márgenes */
+                padding-right: 2%; /* Reducir los márgenes */
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .boton {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+            #busqueda {
+                font-size: 16px;
+                width: 90%;
+                max-width: 350px;
+            }
+            .cuadro {
+                width: 60px;
+                height: 60px;
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            /* Ajustar la tabla para pantallas más pequeñas */
+            .tabla-datos {
+                width: 100%; /* Asegura que la tabla no sea más ancha que la pantalla */
+                overflow-x: hidden; /* Elimina la barra de desplazamiento horizontal */
+            }
+            /* Ajustar el contenedor de la tabla para que ocupe todo el ancho disponible */
+            .contenedor-tabla {
+                padding-left: 2%; /* Reducir los márgenes */
+                padding-right: 2%; /* Reducir los márgenes */
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .boton {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+            #busqueda {
+                font-size: 14px;
+                width: 100%;
+                max-width: 320px;
+            }
+            .cuadro {
+                width: 50px;
+                height: 50px;
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" padding="0">
+    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" style="max-width: 100%; height: auto;">
     <h1>Elige la dificultad:</h1>
     <button class="boton" id="facil">Fácil</button>
     <button class="boton" id="medio">Medio</button>
     <button class="boton" id="dificil">Difícil</button>
-
-    <div id="busqueda-section">
+    <div id="leyenda">
+      <div class="cuadro correcto">
+        <span>Correcto</span>
+      </div>
+      <div class="cuadro parcial">
+        <span>Parcial</span>
+      </div>
+      <div class="cuadro incorrecto">
+        <span>Incorrecto</span>
+      </div>
+    </div>
+   <div id="busqueda-section">
         <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
         <div id="autocomplete-list"></div>
         <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
-        
+        <button id="btn-reinicio" onclick="reiniciarJuego();">Reiniciar</button>      
         <div id="mensaje-felicidades"></div>
-        <div id="resultado-comparacion" style="display:none;">
+        <div class="contenedor-tabla" id="resultado-comparacion" style="display:none;">
             <table class="tabla-datos">
                 <thead>
                     <tr>
@@ -276,25 +393,58 @@
 
                 let clase = "incorrecto";
                 let flecha = "";
-                
+
                 if (valorAleatorio === valorSeleccionado) {
                     clase = "correcto"; // Si es igual, verde
-                } else if (valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) {
+                } else if (!isNaN(valorAleatorio) && !isNaN(valorSeleccionado)) {
+                    clase = "incorrecto"; // Si son números y no son iguales, incorrecto
+                } else if ((valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) && !(isNaN(valorAleatorio) || isNaN(valorSeleccionado))) {
                     clase = "parcial"; // Si es parcialmente parecido, amarillo
+                } else {
+                    clase = "incorrecto"; // Si no es correcto ni parcial, incorrecto
                 }
 
                 // Agregar flecha para columnas numéricas
-                if (index === 1 || index === 7 || index === 8 || index === 9 || index === 11) {
-                    const valorAleatorioNumerico = parseFloat(valorAleatorio);
-                    const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
-                    if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
-                        if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
-                            flecha = '↑'; // Flecha hacia abajo si es más bajo
-                        } else if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
-                            flecha = '↓'; // Flecha hacia arriba si es más alto
+              if (index === 1 || index === 7 || index === 8 || index === 9 || index === 12) {
+                const valorAleatorioNumerico = parseFloat(valorAleatorio);
+                const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
+                
+                // Si el valor es nulo ("---"), siempre mostrar flecha hacia abajo
+                if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+                    flecha = '↓'; // Flecha hacia abajo si el valor aleatorio es "---" y el valor seleccionado no lo es
+                } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
+                    flecha = '↑'; // Flecha hacia arriba si el valor aleatorio no es "---" y el valor seleccionado es "---"
+                }
+                // Comprobamos si ambos valores son números
+                if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
+                    if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
+                        flecha = '↓';
+                    } else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
+                        flecha = '↑'; 
+                    }
+                } 
+                else if (index === 9 || index === 12) {
+                    if (index === 9) {
+                        const valorAleatorioFecha = new Date(valorAleatorio);
+                        const valorSeleccionadoFecha = new Date(valorSeleccionado);
+                        
+                        if (valorSeleccionadoFecha > valorAleatorioFecha) {
+                            flecha = '↓'; 
+                        } else if (valorSeleccionadoFecha < valorAleatorioFecha) {
+                            flecha = '↑';
+                        }
+                    } else if (index === 12) { 
+                        const valorAleatorioMoneda = parseFloat(valorAleatorio);
+                        const valorSeleccionadoMoneda = parseFloat(valorSeleccionado);
+                        
+                        if (valorSeleccionadoMoneda > valorAleatorioMoneda) {
+                            flecha = '↓'; 
+                        } else if (valorSeleccionadoMoneda < valorAleatorioMoneda) {
+                            flecha = '↑'; 
                         }
                     }
                 }
+            }
 
                 filaComparacion.push(`<td class="${clase}">${valorSeleccionado} ${flecha}</td>`);
             });
@@ -304,16 +454,47 @@
             // Mensaje de éxito si se adivina todo
             const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
             if (adivinados === columnas.length) {
-                 $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+                $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+        
+                // Deshabilitar la búsqueda y las sugerencias después de acertar
+                $('#busqueda').prop('disabled', true); // Deshabilitar el input de búsqueda
+                $('#autocomplete-list').empty(); // Limpiar sugerencias
             }
+          
+          /* Mensaje de éxito si se adivina todo
+            const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
+            if (adivinados === columnas.length) {
+                 $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+            }*/
         }
-
-        // Mostrar el personaje correcto si se rinden
+        // Modificar la función de "Rendirse"
+        function mostrarPersonajeCorrecto() {
+            $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
+        
+            // Deshabilitar la búsqueda y las sugerencias después de rendirse
+            $('#busqueda').prop('disabled', true); // Deshabilitar el input de búsqueda
+            $('#autocomplete-list').empty(); // Limpiar sugerencias
+        }
+        /* Mostrar el personaje correcto si se rinden
         function mostrarPersonajeCorrecto() {
             $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
         }
-
+        */
         // Configurar dificultad al presionar el botón correspondiente
+        $('#facil').click(function() {
+            cargarDatos('facil');
+            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
+        });
+        $('#medio').click(function() {
+            cargarDatos('medio');
+            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
+        });
+        $('#dificil').click(function() {
+            cargarDatos('dificil');
+            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
+        });
+      
+        /* Configurar dificultad al presionar el botón correspondiente
         $('#facil').click(function() {
             cargarDatos('facil');
         });
@@ -322,6 +503,21 @@
         });
         $('#dificil').click(function() {
             cargarDatos('dificil');
+        });
+        */
+        // Función para reiniciar el juego
+        function reiniciarJuego() {
+            $('#mensaje-felicidades').hide(); // Ocultar mensaje de felicitaciones
+            $('#busqueda').prop('disabled', false); // Habilitar el input de búsqueda
+            $('#busqueda').val(''); // Limpiar el campo de búsqueda
+            $('#autocomplete-list').empty(); // Limpiar las sugerencias
+            $('#resultado-comparacion').hide(); // Ocultar la tabla de comparaciones
+            $('#comparacion-cuerpo').empty(); // Limpiar las filas de la tabla
+        }
+        
+        // Reiniciar el juego al presionar un botón
+        $('#reiniciar').click(function() {
+            reiniciarJuego();
         });
     </script>
 </body>
