@@ -134,6 +134,36 @@
             text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
              1px 1px #000, -1px -1px #fff, 1px -1px #000, -1px 1px #000;
         }
+        /* Agregar contenedor de desplazamiento */
+        .tabla-datos-wrapper {
+            overflow-x: auto; /* Habilita el desplazamiento horizontal */
+            -webkit-overflow-scrolling: touch; /* Mejor desplazamiento en dispositivos táctiles */
+            width: 100%;
+        }
+        /* Estilo de la tabla */
+        .tabla-datos {
+            width: 100%; /* Ajusta la tabla al 100% del contenedor */
+            min-width: 800px; /* Asegura que la tabla no se encoja demasiado */
+            margin: 0 auto;
+            border-collapse: separate;
+            border-spacing: 5px;
+        }
+        /* Asegura que las celdas de la tabla sean redimensionables */
+        .tabla-datos th, .tabla-datos td {
+            word-wrap: break-word; /* Permite que el contenido se ajuste mejor */
+            text-overflow: ellipsis; /* Evita que el texto se salga de la celda */
+        }
+        @media (max-width: 768px) {
+            .tabla-datos th, .tabla-datos td {
+                font-size: 12px; /* Ajusta el tamaño de fuente */
+                padding: 10px; /* Reduce el espaciado en celdas */
+            }
+        
+            /* Asegúrate de que la tabla ocupe todo el espacio disponible */
+            .tabla-datos {
+                min-width: 600px; /* Reduce el tamaño mínimo de la tabla */
+            }
+        }
     </style>
 </head>
 <body>
@@ -148,8 +178,8 @@
         <div id="autocomplete-list"></div>
         <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
         
-        <div id="mensaje-felicidades"></div>
         <div id="resultado-comparacion" style="display:none;">
+        <div class="tabla-datos-wrapper">
             <table class="tabla-datos">
                 <thead>
                     <tr>
