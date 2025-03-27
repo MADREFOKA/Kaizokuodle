@@ -1,524 +1,484 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Personajes</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        /* Estilo de fondo */
-        body {
-            background: url("https://i.pinimg.com/736x/95/48/49/95484996b472e3cda2033c50afdcc207.jpg") no-repeat center center fixed; 
-            -webkit-background-size: cover;
-            -moz-background-size: cover;
-            -o-background-size: cover;
-            background-size: cover; 
-            height:90%;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            color: white;
-             /* Cambié el color del texto para que se vea mejor sobre el fondo */
-            margin: 0;
-            padding: 0;
-        }
-        .boton {
-          border-radius: 25px;
-          border: 2px solid #000000
-          color: black;
-          padding: 16px 32px;
-          text-align: center;
-          text-decoration: none;
-          display: inline-block;
-          font-size: 16px;
-          margin: 4px 2px;
-          transition-duration: 0.4s;
-          cursor: pointer;
-        }
-        /* Estilos generales */
-        #busqueda-section {
-            display: none;
-            position: relative;
-            
-        }
-        #busqueda {
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 18px;
-            width: 80%;
-            font-color: white;
-            max-width: 400px;
-        }
-        #autocomplete-list {
-            position: relative;
-            width: 80%;
-            max-width: 400px;
-            border-top: none;
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro para el encabezado */
-            color: white;
-            z-index: 10;
-            left: 50%;
-            transform: translateX(-50%); /* Centrar el dropdown */
-            border-style: solid;
-        }
-        .autocomplete-item {
-            padding: 10px;
-            cursor: pointer;
-        }
-        .autocomplete-item:hover {
-            background-color: #ddd;
-        }
-        #resultado-comparacion {
-            display: flex;
-            justify-content: center; /* Asegura que la tabla esté centrada en su contenedor */
-            align-items: center;
-            width: 100%; /* Hace que el contenedor ocupe todo el ancho disponible */
-        }
-
-        /* Tabla con desplazamiento horizontal */
-        .tabla-datos {
-            position: relative;
-            margin-top: 30px;
-            border-collapse: separate;
-            width: 100%; /* Se asegura que ocupe todo el ancho */
-            max-width: 100%;
-            border-spacing: 5px;
-            overflow-x: auto;  /* Permite el desplazamiento horizontal */
-            white-space: nowrap; /* Evita que el contenido se ajuste a la siguiente línea */
-            table-layout: auto; /* Ajusta el ancho de las columnas automáticamente */
-        }
-        /* Contenedor de la tabla con márgenes adecuados */
-        .contenedor-tabla {
-            padding-left: 5%;  /* Ajusta este valor para el margen izquierdo */
-            padding-right: 5%; /* Ajusta este valor para el margen derecho */
-            width: 100%; /* Asegura que el contenedor ocupe el 100% del ancho disponible */
-            box-sizing: border-box; /* Asegura que el padding se incluya en el cálculo del ancho total */
-        }
-
-        
-        .tabla-datos th, .tabla-datos td {
-            border: 1px solid #ddd;
-            padding: 12px;  /* Menor padding para evitar que se haga demasiado grande */
-            text-align: center;
-            border-radius: 10px;
-            white-space: nowrap; /* Evita que el contenido se divida en varias líneas */
-            font-size: 14px;  /* Tamaño de texto más pequeño */
-        }
-        .tabla-datos th {
-            background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro para el encabezado */
-            padding: 20px; /* Añadimos padding a la fila de encabezado */
-        }
-        .correcto {
-            background-color: #3CB371;
-            color: white;
-        }
-        .parcial {
-            background-color: #b8a437;
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Juego de Personajes</title>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <style>
+          body {
+              background: url("https://i.pinimg.com/736x/95/48/49/95484996b472e3cda2033c50afdcc207.jpg") no-repeat center center fixed; 
+              -webkit-background-size: cover;
+              -moz-background-size: cover;
+              -o-background-size: cover;
+              background-size: cover; 
+              height:90%;
+              font-family: Arial, sans-serif;
+              text-align: center;
+              color: white;
+              margin: 0;
+              padding: 0;
+          }
+          .boton {
+            border-radius: 25px;
+            border: 2px solid #000000
             color: black;
-        }
-        .incorrecto {
-            background-color: #A52A2A;
-            color: white;
-        }
-        .flecha {
-            font-size: 18px;
-        }
-        #mensaje-felicidades {
-            width: 100%; /* Ocupar todo el ancho disponible */
-            text-align: center; /* Centrar el texto */
-            font-size: 36px !important;
-            font-weight: bold;
-            color: #3CB371;
-            display: flex;
-            justify-content: center; /* Centrar el contenido */
-        }
-        #mensaje-felicidades span {
-            background-color: rgba(0, 0, 0, 0.7); /* Fondo solo alrededor del texto */
-            padding: 10px 20px;
-            border-radius: 10px;
-        }
-        #btn-rendirse {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #A52A2A;
-            color: white;
-            font-size: 18px;
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
             cursor: pointer;
-        }
-        #btn-reinicio {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #caffed;
-            color: black;
-            font-size: 18px;
-            cursor: pointer;
-        }
-        h1{
-            margin-top: 0;
-            font-family: cursive; 
-            font-size: 30px;
-            text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
-             1px 1px #000, -1px -1px #fff, 1px -1px #000, -1px 1px #000;
-        }
-        #leyenda {
-            display: flex;
-            justify-content: center;
-            gap: 20px; /* Espacio entre los cuadros */
-            margin-top: 30px;
-        }
-        
-        .cuadro {
-            width: 75px;
-            height: 75px;
-            display: flex;
-            justify-content: center;
-            align-items: center; /* Centra el texto vertical y horizontalmente */
-            border-radius: 5px;  /* Bordes redondeados */
-            text-align: center; /* Centra el texto */
-            font-weight: bold;
-            color: white; /* Color de texto blanco para visibilidad */
-            font-size: 14px; /* Tamaño del texto */
-        }
-      /* MEDIA QUERIES PARA RESPONSIVIDAD */
-        @media (max-width: 768px) {
-            /* Ajustar la tabla para pantallas más pequeñas */
-            .tabla-datos {
-                width: 100%; /* Asegura que la tabla no sea más ancha que la pantalla */
-                overflow-x: hidden; /* Elimina la barra de desplazamiento horizontal */
-            }
-            /* Ajustar el contenedor de la tabla para que ocupe todo el ancho disponible */
-            .contenedor-tabla {
-                padding-left: 2%; /* Reducir los márgenes */
-                padding-right: 2%; /* Reducir los márgenes */
-            }
-            h1 {
-                font-size: 24px;
-            }
-            .boton {
-                padding: 12px 24px;
-                font-size: 14px;
-            }
-            #busqueda {
-                font-size: 16px;
-                width: 90%;
-                max-width: 350px;
-            }
-            .cuadro {
-                width: 60px;
-                height: 60px;
-                font-size: 12px;
-            }
-        }
-        @media (max-width: 480px) {
-            /* Ajustar la tabla para pantallas más pequeñas */
-            .tabla-datos {
-                width: 100%; /* Asegura que la tabla no sea más ancha que la pantalla */
-                overflow-x: hidden; /* Elimina la barra de desplazamiento horizontal */
-            }
-            /* Ajustar el contenedor de la tabla para que ocupe todo el ancho disponible */
-            .contenedor-tabla {
-                padding-left: 2%; /* Reducir los márgenes */
-                padding-right: 2%; /* Reducir los márgenes */
-            }
-            h1 {
-                font-size: 20px;
-            }
-            .boton {
-                padding: 10px 20px;
-                font-size: 12px;
-            }
-            #busqueda {
-                font-size: 14px;
-                width: 100%;
-                max-width: 320px;
-            }
-            .cuadro {
-                width: 50px;
-                height: 50px;
-                font-size: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" style="max-width: 100%; height: auto;">
-    <h1>Elige la dificultad:</h1>
-    <button class="boton" id="facil">Fácil</button>
-    <button class="boton" id="medio">Medio</button>
-    <button class="boton" id="dificil">Difícil</button>
-    <div id="leyenda">
-      <div class="cuadro correcto">
-        <span>Correcto</span>
-      </div>
-      <div class="cuadro parcial">
-        <span>Parcial</span>
-      </div>
-      <div class="cuadro incorrecto">
-        <span>Incorrecto</span>
-      </div>
-    </div>
-   <div id="busqueda-section">
-        <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
-        <div id="autocomplete-list"></div>
-        <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
-        <button id="btn-reinicio" onclick="reiniciarJuego();">Reiniciar</button>      
-        <div id="mensaje-felicidades"></div>
-        <div class="contenedor-tabla" id="resultado-comparacion" style="display:none;">
-            <table class="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Primera Aparición</th>
-                        <th>Saga</th>
-                        <th>Estado</th>
-                        <th>Origen</th>
-                        <th>Raza</th>
-                        <th>Sexo</th>
-                        <th>Altura</th>
-                        <th>Edad</th>
-                        <th>Cumpleaños</th>
-                        <th>Fruta del Diablo</th>
-                        <th>Haki</th>
-                        <th>Recompensa</th>
-                        <th>Afiliación</th>
-                        <th>Ocupación</th>
-                    </tr>
-                </thead>
-                <tbody id="comparacion-cuerpo">
-                    <!-- Las comparaciones se agregarán aquí -->
-                </tbody>
-            </table>
+          }
+          /* Estilos generales */
+          #busqueda-section {
+              display: none;
+              position: relative;
+              
+          }
+          #busqueda {
+              margin-top: 20px;
+              padding: 10px;
+              font-size: 18px;
+              width: 80%;
+              font-color: white;
+              max-width: 400px;
+          }
+          #autocomplete-list {
+              position: relative;
+              width: 80%;
+              max-width: 400px;
+              border-top: none;
+              max-height: 200px;
+              overflow-y: auto;
+              background-color: rgba(0, 0, 0, 0.7); 
+              color: white;
+              z-index: 10;
+              left: 50%;
+              transform: translateX(-50%);
+              border-style: solid;
+          }
+          .autocomplete-item {
+              padding: 10px;
+              cursor: pointer;
+          }
+          .autocomplete-item:hover {
+              background-color: #ddd;
+          }
+          #resultado-comparacion {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 100%; 
+          }
+  
+          /* Tabla con desplazamiento horizontal */
+          .tabla-datos {
+              position: relative;
+              margin-top: 30px;
+              border-collapse: separate;
+              width: 90%;
+              max-width: 90%;
+              border-spacing: 5px;
+              overflow-x: auto;
+              white-space: nowrap;
+              table-layout: auto;
+          }
+          /* Contenedor de la tabla con márgenes adecuados */
+          .contenedor-tabla {
+              padding-left: 5%; 
+              padding-right: 5%;
+              width: 100%; 
+              box-sizing: border-box;
+          }
+          .tabla-datos th, .tabla-datos td {
+              border: 1px solid #ddd;
+              padding: 12px;  
+              text-align: center;
+              border-radius: 10px;
+              white-space: nowrap; 
+              font-size: 14px;  
+          }
+          .tabla-datos th {
+              background-color: rgba(0, 0, 0, 0.7);
+              padding: 20px;
+          }
+          .correcto {
+              background-color: #3CB371;
+              color: white;
+          }
+          .parcial {
+              background-color: #b8a437;
+              color: black;
+          }
+          .incorrecto {
+              background-color: #A52A2A;
+              color: white;
+          }
+          .flecha {
+              font-size: 18px;
+          }
+          #mensaje-felicidades {
+              width: 100%; 
+              text-align: center; 
+              font-size: 36px !important;
+              font-weight: bold;
+              color: #3CB371;
+              display: flex;
+              justify-content: center; 
+          }
+          #mensaje-felicidades span {
+              background-color: rgba(0, 0, 0, 0.7); 
+              padding: 10px 20px;
+              border-radius: 10px;
+          }
+          #btn-rendirse {
+              margin-top: 10px;
+              margin-bottom: 10px;
+              padding: 10px;
+              background-color: #A52A2A;
+              color: white;
+              font-size: 18px;
+              cursor: pointer;
+          }
+          #btn-reinicio {
+              margin-top: 10px;
+              margin-bottom: 10px;
+              padding: 10px;
+              background-color: #caffed;
+              color: black;
+              font-size: 18px;
+              cursor: pointer;
+          }
+          h1{
+              margin-top: 0;
+              font-family: cursive; 
+              font-size: 30px;
+              text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
+               1px 1px #000, -1px -1px #fff, 1px -1px #000, -1px 1px #000;
+          }
+          #leyenda {
+              display: flex;
+              justify-content: center;
+              gap: 20px;
+              margin-top: 30px;
+          }
+          
+          .cuadro {
+              width: 75px;
+              height: 75px;
+              display: flex;
+              justify-content: center;
+              align-items: center; 
+              border-radius: 5px;  
+              text-align: center;
+              font-weight: bold;
+              color: white; 
+              font-size: 14px; 
+          }
+        .texto-ajustado {
+              white-space: pre-line; 
+              text-align: center;
+          	  word-break: break-word;
+        	}
+        /* MEDIA QUERIES PARA RESPONSIVIDAD */
+          @media (max-width: 768px) {
+              h1 {
+                  font-size: 24px;
+              }
+              .boton {
+                  padding: 12px 24px;
+                  font-size: 14px;
+              }
+              #busqueda {
+                  font-size: 16px;
+                  width: 90%;
+                  max-width: 350px;
+              }
+              .cuadro {
+                  width: 60px;
+                  height: 60px;
+                  font-size: 12px;
+              }
+          }
+          @media (max-width: 480px) {
+              h1 {
+                  font-size: 20px;
+              }
+              .boton {
+                  padding: 10px 20px;
+                  font-size: 12px;
+              }
+              #busqueda {
+                  font-size: 14px;
+                  width: 100%;
+                  max-width: 320px;
+              }
+              .cuadro {
+                  width: 50px;
+                  height: 50px;
+                  font-size: 10px;
+              }
+          }
+      </style>
+  </head>
+  <body>
+      <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" style="max-width: 100%; height: auto;">
+      <h1>Elige la dificultad:</h1>
+      <button class="boton" id="facil">Fácil</button>
+      <button class="boton" id="medio">Medio</button>
+      <button class="boton" id="dificil">Difícil</button>
+      <div id="leyenda">
+        <div class="cuadro correcto">
+          <span>Correcto</span>
         </div>
-    </div>
-    <script>
-        const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ'; // Reemplaza con la ID de tu hoja
-        const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ'; // Reemplaza con tu API Key de Google
-        const sheetsNames = {
-            facil: 'Fácil',
-            medio: 'Medio',
-            dificil: 'Difícil'
-        };
-
-        let personajes = [];
-        let personajeAleatorio = null;
-
-        // Cargar los datos de la hoja seleccionada
-        function cargarDatos(dificultad) {
-            const sheetURL = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNames[dificultad]}?key=${apiKey}`;
-
-            $.get(sheetURL, function(response) {
-                if (response && response.values) {
-                    personajes = response.values.slice(1); // Excluimos el encabezado (fila 0)
-                    personajeAleatorio = personajes[Math.floor(Math.random() * personajes.length)]; // Seleccionamos un personaje aleatorio
-                    mostrarBusqueda();
-                } else {
-                    console.log("No se recibieron datos válidos");
-                    alert("Error al cargar los datos.");
-                }
-            }).fail(function(error) {
-                console.log("Error al hacer la solicitud:", error);
-                alert("Hubo un problema al cargar los datos.");
-            });
-        }
-
-        // Mostrar la sección de búsqueda
-        function mostrarBusqueda() {
-            $('#busqueda-section').show();
-            $('#resultado-comparacion').hide(); // Ocultar la tabla de comparaciones
-            $('#mensaje-felicidades').hide(); // Ocultar mensaje de felicitaciones
-
-            // Limpiar la tabla al cambiar la dificultad
-            $('#comparacion-cuerpo').empty();
-        }
-
-        // Filtrar personajes basados en el nombre ingresado en el cuadro de búsqueda
-        function filtrarPersonajes() {
-            const input = $('#busqueda').val().toLowerCase();
-            let resultados = personajes.filter(personaje => personaje[0].toLowerCase().includes(input));
-
-            // Si no se escribe nada, mostrar los primeros 10 resultados
-            if (input === '') {
-                resultados = personajes.slice(0, 10); // Mostrar solo los primeros 10
-            }
-
-            mostrarSugerencias(resultados);
-        }
-
-        // Mostrar las sugerencias en un dropdown debajo de la barra de búsqueda
-        function mostrarSugerencias(resultados) {
-            const listaSugerencias = $('#autocomplete-list');
-            listaSugerencias.empty(); // Limpiar las sugerencias previas
-
-            // Agregar cada sugerencia como un item del dropdown
-            resultados.forEach(personaje => {
-                const item = $('<div class="autocomplete-item"></div>');
-                item.text(personaje[0]); // Mostramos el nombre del personaje
-                item.click(function() {
-                    seleccionarPersonaje(personaje[0]);
-                });
-                listaSugerencias.append(item);
-            });
-        }
-
-        // Seleccionar un personaje
-        function seleccionarPersonaje(nombre) {
-            const personajeSeleccionado = personajes.find(p => p[0] === nombre);
-            if (personajeSeleccionado) {
-                $('#resultado-comparacion').show();
-                compararPersonajes(personajeSeleccionado);
-                $('#autocomplete-list').empty(); // Limpiar la lista de sugerencias después de seleccionar
-                $('#busqueda').val(''); // Limpiar el campo de búsqueda
-            }
-        }
-
-        // Comparar el personaje seleccionado con el personaje aleatorio
-        function compararPersonajes(personajeSeleccionado) {
-            const comparacionCuerpo = $('#comparacion-cuerpo');
-
-            // Comprobamos si ya hay comparaciones previas y no las borramos
-            const columnas = [
-                "Nombre", "Primera Aparición", "Saga", "Estado", "Origen", "Raza", "Sexo", 
-                "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", 
-                "Afiliación", "Ocupación"
-            ];
-
-            const filaComparacion = [];
-
-            columnas.forEach((col, index) => {
-                const valorAleatorio = personajeAleatorio[index];
-                const valorSeleccionado = personajeSeleccionado[index];
-
-                let clase = "incorrecto";
-                let flecha = "";
-
+        <div class="cuadro parcial">
+          <span>Parcial</span>
+        </div>
+        <div class="cuadro incorrecto">
+          <span>Incorrecto</span>
+        </div>
+      </div>
+     <div id="busqueda-section">
+          <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
+          <div id="autocomplete-list"></div>
+          <button id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
+          <button id="btn-reinicio" onclick="reiniciarJuego();">Reiniciar</button>      
+          <div id="mensaje-felicidades"></div>
+          <div class="contenedor-tabla" id="resultado-comparacion" style="display:none;">
+              <table class="tabla-datos">
+                  <thead>
+                      <tr>
+                          <th>Nombre</th>
+                          <th>Primera Aparición</th>
+                          <th>Saga</th>
+                          <th>Estado</th>
+                          <th>Origen</th>
+                          <th>Raza</th>
+                          <th>Sexo</th>
+                          <th>Altura</th>
+                          <th>Edad</th>
+                          <th>Cumpleaños</th>
+                          <th>Fruta del Diablo</th>
+                          <th>Haki</th>
+                          <th>Recompensa</th>
+                          <th>Afiliación</th>
+                          <th>Ocupación</th>
+                      </tr>
+                  </thead>
+                  <tbody id="comparacion-cuerpo">
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <script>
+          const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
+          const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
+	  let dificultad = 'facil';	
+          const sheetsNames = {
+              facil: 'Fácil',
+              medio: 'Medio',
+              dificil: 'Difícil'
+          };
+  
+          let personajes = [];
+          let personajeAleatorio = null;
+  
+          // Cargar los datos de la hoja seleccionada
+          function cargarDatos(dificultad) {
+              const sheetURL = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNames[dificultad]}?key=${apiKey}`;
+  
+              $.get(sheetURL, function(response) {
+                  if (response && response.values) {
+                      personajes = response.values.slice(1);
+                      personajeAleatorio = personajes[Math.floor(Math.random() * personajes.length)];
+                      mostrarBusqueda();
+                  } else {
+                      console.log("No se recibieron datos válidos");
+                      alert("Error al cargar los datos.");
+                  }
+              }).fail(function(error) {
+                  console.log("Error al hacer la solicitud:", error);
+                  alert("Hubo un problema al cargar los datos.");
+              });
+          }
+          // Mostrar la sección de búsqueda
+          function mostrarBusqueda() {
+              $('#busqueda-section').show();
+              $('#resultado-comparacion').hide();
+              $('#mensaje-felicidades').hide();
+              $('#comparacion-cuerpo').empty();
+          }
+          // Filtrar personajes basados en el nombre ingresado en el cuadro de búsqueda
+          function filtrarPersonajes() {
+              const input = $('#busqueda').val().toLowerCase();
+              let resultados = personajes.filter(personaje => personaje[0].toLowerCase().includes(input));
+  
+              // Si no se escribe nada, mostrar los primeros 10 resultados
+              if (input === '') {
+                  resultados = personajes.slice(0, 10); 
+              }
+  
+              mostrarSugerencias(resultados);
+          }
+          // Mostrar las sugerencias en un dropdown debajo de la barra de búsqueda
+          function mostrarSugerencias(resultados) {
+              const listaSugerencias = $('#autocomplete-list');
+              listaSugerencias.empty(); 
+  
+              // Agregar cada sugerencia como un item del dropdown
+              resultados.forEach(personaje => {
+                  const item = $('<div class="autocomplete-item"></div>');
+                  item.text(personaje[0]);
+                  item.click(function() {
+                      seleccionarPersonaje(personaje[0]);
+                  });
+                  listaSugerencias.append(item);
+              });
+          }
+          // Seleccionar un personaje
+          function seleccionarPersonaje(nombre) {
+              const personajeSeleccionado = personajes.find(p => p[0] === nombre);
+              if (personajeSeleccionado) {
+                  $('#resultado-comparacion').show();
+                  compararPersonajes(personajeSeleccionado);
+                  $('#autocomplete-list').empty();
+                  $('#busqueda').val('');
+              }
+          }
+          // Comparar el personaje seleccionado con el personaje aleatorio
+          function compararPersonajes(personajeSeleccionado) {
+              const comparacionCuerpo = $('#comparacion-cuerpo');
+              //Comprobamos si ya hay comparaciones previas y no las borramos
+              const columnas = [
+                  "Nombre", "Primera Aparición", "Saga", "Estado", "Origen", "Raza", "Sexo", 
+                  "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", 
+                  "Afiliación", "Ocupación"
+              ];
+            
+              const filaComparacion = [];
+              columnas.forEach((col, index) => {
+                  const valorAleatorio = personajeAleatorio[index];
+                  const valorSeleccionado = personajeSeleccionado[index];
+  
+                  let clase = "incorrecto";
+                  let flecha = "";
+  
                 if (valorAleatorio === valorSeleccionado) {
-                    clase = "correcto"; // Si es igual, verde
-                } else if (!isNaN(valorAleatorio) && !isNaN(valorSeleccionado)) {
-                    clase = "incorrecto"; // Si son números y no son iguales, incorrecto
-                } else if ((valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) && !(isNaN(valorAleatorio) || isNaN(valorSeleccionado))) {
-                    clase = "parcial"; // Si es parcialmente parecido, amarillo
-                } else {
-                    clase = "incorrecto"; // Si no es correcto ni parcial, incorrecto
-                }
-
-                // Agregar flecha para columnas numéricas
-              if (index === 1 || index === 7 || index === 8 || index === 9 || index === 12) {
-                const valorAleatorioNumerico = parseFloat(valorAleatorio);
-                const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
-                
-                // Si el valor es nulo ("---"), siempre mostrar flecha hacia abajo
-                if (valorAleatorio === "---" && valorSeleccionado !== "---") {
-                    flecha = '↓'; // Flecha hacia abajo si el valor aleatorio es "---" y el valor seleccionado no lo es
-                } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
-                    flecha = '↑'; // Flecha hacia arriba si el valor aleatorio no es "---" y el valor seleccionado es "---"
-                }
-                // Comprobamos si ambos valores son números
-                if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
-                    if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
-                        flecha = '↓';
-                    } else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
+                      clase = "correcto";
+                  } else if (!isNaN(valorAleatorio) && !isNaN(valorSeleccionado)) {
+                      clase = "incorrecto"; 
+                  } else if ((valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) && !(isNaN(valorAleatorio) || isNaN(valorSeleccionado))) {
+                      clase = "parcial"; 
+                  } else {
+                      clase = "incorrecto";
+                  }
+                  // Agregar flecha para columnas numéricas
+                  if (index === 1 || index === 7 || index === 8 || index === 9 || index === 12) {
+                    const valorAleatorioNumerico = parseFloat(valorAleatorio);
+                    const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
+    
+                    if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+                        flecha = '↓'; 
+                  } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
                         flecha = '↑'; 
-                    }
-                } 
-                else if (index === 9 || index === 12) {
-                    if (index === 9) {
-                        const valorAleatorioFecha = new Date(valorAleatorio);
-                        const valorSeleccionadoFecha = new Date(valorSeleccionado);
-                        
-                        if (valorSeleccionadoFecha > valorAleatorioFecha) {
-                            flecha = '↓'; 
-                        } else if (valorSeleccionadoFecha < valorAleatorioFecha) {
-                            flecha = '↑';
-                        }
-                    } else if (index === 12) { 
-                        const valorAleatorioMoneda = parseFloat(valorAleatorio);
-                        const valorSeleccionadoMoneda = parseFloat(valorSeleccionado);
-                        
-                        if (valorSeleccionadoMoneda > valorAleatorioMoneda) {
-                            flecha = '↓'; 
-                        } else if (valorSeleccionadoMoneda < valorAleatorioMoneda) {
+                  }
+                    // Comprobamos si ambos valores son números
+                    if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
+                        if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
+                            flecha = '↓';
+                        } else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
                             flecha = '↑'; 
                         }
+                    } else if (index === 9 || index === 12) {
+                      if (index === 9) {
+                          const valorAleatorioLimpio = valorAleatorio.trim().toLowerCase();
+                          const valorSeleccionadoLimpio = valorSeleccionado.trim().toLowerCase();
+
+			  // Verificar si el formato de la fecha es válido antes de procesar
+                          if (valorAleatorioLimpio.includes(" ") && valorSeleccionadoLimpio.includes(" ")) {
+                            const [diaAleatorio, mesAleatorio] = valorAleatorioLimpio.split(" ");
+                            const [diaSeleccionado, mesSeleccionado] = valorSeleccionadoLimpio.split(" ");
+
+                            
+                            if (valorAleatorioLimpio === valorSeleccionadoLimpio) {
+                              clase = "correcto";
+                            } else if (mesAleatorio === mesSeleccionado) {
+                              clase = "parcial"; 
+                            } else {
+                              clase = "incorrecto";
+                            }
+                          }
+                      }else if (index === 12) { 
+                            const valorAleatorioMoneda = parseFloat(valorAleatorio);
+                            const valorSeleccionadoMoneda = parseFloat(valorSeleccionado);
+                            
+                            if (valorSeleccionadoMoneda > valorAleatorioMoneda) {
+                                flecha = '↓'; 
+                            } else if (valorSeleccionadoMoneda < valorAleatorioMoneda) {
+                                flecha = '↑'; 
+                            }
+                        }
                     }
                 }
-            }
-
-                filaComparacion.push(`<td class="${clase}">${valorSeleccionado} ${flecha}</td>`);
-            });
-
-            comparacionCuerpo.prepend(`<tr>${filaComparacion.join("")}</tr>`);
-
-            // Mensaje de éxito si se adivina todo
-            const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
-            if (adivinados === columnas.length) {
-                $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
-        
-                // Deshabilitar la búsqueda y las sugerencias después de acertar
-                $('#busqueda').prop('disabled', true); // Deshabilitar el input de búsqueda
-                $('#autocomplete-list').empty(); // Limpiar sugerencias
-            }
-          
-          /* Mensaje de éxito si se adivina todo
-            const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
-            if (adivinados === columnas.length) {
-                 $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
-            }*/
-        }
-        // Modificar la función de "Rendirse"
-        function mostrarPersonajeCorrecto() {
-            $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
-        
-            // Deshabilitar la búsqueda y las sugerencias después de rendirse
-            $('#busqueda').prop('disabled', true); // Deshabilitar el input de búsqueda
-            $('#autocomplete-list').empty(); // Limpiar sugerencias
-        }
-        /* Mostrar el personaje correcto si se rinden
-        function mostrarPersonajeCorrecto() {
-            $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
-        }
-        */
-        // Configurar dificultad al presionar el botón correspondiente
-        $('#facil').click(function() {
-            cargarDatos('facil');
-            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
-        });
-        $('#medio').click(function() {
-            cargarDatos('medio');
-            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
-        });
-        $('#dificil').click(function() {
-            cargarDatos('dificil');
-            reiniciarJuego(); // Aseguramos que se reinicie al cambiar de nivel
-        });
-      
-        /* Configurar dificultad al presionar el botón correspondiente
-        $('#facil').click(function() {
-            cargarDatos('facil');
-        });
-        $('#medio').click(function() {
-            cargarDatos('medio');
-        });
-        $('#dificil').click(function() {
-            cargarDatos('dificil');
-        });
-        */
-        // Función para reiniciar el juego
-        function reiniciarJuego() {
-            $('#mensaje-felicidades').hide(); // Ocultar mensaje de felicitaciones
-            $('#busqueda').prop('disabled', false); // Habilitar el input de búsqueda
-            $('#busqueda').val(''); // Limpiar el campo de búsqueda
-            $('#autocomplete-list').empty(); // Limpiar las sugerencias
-            $('#resultado-comparacion').hide(); // Ocultar la tabla de comparaciones
-            $('#comparacion-cuerpo').empty(); // Limpiar las filas de la tabla
-        }
-        
-        // Reiniciar el juego al presionar un botón
-        $('#reiniciar').click(function() {
-            reiniciarJuego();
-        });
-    </script>
-</body>
+                if (index === 11 || index === 13 || index === 14) {
+                  filaComparacion.push(`<td class="texto-ajustado ${clase}">${valorSeleccionado.replace(/,/g, "<br>")} ${flecha}</td>`);
+                }else{
+                  filaComparacion.push(`<td class="texto-ajustado ${clase}">${valorSeleccionado} ${flecha}</td>`);
+                }
+                
+              });
+  
+              comparacionCuerpo.prepend(`<tr>${filaComparacion.join("")}</tr>`);
+  
+              // Mensaje de éxito si se adivina todo
+              const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
+              if (adivinados === columnas.length) {
+                  $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
+                  $('#busqueda').prop('disabled', true);
+                  $('#autocomplete-list').empty();
+              }
+          }
+          // Modificar la función de "Rendirse"
+          function mostrarPersonajeCorrecto() {
+              $('#mensaje-felicidades').show().html('<span>El personaje era ' + personajeAleatorio[0] + ', más suerte a la próxima.</span>');
+              $('#busqueda').prop('disabled', true); 
+              $('#autocomplete-list').empty();
+          }
+          // Configurar dificultad al presionar el botón correspondiente
+          $('#facil').click(function() {
+	      dificultad = 'facil';
+              cargarDatos('facil');
+              reiniciarJuego(); 
+          });
+          $('#medio').click(function() {
+	      dificultad = 'medio';
+              cargarDatos('medio');
+              reiniciarJuego();
+          });
+          $('#dificil').click(function() {
+	      dificultad = 'dificil';
+              cargarDatos('dificil');
+              reiniciarJuego();
+          });
+	  //
+    
+          // Función para reiniciar el juego
+          function reiniciarJuego() {
+              $('#mensaje-felicidades').hide();
+              $('#busqueda').prop('disabled', false);
+              $('#busqueda').val('');
+              $('#autocomplete-list').empty();
+              $('#resultado-comparacion').hide();
+              $('#comparacion-cuerpo').empty();
+	      cargarDatos(dificultad);
+          }
+          // Reiniciar el juego al presionar un botón
+          $('#reiniciar').click(function() {
+              reiniciarJuego();
+          });
+      </script>
+  </body>
 </html>
