@@ -311,18 +311,59 @@
               $('#mensaje-felicidades').hide();
               $('#comparacion-cuerpo').empty();
           }
-          // Filtrar personajes basados en el nombre ingresado en el cuadro de búsqueda
+          // Función para normalizar texto eliminando tildes y caracteres especiales
+          function normalizarTexto(texto) {
+              return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          }
+          
+          // Función para dividir la entrada en palabras y verificar si cada palabra aparece en el nombre
+          function buscarPorPalabras(nombre, input) {
+              const palabrasBusqueda = input.split(' ').map(palabra => normalizarTexto(palabra));
+              const nombreNormalizado = normalizarTexto(nombre);
+              
+              // Verifica si todas las palabras de la búsqueda están presentes en el nombre
+              return palabrasBusqueda.every(palabra => nombreNormalizado.includes(palabra));
+          }
+          
+          // Función para filtrar personajes y manejar el comportamiento al escribir
           function filtrarPersonajes() {
-              const input = $('#busqueda').val().toLowerCase();
-              let resultados = personajes.filter(personaje => personaje[0].toLowerCase().includes(input));
-  
+              const input = normalizarTexto($('#busqueda').val());
+              let resultados = personajes.filter(personaje => buscarPorPalabras(personaje[0], input));
+          
               // Si no se escribe nada, mostrar los primeros 10 resultados
               if (input === '') {
-                  resultados = personajes.slice(0, 10); 
+                  resultados = personajes.slice(0, 10);
               }
-  
+          
               mostrarSugerencias(resultados);
+          
+              // Si solo hay una sugerencia, seleccionarla automáticamente
+              if (resultados.length === 1 && event.key === "Enter") {
+                  seleccionarPersonaje(resultados[0][0]);
+              }
           }
+          
+          // Función para seleccionar personaje con Enter
+          $('#busqueda').on('keydown', function(event) {
+              if (event.key === "Enter") {
+                  const input = normalizarTexto($('#busqueda').val());
+                  
+                  // Buscar un personaje con nombre exacto
+                  const personajeSeleccionado = personajes.find(p => normalizarTexto(p[0]) === input);
+                  
+                  // Si se encuentra una coincidencia exacta, seleccionarlo
+                  if (personajeSeleccionado) {
+                      seleccionarPersonaje(personajeSeleccionado[0]);
+                  } else {
+                      // Si no hay coincidencia exacta, buscar como antes con "includes"
+                      const personajeParcial = personajes.find(p => buscarPorPalabras(p[0], input));
+                      if (personajeParcial) {
+                          seleccionarPersonaje(personajeParcial[0]);
+                      }
+                  }
+              }
+          });
+
           // Mostrar las sugerencias en un dropdown debajo de la barra de búsqueda
           function mostrarSugerencias(resultados) {
               const listaSugerencias = $('#autocomplete-list');
@@ -370,21 +411,23 @@
                       clase = "correcto";
                   } else if (!isNaN(valorAleatorio) && !isNaN(valorSeleccionado)) {
                       clase = "incorrecto"; 
-                  } else if ((valorAleatorio.includes(valorSeleccionado) || valorSeleccionado.includes(valorAleatorio)) && !(isNaN(valorAleatorio) || isNaN(valorSeleccionado))) {
+                  } else if ( typeof valorAleatorio === "string" &&  typeof valorSeleccionado === "string" && valorAleatorio.trim() !== "" && valorSeleccionado.trim() !== "" 
+                             && (valorAleatorio.toLowerCase().includes(valorSeleccionado.toLowerCase()) ||  valorSeleccionado.toLowerCase().includes(valorAleatorio.toLowerCase()))){
                       clase = "parcial"; 
                   } else {
                       clase = "incorrecto";
                   }
+                
                   // Agregar flecha para columnas numéricas
-                  if (index === 1 || index === 7 || index === 8 || index === 9 || index === 12) {
+                  if (index === 1 || index === 7 || index === 8 || index === 12) {
                     const valorAleatorioNumerico = parseFloat(valorAleatorio);
                     const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
     
                     if (valorAleatorio === "---" && valorSeleccionado !== "---") {
                         flecha = '↓'; 
-                  } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
-                        flecha = '↑'; 
-                  }
+                    } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
+                          flecha = '↑'; 
+                    }
                     // Comprobamos si ambos valores son números
                     if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
                         if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
@@ -392,37 +435,43 @@
                         } else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
                             flecha = '↑'; 
                         }
-                    } else if (index === 9 || index === 12) {
-                      if (index === 9) {
-                          const valorAleatorioLimpio = valorAleatorio.trim().toLowerCase();
-                          const valorSeleccionadoLimpio = valorSeleccionado.trim().toLowerCase();
-
-			  // Verificar si el formato de la fecha es válido antes de procesar
-                          if (valorAleatorioLimpio.includes(" ") && valorSeleccionadoLimpio.includes(" ")) {
-                            const [diaAleatorio, mesAleatorio] = valorAleatorioLimpio.split(" ");
-                            const [diaSeleccionado, mesSeleccionado] = valorSeleccionadoLimpio.split(" ");
-
-                            
-                            if (valorAleatorioLimpio === valorSeleccionadoLimpio) {
-                              clase = "correcto";
-                            } else if (mesAleatorio === mesSeleccionado) {
-                              clase = "parcial"; 
-                            } else {
-                              clase = "incorrecto";
-                            }
-                          }
-                      }else if (index === 12) { 
-                            const valorAleatorioMoneda = parseFloat(valorAleatorio);
-                            const valorSeleccionadoMoneda = parseFloat(valorSeleccionado);
-                            
-                            if (valorSeleccionadoMoneda > valorAleatorioMoneda) {
-                                flecha = '↓'; 
-                            } else if (valorSeleccionadoMoneda < valorAleatorioMoneda) {
-                                flecha = '↑'; 
-                            }
+                      }  
+                    }
+                if (index === 9) {
+                    if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+                        flecha = '↓'; 
+                    } else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
+                          flecha = '↑'; 
+                    }
+                    // Verificamos que ambos tengan el formato "día mes"
+                    if (valorAleatorio.includes(" ") && valorSeleccionado.includes(" ")) {
+                        const [diaAleatorio, mesAleatorio] = valorAleatorio.split(" ");
+                        const [diaSeleccionado, mesSeleccionado] = valorSeleccionado.split(" ");
+                        const diaAleatorioNum = parseInt(diaAleatorio, 10);
+                        const diaSeleccionadoNum = parseInt(diaSeleccionado, 10);
+                        // Array para convertir el nombre del mes a su índice (enero = 0, febrero = 1, etc.)
+                        const mesesOrden = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+                        const mesAleatorioNum = mesesOrden.indexOf(mesAleatorio);
+                        const mesSeleccionadoNum = mesesOrden.indexOf(mesSeleccionado);
+                        // Creamos objetos Date (año fijo 2000)
+                        const fechaCorrecta = new Date(2000, mesAleatorioNum, diaAleatorioNum);
+                        const fechaSeleccionada = new Date(2000, mesSeleccionadoNum, diaSeleccionadoNum);
+                        // Determinamos la flecha comparando las fechas completas
+                        if (fechaSeleccionada.getTime() > fechaCorrecta.getTime()) {
+                            flecha = '↓';
+                        } else if (fechaSeleccionada.getTime() < fechaCorrecta.getTime()) {
+                            flecha = '↑';
+                        }
+                        // Asignar la clase según coincidencia de día y mes:
+                        if (diaAleatorioNum === diaSeleccionadoNum && mesAleatorioNum === mesSeleccionadoNum) {
+                            clase = "correcto";  // Fecha exacta
+                        } else if (diaAleatorioNum === diaSeleccionadoNum || mesAleatorioNum === mesSeleccionadoNum) {
+                            clase = "parcial";   // Parcial: uno de los dos (día o mes) coincide
+                        } else {
+                            clase = "incorrecto"; // Fecha totalmente diferente
                         }
                     }
-                }
+                  }
                 if (index === 11 || index === 13 || index === 14) {
                   filaComparacion.push(`<td class="texto-ajustado ${clase}">${valorSeleccionado.replace(/,/g, "<br>")} ${flecha}</td>`);
                 }else{
@@ -434,7 +483,7 @@
               comparacionCuerpo.prepend(`<tr>${filaComparacion.join("")}</tr>`);
   
               // Mensaje de éxito si se adivina todo
-              const adivinados = filaComparacion.filter(td => td.includes('class="correcto"')).length;
+              const adivinados = $('#comparacion-cuerpo tr:first-child td.correcto').length;
               if (adivinados === columnas.length) {
                   $('#mensaje-felicidades').show().html('<span>¡Felicidades! Has adivinado al personaje: ' + personajeAleatorio[0] + '</span>');
                   $('#busqueda').prop('disabled', true);
@@ -463,8 +512,6 @@
               cargarDatos('dificil');
               reiniciarJuego();
           });
-	  //
-    
           // Función para reiniciar el juego
           function reiniciarJuego() {
               $('#mensaje-felicidades').hide();
