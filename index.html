@@ -474,6 +474,8 @@
                   }
                 if (index === 11 || index === 13 || index === 14) {
                   filaComparacion.push(`<td class="texto-ajustado ${clase}">${valorSeleccionado.replace(/,/g, "<br>")} ${flecha}</td>`);
+                }else if (index === 0) {
+                  filaComparacion.push(`<td class="texto-ajustado ${clase}">${valorSeleccionado.replace(/\//g, "<br>")} ${flecha}</td>`);
                 }else{
                   filaComparacion.push(`<td class="texto-ajustado ${clase}">${valorSeleccionado} ${flecha}</td>`);
                 }
