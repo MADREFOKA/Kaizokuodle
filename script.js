@@ -230,7 +230,7 @@
 					clase = "correcto";
 				}
 				// Verificación tengan el formato "día mes"
-				if (valorAleatorio.includes(" ") && valorSeleccionado.includes(" ") && clase !== "correcto";) {
+				if (valorAleatorio.includes(" ") && valorSeleccionado.includes(" ") && clase !== "correcto") {
 					const [diaAleatorio, mesAleatorio] = valorAleatorio.split(" ");
 					const [diaSeleccionado, mesSeleccionado] = valorSeleccionado.split(" ");
 					const diaAleatorioNum = parseInt(diaAleatorio, 10);
