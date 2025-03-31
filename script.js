@@ -28,11 +28,9 @@
 		personajeAleatorio = personajes[Math.floor(Math.random() * personajes.length)];
 		mostrarBusqueda();
 		} else {
-		console.log("No se recibieron datos válidos");
 		alert("Error al cargar los datos.");
 		}
 		} catch (error) {
-		console.log("Error al hacer la solicitud:", error);
 		alert("Hubo un problema al cargar los datos.");
 		}
 	}
@@ -137,12 +135,6 @@
 		
 			let valorAleatorio = personajeAleatorio[index] ? String(personajeAleatorio[index]) : "";
 			let valorSeleccionado = personajeSeleccionado[index] ? String(personajeSeleccionado[index]) : "";
-
-			//COMENTARIOS
-			console.log(`Comparando: ${col}`);
-			console.log("Aleatorio:", valorAleatorio, "->", typeof valorAleatorio);
-			console.log("Seleccionado:", valorSeleccionado, "->", typeof valorSeleccionado);
-
 			let clase = "incorrecto";
 			let flecha = "";
 
@@ -182,10 +174,6 @@
 
 			// Agregar flecha para columnas numéricas
 			if ([1, 8, 9, 13].includes(index)) {
-				console.log(`Index: ${index}`);
-				console.log(`Valor Aleatorio: "${valorAleatorio}" (Tipo: ${typeof valorAleatorio})`);
-				console.log(`Valor Seleccionado: "${valorSeleccionado}" (Tipo: ${typeof valorSeleccionado})`);
-
 				// Manejo de "---"
 				if (valorAleatorio === valorSeleccionado){
 					clase = "correcto";
@@ -211,7 +199,6 @@
 						}
 					}
 				}
-				console.log(`Resultado -> Flecha: "${flecha}", Clase: "${clase}"`);
 			}
 		/*	if (index === 1 || index === 8 || index === 9 || index === 13) {
 				const valorAleatorioNumerico = parseFloat(valorAleatorio.replace(/[^0-9.-]/g, ''));
@@ -375,12 +362,9 @@
 		})
 		.then(response => response.text())
 		.then(data => {
-			console.log(data);  // Ver si todo se ha enviado correctamente
 			alert("Aviso enviado correctamente.");
-			cerrarModal();  // Cerrar el modal
 		})
 		.catch(error => {
-			console.error('Error:', error);
 			alert("Hubo un problema al enviar el aviso.");
 		});
 	}
