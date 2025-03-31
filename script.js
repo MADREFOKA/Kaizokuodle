@@ -222,7 +222,7 @@
 */
 			if (index === 10) {
 				
-				if(valorAleatorio === "---" && valorSeleccionado !== "---"){
+				if(valorAleatorio === valorSeleccionado ){
 					clase = "correcto";
 				} else if (valorAleatorio === "---" && valorSeleccionado !== "---") {
 					flecha = '↓'; 
