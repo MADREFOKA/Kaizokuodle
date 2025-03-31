@@ -222,15 +222,15 @@
 */
 			if (index === 10) {
 				
-				if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+				if(valorAleatorio === "---" && valorSeleccionado !== "---"){
+					clase = "correcto";
+				} else if (valorAleatorio === "---" && valorSeleccionado !== "---") {
 					flecha = '↓'; 
 				} else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
 					flecha = '↑'; 
-				}else if(valorAleatorio === valorSeleccionado ){
-					clase = "correcto";
 				}
 				// Verificación tengan el formato "día mes"
-				if (valorAleatorio.includes(" ") && valorSeleccionado.includes(" ") && clase !== "correcto") {
+				if ((valorAleatorio.includes(" ") && valorSeleccionado.includes(" ")) && clase !== "correcto") {
 					const [diaAleatorio, mesAleatorio] = valorAleatorio.split(" ");
 					const [diaSeleccionado, mesSeleccionado] = valorSeleccionado.split(" ");
 					const diaAleatorioNum = parseInt(diaAleatorio, 10);
@@ -253,11 +253,11 @@
 					}
 					// Asignar la clase según coincidencia de día y mes:
 					if (diaAleatorioNum === diaSeleccionadoNum && mesAleatorioNum === mesSeleccionadoNum) {
-					clase = "correcto";
+						clase = "correcto";
 					} else if (diaAleatorioNum === diaSeleccionadoNum || mesAleatorioNum === mesSeleccionadoNum) {
-					clase = "parcial";
+						clase = "parcial";
 					} else {
-					clase = "incorrecto";
+						clase = "incorrecto";
 					}
 				}
 			}
