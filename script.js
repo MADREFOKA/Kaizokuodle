@@ -367,4 +367,5 @@
 		.catch(error => {
 			alert("Hubo un problema al enviar el aviso.");
 		});
+		cerrarModal();
 	}
