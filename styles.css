@@ -26,7 +26,6 @@
 		margin: 4px 2px;
 		transition-duration: 0.4s;
 		cursor: pointer;
-		font-weight: bold;
 	}
 	.btn-opciones{
 		margin-top: 10px;
@@ -35,6 +34,7 @@
 		font-size: 18px;
 		cursor: pointer;
 		border-radius: 5px;
+		font-weight: bold;
 	}
 	#btn-rendirse {
 		background-color: #A52A2A;
