@@ -313,3 +313,38 @@
 	function cerrarModal() {
 		document.getElementById("modal-aviso").style.display = "none";
 	}
+	
+	// Enviar aviso
+	function enviarAviso() {
+		// Obtener los valores del formulario
+		var personaje = document.getElementById('nombre-personaje').value;
+		var fallo = document.getElementById('descripcion-fallo').value;
+
+		// Validar que los campos no estén vacíos
+		if (personaje.trim() === "" || fallo.trim() === "") {
+			alert("Por favor, rellena todos los campos.");
+			return;
+		}
+
+		// Enviar los datos a Google Apps Script usando fetch
+		fetch('https://script.google.com/macros/s/AKfycbzBj20YZ95Tii1zYRKnpjiy3JQFMjNisyHKSWPcG2RQ_6k5qGTyWJiqnC_53AECdQHH/exec', {
+			method: 'POST',
+			body: new URLSearchParams({
+				'personaje': personaje,
+				'fallo': fallo
+			}),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(response => response.text())
+		.then(data => {
+			console.log(data);  // Ver si todo se ha enviado correctamente
+			alert("Aviso enviado correctamente.");
+			cerrarModal();  // Cerrar el modal
+		})
+		.catch(error => {
+			console.error('Error:', error);
+			alert("Hubo un problema al enviar el aviso.");
+		});
+	}

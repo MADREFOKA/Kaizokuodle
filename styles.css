@@ -26,34 +26,28 @@
 		margin: 4px 2px;
 		transition-duration: 0.4s;
 		cursor: pointer;
+		font-weight: bold;
 	}
-
-	#btn-rendirse {
+	.btn-opciones{
 		margin-top: 10px;
 		margin-bottom: 10px;
 		padding: 10px;
-		background-color: #A52A2A;
-		color: white;
 		font-size: 18px;
 		cursor: pointer;
+		border-radius: 5px;
+	}
+	#btn-rendirse {
+		background-color: #A52A2A;
+		color: white;
 	}
 
 	#btn-reinicio {
-		margin-top: 10px;
-		margin-bottom: 10px;
-		padding: 10px;
 		background-color: #caffed;
 		color: black;
-		font-size: 18px;
-		cursor: pointer;
 	}
 	#btn-aviso {
-		padding: 10px 20px;
-		margin-top: 10px;
-		cursor: pointer;
-		background-color: #aaaeab;
+		background-color: #ffff80;
 		color: black;
-		border-radius: 5px;
 	}
 
 	/*CUADRO BUSQUEDA*/
