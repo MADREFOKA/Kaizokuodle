@@ -221,13 +221,16 @@
 			}
 */
 			if (index === 10) {
+				
 				if (valorAleatorio === "---" && valorSeleccionado !== "---") {
 					flecha = '↓'; 
 				} else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
 					flecha = '↑'; 
+				}else if(valorAleatorio === valorSeleccionado ){
+					clase = "correcto";
 				}
 				// Verificación tengan el formato "día mes"
-				if (valorAleatorio.includes(" ") && valorSeleccionado.includes(" ")) {
+				if (valorAleatorio.includes(" ") && valorSeleccionado.includes(" ") && clase != "correcto";) {
 					const [diaAleatorio, mesAleatorio] = valorAleatorio.split(" ");
 					const [diaSeleccionado, mesSeleccionado] = valorSeleccionado.split(" ");
 					const diaAleatorioNum = parseInt(diaAleatorio, 10);
