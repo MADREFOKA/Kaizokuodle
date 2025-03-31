@@ -1,3 +1,4 @@
+
 	/*SCRIPT DEL JUEGO ONE PIECEDLE KAIZOKUODLE
 	*
 	*/
@@ -62,8 +63,8 @@
 	function filtrarPersonajes(event) {
 		const inputRaw = $('#busqueda').val();
 		if (inputRaw === '') {
-		mostrarSugerencias(personajes.slice(0, 10)); // Retorna directamente si está vacío
-		return;
+			mostrarSugerencias(personajes.slice(0, 10));
+			return;
 		}
 
 		const input = normalizarTexto(inputRaw); // Normalizar solo una vez
@@ -73,7 +74,7 @@
 
 		// Selección automática si solo hay un resultado y se presiona Enter
 		if (resultados.length === 1 && event.key === "Enter") {
-		seleccionarPersonaje(resultados[0][0]);
+			seleccionarPersonaje(resultados[0][0]);
 		}
 	}
 
@@ -127,23 +128,30 @@
 	
 	// Comparar el personaje seleccionado con el personaje aleatorio
 	function compararPersonajes(personajeSeleccionado) {
-		console.log("ALEATORIO: " + personajeAleatorio);
-		console.log("SELECCIONADO: " + personajeSeleccionado);
-		const comparacionCuerpo = $('#comparacion-cuerpo');
-		
-		//Comprobamos si ya hay comparaciones previas y no las borramos
+		const comparacionCuerpo = $('#comparacion-cuerpo'); // 💡 Agregar esta línea
+
 		const columnas = ["Nombre", "Primera Aparición", "Saga", "Arco", "Estado", "Origen", "Raza", "Sexo", "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"];
 		const filaComparacion = [];
 		columnas.forEach((col, index) => {
-			const valorAleatorio = personajeAleatorio[index];
-			const valorSeleccionado = personajeSeleccionado[index];
+			const comparacionCuerpo = $('#comparacion-cuerpo');
+		
+			let valorAleatorio = personajeAleatorio[index] ? String(personajeAleatorio[index]) : "";
+			let valorSeleccionado = personajeSeleccionado[index] ? String(personajeSeleccionado[index]) : "";
+
+			//COMENTARIOS
+			console.log(`Comparando: ${col}`);
+			console.log("Aleatorio:", valorAleatorio, "->", typeof valorAleatorio);
+			console.log("Seleccionado:", valorSeleccionado, "->", typeof valorSeleccionado);
 
 			let clase = "incorrecto";
 			let flecha = "";
 
 			//COMPROBACIÓN TEXTOS
 			if(index === 0 || index === 2 || index === 3 || index === 4 || index === 5 || index === 6 || index === 7 || index === 11 || index === 12 || index === 14 ) {
-				if (valorAleatorio === valorSeleccionado) {
+				const normalizarTexto = (texto) => texto.trim().toLowerCase();
+				valorAleatorio = valorAleatorio ? String(valorAleatorio) : "";
+				valorSeleccionado = valorSeleccionado ? String(valorSeleccionado) : "";
+				if (normalizarTexto(valorAleatorio) === normalizarTexto(valorSeleccionado)) {
 					clase = "correcto";
 				} else if ((index === 11 || index === 12 ) && (valorAleatorio.toLowerCase().includes(valorSeleccionado.toLowerCase()) ||  valorSeleccionado.toLowerCase().includes(valorAleatorio.toLowerCase()))) {
 					clase = "parcial";
@@ -154,23 +162,18 @@
 
 			//COMPROBACIÓN OCUPACIÓN
 			if(index === 15) {
-				let valorAleatorioModificado = valorAleatorio.replace(/,/g, '\n');
-				let valorSeleccionadoModificado = valorSeleccionado.replace(/,/g, '\n');
-				const palabrasAleatorias = valorAleatorioModificado.split('\n').map(word => word.trim().toLowerCase());
-				const palabrasSeleccionadas = valorSeleccionadoModificado.split('\n').map(word => word.trim().toLowerCase());
-				let coincidenciasTotales = 0;
-				let coincidenciasParciales = 0;
+				valorAleatorio = valorAleatorio ? String(valorAleatorio) : "";
+				valorSeleccionado = valorSeleccionado ? String(valorSeleccionado) : "";
+				let normalizarLista = (texto) => texto
+					.split(',')
+					.map(word => word.trim().toLowerCase())
+					.sort();
+				let palabrasAleatorias = normalizarLista(valorAleatorio);
+				let palabrasSeleccionadas = normalizarLista(valorSeleccionado);
 
-				// Comprobación
-				palabrasAleatorias.forEach(palabra => {
-					if (palabrasSeleccionadas.includes(palabra)) {
-						coincidenciasTotales++;
-					}
-				});
-
-				if (coincidenciasTotales === palabrasAleatorias.length && coincidenciasTotales === palabrasSeleccionadas.length) {
+				if (JSON.stringify(palabrasAleatorias) === JSON.stringify(palabrasSeleccionadas)) {
 					clase = "correcto";
-				} else if (coincidenciasTotales > 0) {
+				} else if (palabrasSeleccionadas.some(palabra => palabrasAleatorias.includes(palabra))) {
 					clase = "parcial";
 				} else {
 					clase = "incorrecto";
@@ -178,9 +181,42 @@
 			}
 
 			// Agregar flecha para columnas numéricas
-			if (index === 1 || index === 8 || index === 9 || index === 13) {
-				const valorAleatorioNumerico = parseFloat(valorAleatorio);
-				const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
+			if ([1, 8, 9, 13].includes(index)) {
+				console.log(`Index: ${index}`);
+				console.log(`Valor Aleatorio: "${valorAleatorio}" (Tipo: ${typeof valorAleatorio})`);
+				console.log(`Valor Seleccionado: "${valorSeleccionado}" (Tipo: ${typeof valorSeleccionado})`);
+
+				// Manejo de "---"
+				if (valorAleatorio === valorSeleccionado){
+					clase = "correcto";
+				}else if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+					clase = "incorrecto";
+					flecha = '↓';
+				} else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
+					clase = "incorrecto";
+					flecha = '↑';
+				} else {
+					const valorAleatorioNumerico = parseFloat(valorAleatorio);
+					const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
+					
+					if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
+						if (valorSeleccionadoNumerico === valorAleatorioNumerico) {
+							clase = "correcto";
+						} else if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
+							flecha = '↓';
+							clase = "incorrecto";
+						} else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
+							flecha = '↑';
+							clase = "incorrecto";
+						}
+					}
+				}
+				console.log(`Resultado -> Flecha: "${flecha}", Clase: "${clase}"`);
+			}
+		/*	if (index === 1 || index === 8 || index === 9 || index === 13) {
+				const valorAleatorioNumerico = parseFloat(valorAleatorio.replace(/[^0-9.-]/g, ''));
+				const valorSeleccionadoNumerico = parseFloat(valorSeleccionado.replace(/[^0-9.-]/g, ''));
+
 
 				if (valorAleatorio === "---" && valorSeleccionado !== "---") {
 					flecha = '↓'; 
@@ -196,7 +232,7 @@
 					}
 				}  
 			}
-
+*/
 			if (index === 10) {
 				if (valorAleatorio === "---" && valorSeleccionado !== "---") {
 					flecha = '↓'; 
