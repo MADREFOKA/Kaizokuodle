@@ -177,12 +177,8 @@
 				// Manejo de "---"
 				if (valorAleatorio === valorSeleccionado){
 					clase = "correcto";
-				}else if (valorAleatorio === "---" && valorSeleccionado !== "---") {
+				}else if ((valorAleatorio === "---" && valorSeleccionado !== "---")  || (valorAleatorio !== "---" && valorSeleccionado === "---")) {
 					clase = "incorrecto";
-					flecha = '↓';
-				} else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
-					clase = "incorrecto";
-					flecha = '↑';
 				} else {
 					const valorAleatorioNumerico = parseFloat(valorAleatorio);
 					const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
@@ -200,34 +196,10 @@
 					}
 				}
 			}
-		/*	if (index === 1 || index === 8 || index === 9 || index === 13) {
-				const valorAleatorioNumerico = parseFloat(valorAleatorio.replace(/[^0-9.-]/g, ''));
-				const valorSeleccionadoNumerico = parseFloat(valorSeleccionado.replace(/[^0-9.-]/g, ''));
-
-
-				if (valorAleatorio === "---" && valorSeleccionado !== "---") {
-					flecha = '↓'; 
-				} else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
-					flecha = '↑'; 
-				}
-				// Comprobamos si ambos valores son números
-				if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
-					if (valorSeleccionadoNumerico > valorAleatorioNumerico) {
-					flecha = '↓';
-					} else if (valorSeleccionadoNumerico < valorAleatorioNumerico) {
-					flecha = '↑'; 
-					}
-				}  
-			}
-*/
 			if (index === 10) {
 				
 				if(valorAleatorio === valorSeleccionado ){
 					clase = "correcto";
-				} else if (valorAleatorio === "---" && valorSeleccionado !== "---") {
-					flecha = '↓'; 
-				} else if (valorAleatorio !== "---" && valorSeleccionado === "---") {
-					flecha = '↑'; 
 				}
 				// Verificación tengan el formato "día mes"
 				if ((valorAleatorio.includes(" ") && valorSeleccionado.includes(" ")) && clase !== "correcto") {
