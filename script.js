@@ -126,7 +126,7 @@
 	
 	// Comparar el personaje seleccionado con el personaje aleatorio
 	function compararPersonajes(personajeSeleccionado) {
-		const comparacionCuerpo = $('#comparacion-cuerpo'); // 💡 Agregar esta línea
+		const comparacionCuerpo = $('#comparacion-cuerpo'); 
 
 		const columnas = ["Nombre", "Primera Aparición", "Saga", "Arco", "Estado", "Origen", "Raza", "Sexo", "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"];
 		const filaComparacion = [];
@@ -171,8 +171,6 @@
 					clase = "incorrecto";
 				}
 			}
-
-			// Agregar flecha para columnas numéricas
 			if ([1, 8, 9, 13].includes(index)) {
 				// Manejo de "---"
 				if (valorAleatorio === valorSeleccionado){
@@ -180,8 +178,8 @@
 				}else if ((valorAleatorio === "---" && valorSeleccionado !== "---")  || (valorAleatorio !== "---" && valorSeleccionado === "---")) {
 					clase = "incorrecto";
 				} else {
-					const valorAleatorioNumerico = parseFloat(valorAleatorio);
-					const valorSeleccionadoNumerico = parseFloat(valorSeleccionado);
+					const valorAleatorioNumerico = parseFloat(valorAleatorio.replace(',', '.'));
+					const valorSeleccionadoNumerico = parseFloat(valorSeleccionado.replace(',', '.'));
 					
 					if (!isNaN(valorAleatorioNumerico) && !isNaN(valorSeleccionadoNumerico)) {
 						if (valorSeleccionadoNumerico === valorAleatorioNumerico) {
