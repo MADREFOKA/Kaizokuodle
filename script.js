@@ -140,18 +140,32 @@ function compararPersonajes(pSel) {
       else if (b.some(p => a.includes(p))) clase = "parcial";
     }
 
-    // Numéricos
+    // Numéricos (Altura, Edad, Recompensa)
     if ([1,8,9,13].includes(index)) {
-      if (vA === vS) clase = "correcto";
-      else if (vA !== "---" && vS !== "---") {
-        const nA = parseFloat(vA.replace(/[^\d.-]/g, '').replace(',', '.'));
-        const nS = parseFloat(vS.replace(/[^\d.-]/g, '').replace(',', '.'));
+      if (vA === vS) {
+        clase = "correcto";
+      } else if (vA !== "---" && vS !== "---") {
+
+        // Limpieza de número robusta (soporta "5.564.800.000฿" y "2,74")
+        const limpiarNumero = val => {
+          return parseFloat(
+            val
+              .toString()
+              .replace(/[^\d.,-]/g, '')   // quitar símbolos
+              .replace(/\./g, '')         // quitar puntos de miles
+              .replace(',', '.')          // cambiar coma decimal
+          );
+        };
+
+        const nA = limpiarNumero(vA);
+        const nS = limpiarNumero(vS);
+
         if (!isNaN(nA) && !isNaN(nS)) {
           if (nS === nA) clase = "correcto";
           else if (index === 13) {
-            // Solo flechas en recompensa
-            if (nS > nA) flecha = '<span class="flecha-down">↓</span>';
-            else if (nS < nA) flecha = '<span class="flecha-up">↑</span>';
+            // Flechas SOLO en recompensa
+            if (nS > nA) flecha = '<span class="flecha-down">↓</span>'; // menor recompensa
+            else if (nS < nA) flecha = '<span class="flecha-up">↑</span>'; // mayor recompensa
           }
         }
       }
@@ -172,7 +186,13 @@ function compararPersonajes(pSel) {
       }
     }
 
-    fila.push(`<td class="texto-ajustado ${clase}">${vS} ${flecha}</td>`);
+    // Texto final (solo Haki y Ocupación con salto de línea)
+    let textoFinal = vS;
+    if (index === 12 || index === 15) {
+      textoFinal = vS.replace(/,/g, "<br>");
+    }
+
+    fila.push(`<td class="texto-ajustado ${clase}">${textoFinal} ${flecha}</td>`);
   });
 
   cuerpo.prepend(`<tr class="nueva-fila">${fila.join("")}</tr>`);
