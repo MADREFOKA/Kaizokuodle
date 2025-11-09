@@ -13,16 +13,14 @@ const sheetsNames = {
 let personajes = [];
 let personajeAleatorio = null;
 let intentos = 0;
-let usados = new Set(); // guarda los personajes ya intentados
+let usados = new Set();
 
-// Cargar datos de Google Sheets
+// Cargar datos
 async function cargarDatos(dificultad) {
   const sheetURL = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNames[dificultad]}?key=${apiKey}`;
-
   try {
     const response = await fetch(sheetURL);
     const data = await response.json();
-
     if (data && data.values) {
       personajes = data.values.slice(1);
       personajeAleatorio = personajes[Math.floor(Math.random() * personajes.length)];
@@ -44,19 +42,18 @@ function mostrarBusqueda() {
   intentos = 0;
   usados.clear();
   actualizarBotonesPista();
-  actualizarFondo();
 }
 
-// Normalizar texto (tildes, mayúsculas)
+// Normalizar texto
 function normalizarTexto(texto) {
   return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-// Buscar por palabras
+// Buscar
 function buscarPorPalabras(nombre, input) {
-  const palabrasBusqueda = input.split(' ').map(palabra => normalizarTexto(palabra));
+  const palabras = input.split(' ').map(p => normalizarTexto(p));
   const nombreNormalizado = normalizarTexto(nombre);
-  return palabrasBusqueda.every(palabra => nombreNormalizado.includes(palabra));
+  return palabras.every(p => nombreNormalizado.includes(p));
 }
 
 // Debounce
@@ -72,23 +69,19 @@ function filtrarPersonajes(event) {
     const input = normalizarTexto(inputRaw);
     let resultados = personajes.filter(p => buscarPorPalabras(p[0], input) && !usados.has(p[0]));
     mostrarSugerencias(resultados);
-
-    if (resultados.length === 1 && event.key === "Enter") {
-      seleccionarPersonaje(resultados[0][0]);
-    }
+    if (resultados.length === 1 && event.key === "Enter") seleccionarPersonaje(resultados[0][0]);
   }, 200);
 }
 
-// Enter para seleccionar
+// Enter
 $('#busqueda').on('keydown', function(event) {
   if (event.key === "Enter") {
     const input = normalizarTexto($('#busqueda').val());
-    const personajeSeleccionado = personajes.find(p => normalizarTexto(p[0]) === input && !usados.has(p[0]));
-    if (personajeSeleccionado) {
-      seleccionarPersonaje(personajeSeleccionado[0]);
-    } else {
-      const personajeParcial = personajes.find(p => buscarPorPalabras(p[0], input) && !usados.has(p[0]));
-      if (personajeParcial) seleccionarPersonaje(personajeParcial[0]);
+    const pSel = personajes.find(p => normalizarTexto(p[0]) === input && !usados.has(p[0]));
+    if (pSel) seleccionarPersonaje(pSel[0]);
+    else {
+      const parcial = personajes.find(p => buscarPorPalabras(p[0], input) && !usados.has(p[0]));
+      if (parcial) seleccionarPersonaje(parcial[0]);
     }
   }
 });
@@ -107,64 +100,68 @@ function mostrarSugerencias(resultados) {
 
 // Seleccionar personaje
 function seleccionarPersonaje(nombre) {
-  const personajeSeleccionado = personajes.find(p => p[0] === nombre);
-  if (personajeSeleccionado) {
+  const pSel = personajes.find(p => p[0] === nombre);
+  if (pSel) {
     intentos++;
     usados.add(nombre);
     actualizarBotonesPista();
     $('#resultado-comparacion').show();
-    compararPersonajes(personajeSeleccionado);
+    compararPersonajes(pSel);
     $('#autocomplete-list').empty();
     $('#busqueda').val('');
   }
 }
 
-// Comparación de datos
-function compararPersonajes(personajeSeleccionado) {
-  const comparacionCuerpo = $('#comparacion-cuerpo');
+// Comparar personajes
+function compararPersonajes(pSel) {
+  const cuerpo = $('#comparacion-cuerpo');
   const columnas = ["Nombre","Primera Aparición","Saga","Arco","Estado","Origen","Raza","Sexo","Altura","Edad","Cumpleaños","Fruta del Diablo","Haki","Recompensa","Afiliación","Ocupación"];
   const fila = [];
 
   columnas.forEach((col, index) => {
-    let valorAleatorio = personajeAleatorio[index] ? String(personajeAleatorio[index]) : "";
-    let valorSel = personajeSeleccionado[index] ? String(personajeSeleccionado[index]) : "";
+    let vA = personajeAleatorio[index] ? String(personajeAleatorio[index]) : "";
+    let vS = pSel[index] ? String(pSel[index]) : "";
     let clase = "incorrecto";
     let flecha = "";
 
-    // Comparación textual
+    // Comparaciones textuales
     if ([0,2,3,4,5,6,7,11,12,14].includes(index)) {
-      const norm = t => t.trim().toLowerCase();
-      if (norm(valorAleatorio) === norm(valorSel)) clase = "correcto";
-      else if ((index === 11 || index === 12) && (valorAleatorio.toLowerCase().includes(valorSel.toLowerCase()) || valorSel.toLowerCase().includes(valorAleatorio.toLowerCase())))
-        clase = "parcial";
+      const n = t => t.trim().toLowerCase();
+      if (n(vA) === n(vS)) clase = "correcto";
+      else if ((index === 11 || index === 12) && (vA.toLowerCase().includes(vS.toLowerCase()) || vS.toLowerCase().includes(vA.toLowerCase()))) clase = "parcial";
     }
 
     // Ocupación (lista)
     if (index === 15) {
-      let normLista = t => t.split(',').map(s => s.trim().toLowerCase()).sort();
-      let a = normLista(valorAleatorio);
-      let b = normLista(valorSel);
+      let nL = t => t.split(',').map(s => s.trim().toLowerCase()).sort();
+      let a = nL(vA);
+      let b = nL(vS);
       if (JSON.stringify(a) === JSON.stringify(b)) clase = "correcto";
       else if (b.some(p => a.includes(p))) clase = "parcial";
     }
 
     // Numéricos
     if ([1,8,9,13].includes(index)) {
-      const nA = parseFloat(valorAleatorio.replace(/[^\d.-]/g, ''));
-      const nS = parseFloat(valorSel.replace(/[^\d.-]/g, ''));
-      if (!isNaN(nA) && !isNaN(nS)) {
-        if (nS === nA) clase = "correcto";
-        else if (nS > nA) flecha = '<span class="flecha-down">↓</span>';
-        else if (nS < nA) flecha = '<span class="flecha-up">↑</span>';
+      if (vA === vS) clase = "correcto";
+      else if (vA !== "---" && vS !== "---") {
+        const nA = parseFloat(vA.replace(/[^\d.-]/g, '').replace(',', '.'));
+        const nS = parseFloat(vS.replace(/[^\d.-]/g, '').replace(',', '.'));
+        if (!isNaN(nA) && !isNaN(nS)) {
+          if (nS === nA) clase = "correcto";
+          else if (index === 13) {
+            // Solo flechas en recompensa
+            if (nS > nA) flecha = '<span class="flecha-down">↓</span>';
+            else if (nS < nA) flecha = '<span class="flecha-up">↑</span>';
+          }
+        }
       }
     }
 
     // Cumpleaños
     if (index === 10) {
-      if (valorAleatorio === valorSel) clase = "correcto";
-      else if (valorAleatorio.includes(" ") && valorSel.includes(" ")) {
-        const [dA, mA] = valorAleatorio.split(" ");
-        const [dS, mS] = valorSel.split(" ");
+      if (vA === vS) clase = "correcto";
+      else if (vA.includes(" ") && vS.includes(" ")) {
+        const [dA,mA] = vA.split(" "), [dS,mS] = vS.split(" ");
         const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
         const fA = new Date(2025, meses.indexOf(mA), parseInt(dA));
         const fS = new Date(2025, meses.indexOf(mS), parseInt(dS));
@@ -175,10 +172,10 @@ function compararPersonajes(personajeSeleccionado) {
       }
     }
 
-    fila.push(`<td class="texto-ajustado ${clase}">${valorSel.replace(/,/g, "<br>")} ${flecha}</td>`);
+    fila.push(`<td class="texto-ajustado ${clase}">${vS} ${flecha}</td>`);
   });
 
-  comparacionCuerpo.prepend(`<tr class="nueva-fila">${fila.join("")}</tr>`);
+  cuerpo.prepend(`<tr class="nueva-fila">${fila.join("")}</tr>`);
 
   const aciertos = $('#comparacion-cuerpo tr:first-child td.correcto').length;
   if (aciertos === columnas.length) {
@@ -188,20 +185,20 @@ function compararPersonajes(personajeSeleccionado) {
   }
 }
 
-// Mensaje de rendirse
+// Rendirse
 function mostrarPersonajeCorrecto() {
   $('#mensaje-felicidades').show().html(`<span>El personaje era ${personajeAleatorio[0]}, más suerte a la próxima.</span>`);
   $('#busqueda').prop('disabled', true);
   $('#autocomplete-list').empty();
 }
 
-// Botones de dificultad
+// Dificultades
 $('#facil').click(() => { dificultad = 'facil'; reiniciarJuego(); });
 $('#medio').click(() => { dificultad = 'medio'; reiniciarJuego(); });
 $('#dificil').click(() => { dificultad = 'dificil'; reiniciarJuego(); });
 $('#imposible').click(() => { dificultad = 'imposible'; reiniciarJuego(); });
 
-// Reiniciar
+// Reinicio
 function reiniciarJuego() {
   $('#mensaje-felicidades').hide();
   $('#busqueda').prop('disabled', false).val('');
@@ -219,20 +216,15 @@ $('#btn-pista-arco').click(() => alert(`Primera aparición en ${personajeAleator
 $('#btn-pista-ocupacion').click(() => alert(`La ocupación del personaje es: ${personajeAleatorio[15]}.`));
 
 function actualizarBotonesPista() {
-  $('#contador-intentos').text(`Intentos: ${intentos}/15`);
+  $('#contador-intentos').text(`Intentos: ${intentos}`);
+  // color visual según progreso
+  let color = '#fffbe0';
+  if (intentos >= 12) color = '#ffb3b3';
+  else if (intentos >= 8) color = '#fff5a0';
+  $('#contador-intentos').css('background', `linear-gradient(145deg, ${color}, #ffe85c)`);
+
   $('#btn-pista-arco').prop('disabled', intentos < 10);
   $('#btn-pista-ocupacion').prop('disabled', intentos < 15);
-}
-
-// Fondo según dificultad
-function actualizarFondo() {
-  const colores = {
-    facil: 'linear-gradient(#b4f0b4, #6bd46b)',
-    medio: 'linear-gradient(#ffeaa7, #f6c90e)',
-    dificil: 'linear-gradient(#ffb3b3, #ff5c5c)',
-    imposible: 'linear-gradient(#b19cd9, #6a0dad)'
-  };
-  $('body').css('background', colores[dificultad]);
 }
 
 // Avisos
