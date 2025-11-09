@@ -49,14 +49,14 @@ function normalizarTexto(texto) {
   return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-// Buscar
+// Buscar por palabras
 function buscarPorPalabras(nombre, input) {
   const palabras = input.split(' ').map(p => normalizarTexto(p));
   const nombreNormalizado = normalizarTexto(nombre);
   return palabras.every(p => nombreNormalizado.includes(p));
 }
 
-// Debounce
+// Debounce del buscador
 let timeout = null;
 function filtrarPersonajes(event) {
   clearTimeout(timeout);
@@ -69,17 +69,20 @@ function filtrarPersonajes(event) {
     const input = normalizarTexto(inputRaw);
     let resultados = personajes.filter(p => buscarPorPalabras(p[0], input) && !usados.has(p[0]));
     mostrarSugerencias(resultados);
-    if (resultados.length === 1 && event.key === "Enter") seleccionarPersonaje(resultados[0][0]);
+    if (resultados.length === 1 && event.key === "Enter") {
+      seleccionarPersonaje(resultados[0][0]);
+    }
   }, 200);
 }
 
-// Enter
+// Enter para seleccionar
 $('#busqueda').on('keydown', function(event) {
   if (event.key === "Enter") {
     const input = normalizarTexto($('#busqueda').val());
     const pSel = personajes.find(p => normalizarTexto(p[0]) === input && !usados.has(p[0]));
-    if (pSel) seleccionarPersonaje(pSel[0]);
-    else {
+    if (pSel) {
+      seleccionarPersonaje(pSel[0]);
+    } else {
       const parcial = personajes.find(p => buscarPorPalabras(p[0], input) && !usados.has(p[0]));
       if (parcial) seleccionarPersonaje(parcial[0]);
     }
@@ -115,7 +118,10 @@ function seleccionarPersonaje(nombre) {
 // Comparar personajes
 function compararPersonajes(pSel) {
   const cuerpo = $('#comparacion-cuerpo');
-  const columnas = ["Nombre","Primera Aparición","Saga","Arco","Estado","Origen","Raza","Sexo","Altura","Edad","Cumpleaños","Fruta del Diablo","Haki","Recompensa","Afiliación","Ocupación"];
+  const columnas = [
+    "Nombre","Primera Aparición","Saga","Arco","Estado","Origen","Raza","Sexo",
+    "Altura","Edad","Cumpleaños","Fruta del Diablo","Haki","Recompensa","Afiliación","Ocupación"
+  ];
   const fila = [];
 
   columnas.forEach((col, index) => {
@@ -124,48 +130,84 @@ function compararPersonajes(pSel) {
     let clase = "incorrecto";
     let flecha = "";
 
-    // Comparaciones textuales
+    // Comparaciones textuales simples
     if ([0,2,3,4,5,6,7,11,12,14].includes(index)) {
       const n = t => t.trim().toLowerCase();
-      if (n(vA) === n(vS)) clase = "correcto";
-      else if ((index === 11 || index === 12) && (vA.toLowerCase().includes(vS.toLowerCase()) || vS.toLowerCase().includes(vA.toLowerCase()))) clase = "parcial";
+      if (n(vA) === n(vS)) {
+        clase = "correcto";
+      } else if (
+        (index === 11 || index === 12) &&
+        (vA.toLowerCase().includes(vS.toLowerCase()) || vS.toLowerCase().includes(vA.toLowerCase()))
+      ) {
+        clase = "parcial";
+      }
     }
 
-    // Ocupación (lista)
+    // Ocupación (lista separada por comas)
     if (index === 15) {
-      let nL = t => t.split(',').map(s => s.trim().toLowerCase()).sort();
-      let a = nL(vA);
-      let b = nL(vS);
-      if (JSON.stringify(a) === JSON.stringify(b)) clase = "correcto";
-      else if (b.some(p => a.includes(p))) clase = "parcial";
+      const nL = t => t.split(',').map(s => s.trim().toLowerCase()).sort();
+      const a = nL(vA);
+      const b = nL(vS);
+      if (JSON.stringify(a) === JSON.stringify(b)) {
+        clase = "correcto";
+      } else if (b.some(p => a.includes(p))) {
+        clase = "parcial";
+      }
     }
 
-    // Numéricos (Altura, Edad, Recompensa)
+    // Numéricos (Primera apar., Altura, Edad, Recompensa)
     if ([1,8,9,13].includes(index)) {
+      // Igual texto => correcto
       if (vA === vS) {
         clase = "correcto";
       } else if (vA !== "---" && vS !== "---") {
 
-        // Limpieza de número robusta (soporta "5.564.800.000฿" y "2,74")
-        const limpiarNumero = val => {
-          return parseFloat(
-            val
-              .toString()
-              .replace(/[^\d.,-]/g, '')   // quitar símbolos
-              .replace(/\./g, '')         // quitar puntos de miles
-              .replace(',', '.')          // cambiar coma decimal
-          );
-        };
+        if (index === 13) {
+          // RECOMPENSA: comparar como enteros grandes (quitando todo menos dígitos)
+          const toInt = val => {
+            const digits = val.toString().replace(/[^\d-]/g, '');
+            return digits ? parseInt(digits, 10) : NaN;
+          };
+          const recompensaCorrecta = toInt(vA);  // personajeAleatorio
+          const recompensaIntento  = toInt(vS);  // personaje seleccionado
 
-        const nA = limpiarNumero(vA);
-        const nS = limpiarNumero(vS);
+          if (!isNaN(recompensaCorrecta) && !isNaN(recompensaIntento)) {
+            if (recompensaIntento === recompensaCorrecta) {
+              clase = "correcto";
+            } else {
+              // AQUÍ ESTABA INVERTIDO ANTES:
+              // si tu recompensa es MAYOR que la correcta → hay que BAJAR → ↓
+              if (recompensaIntento > recompensaCorrecta) {
+                flecha = '<span class="flecha-down">↓</span>';
+              }
+              // si tu recompensa es MENOR que la correcta → hay que SUBIR → ↑
+              else if (recompensaIntento < recompensaCorrecta) {
+                flecha = '<span class="flecha-up">↑</span>';
+              }
+            }
+          }
+        } else {
+          // ALTURA / EDAD / PRIMERA APAR. (floats normales con coma decimal)
+          const limpiarNumero = val => {
+            return parseFloat(
+              val
+                .toString()
+                .replace(/[^\d.,-]/g, '')   // quitar símbolos
+                .replace(/\./g, '')         // quitar puntos de miles
+                .replace(',', '.')          // cambiar coma decimal
+            );
+          };
+          const nA = limpiarNumero(vA);
+          const nS = limpiarNumero(vS);
 
-        if (!isNaN(nA) && !isNaN(nS)) {
-          if (nS === nA) clase = "correcto";
-          else if (index === 13) {
-            // Flechas SOLO en recompensa
-            if (nS > nA) flecha = '<span class="flecha-down">↓</span>'; // menor recompensa
-            else if (nS < nA) flecha = '<span class="flecha-up">↑</span>'; // mayor recompensa
+          if (!isNaN(nA) && !isNaN(nS)) {
+            if (nS === nA) {
+              clase = "correcto";
+            } else if (nS > nA) {
+              flecha = '<span class="flecha-down">↓</span>';
+            } else if (nS < nA) {
+              flecha = '<span class="flecha-up">↑</span>';
+            }
           }
         }
       }
@@ -173,20 +215,30 @@ function compararPersonajes(pSel) {
 
     // Cumpleaños
     if (index === 10) {
-      if (vA === vS) clase = "correcto";
-      else if (vA.includes(" ") && vS.includes(" ")) {
-        const [dA,mA] = vA.split(" "), [dS,mS] = vS.split(" ");
-        const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+      if (vA === vS) {
+        clase = "correcto";
+      } else if (vA.includes(" ") && vS.includes(" ")) {
+        const [dA, mA] = vA.split(" ");
+        const [dS, mS] = vS.split(" ");
+        const meses = [
+          "enero","febrero","marzo","abril","mayo","junio",
+          "julio","agosto","septiembre","octubre","noviembre","diciembre"
+        ];
         const fA = new Date(2025, meses.indexOf(mA), parseInt(dA));
         const fS = new Date(2025, meses.indexOf(mS), parseInt(dS));
+
         if (fS > fA) flecha = '<span class="flecha-down">↓</span>';
         else if (fS < fA) flecha = '<span class="flecha-up">↑</span>';
-        if (dA === dS && mA === mS) clase = "correcto";
-        else if (dA === dS || mA === mS) clase = "parcial";
+
+        if (dA === dS && mA === mS) {
+          clase = "correcto";
+        } else if (dA === dS || mA === mS) {
+          clase = "parcial";
+        }
       }
     }
 
-    // Texto final (solo Haki y Ocupación con salto de línea)
+    // Texto final (saltos solo en Haki y Ocupación)
     let textoFinal = vS;
     if (index === 12 || index === 15) {
       textoFinal = vS.replace(/,/g, "<br>");
@@ -199,7 +251,9 @@ function compararPersonajes(pSel) {
 
   const aciertos = $('#comparacion-cuerpo tr:first-child td.correcto').length;
   if (aciertos === columnas.length) {
-    $('#mensaje-felicidades').show().html(`<span>¡Felicidades! Has adivinado al personaje: ${personajeAleatorio[0]}</span>`);
+    $('#mensaje-felicidades').show().html(
+      `<span>¡Felicidades! Has adivinado al personaje: ${personajeAleatorio[0]}</span>`
+    );
     $('#busqueda').prop('disabled', true);
     $('#autocomplete-list').empty();
   }
@@ -207,7 +261,9 @@ function compararPersonajes(pSel) {
 
 // Rendirse
 function mostrarPersonajeCorrecto() {
-  $('#mensaje-felicidades').show().html(`<span>El personaje era ${personajeAleatorio[0]}, más suerte a la próxima.</span>`);
+  $('#mensaje-felicidades').show().html(
+    `<span>El personaje era ${personajeAleatorio[0]}, más suerte a la próxima.</span>`
+  );
   $('#busqueda').prop('disabled', true);
   $('#autocomplete-list').empty();
 }
@@ -232,11 +288,16 @@ function reiniciarJuego() {
 }
 
 // Pistas
-$('#btn-pista-arco').click(() => alert(`Primera aparición en ${personajeAleatorio[3]}.`));
-$('#btn-pista-ocupacion').click(() => alert(`La ocupación del personaje es: ${personajeAleatorio[15]}.`));
+$('#btn-pista-arco').click(() => {
+  alert(`Primera aparición en ${personajeAleatorio[3]}.`);
+});
+$('#btn-pista-ocupacion').click(() => {
+  alert(`La ocupación del personaje es: ${personajeAleatorio[15]}.`);
+});
 
 function actualizarBotonesPista() {
   $('#contador-intentos').text(`Intentos: ${intentos}`);
+
   // color visual según progreso
   let color = '#fffbe0';
   if (intentos >= 12) color = '#ffb3b3';
@@ -252,18 +313,21 @@ function cerrarModal() {
   document.getElementById("modal-aviso").style.display = "none";
 }
 function enviarAviso() {
-  var personaje = document.getElementById('nombre-personaje').value;
-  var fallo = document.getElementById('descripcion-fallo').value;
+  const personaje = document.getElementById('nombre-personaje').value;
+  const fallo = document.getElementById('descripcion-fallo').value;
+
   if (personaje.trim() === "" || fallo.trim() === "") {
     alert("Por favor, rellena todos los campos.");
     return;
   }
+
   fetch('https://script.google.com/macros/s/AKfycbzBj20YZ95Tii1zYRKnpjiy3JQFMjNisyHKSWPcG2RQ_6k5qGTyWJiqnC_53AECdQHH/exec', {
     method: 'POST',
     body: new URLSearchParams({ 'personaje': personaje, 'fallo': fallo }),
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
   })
-  .then(() => alert("Aviso enviado correctamente."))
-  .catch(() => alert("Hubo un problema al enviar el aviso."));
+    .then(() => alert("Aviso enviado correctamente."))
+    .catch(() => alert("Hubo un problema al enviar el aviso."));
+
   cerrarModal();
 }
