@@ -276,3 +276,39 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* CONTADOR Y PISTAS */
+#pistas-container {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#contador-intentos {
+  font-weight: bold;
+  font-size: 18px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 8px 15px;
+  border-radius: 10px;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+/* ANIMACIÓN DE FILAS */
+tr.nueva-fila {
+  animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* FLECHAS Y BOTONES DESACTIVADOS */
+.flecha-up { color: #3CB371; font-weight: bold; }
+.flecha-down { color: #ff4040; font-weight: bold; }
+.btn-opciones:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
