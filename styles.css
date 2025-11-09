@@ -258,8 +258,8 @@ tr.nueva-fila {
 }
 
 /* --- BOTONES BLOQUEADOS Y FLECHAS --- */
-.flecha-up { color: #3CB371; font-weight: bold; }
-.flecha-down { color: #ff4040; font-weight: bold; }
+.flecha-up { color: #00ff7f; font-weight: bold; }
+.flecha-down { color: #ffd54a; font-weight: bold; }
 .btn-opciones:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -288,3 +288,4 @@ tr.nueva-fila {
     max-width: 350px;
   }
 }
+
