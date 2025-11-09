@@ -259,4 +259,20 @@
 			height: 60px;
 			font-size: 12px;
 		}
+
 	}
+/* FLECHAS COLOR */
+.flecha-up {
+  color: #3CB371;
+  font-weight: bold;
+}
+.flecha-down {
+  color: #ff4040;
+  font-weight: bold;
+}
+
+/* BOTONES DE PISTA BLOQUEADOS */
+.btn-opciones:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
