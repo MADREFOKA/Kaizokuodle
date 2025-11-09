@@ -27,16 +27,14 @@
     <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
     <div id="autocomplete-list"></div>
 
-    <!-- Bloque principal de botones -->
     <div id="botones-control">
       <button class="btn-opciones" id="btn-reinicio" onclick="reiniciarJuego();">Reiniciar</button>    
       <button class="btn-opciones" id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
       <button class="btn-opciones" id="btn-aviso">Avisar de un error ⚠️</button>
     </div>
 
-    <!-- Contador + pistas -->
     <div id="pistas-container">
-      <span id="contador-intentos">Intentos: 0/15</span>
+      <span id="contador-intentos">Intentos: 0</span>
       <button class="btn-opciones" id="btn-pista-arco" disabled>Pista: Arco (10 intentos)</button>
       <button class="btn-opciones" id="btn-pista-ocupacion" disabled>Pista: Ocupación (15 intentos)</button>
     </div>
