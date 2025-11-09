@@ -2,6 +2,7 @@
 body {
   background: url("https://i.pinimg.com/736x/95/48/49/95484996b472e3cda2033c50afdcc207.jpg") no-repeat center center fixed;
   background-size: cover;
+  background-attachment: fixed;
   margin: auto;
   padding: 0;
   font-family: Arial, sans-serif;
@@ -220,7 +221,7 @@ textarea, #nombre-personaje {
   color: black;
 }
 
-/* --- CONTADOR DE INTENTOS (mejora 1) --- */
+/* --- CONTADOR DE INTENTOS (estilizado) --- */
 #pistas-container {
   margin-top: 15px;
   display: flex;
@@ -229,7 +230,6 @@ textarea, #nombre-personaje {
   gap: 12px;
   flex-wrap: wrap;
 }
-
 #contador-intentos {
   font-weight: bold;
   font-size: 20px;
@@ -265,7 +265,7 @@ tr.nueva-fila {
   cursor: not-allowed;
 }
 
-/* --- RESPONSIVE (mejora 2) --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 600px) {
   #botones-control, #pistas-container {
     flex-direction: column;
