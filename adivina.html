@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="Trulli" width="500" height="250" style="max-width: 100%; height: auto;">
+    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" alt="One Piece Logo" width="500" height="250" style="max-width: 100%; height: auto;">
+
     <h1>Elige la dificultad:</h1>
     <button class="boton" id="facil"><b>Grumete</b><br/>Fácil</button>
     <button class="boton" id="medio"><b>Pirata</b><br/>Medio</button>
@@ -25,10 +26,12 @@
     <div id="busqueda-section">
       <input type="text" id="busqueda" placeholder="Busca un personaje..." oninput="filtrarPersonajes()" autocomplete="off">
       <div id="autocomplete-list"></div>
+
       <button class="btn-opciones" id="btn-reinicio" onclick="reiniciarJuego();">Reiniciar</button>    
       <button class="btn-opciones" id="btn-rendirse" onclick="mostrarPersonajeCorrecto()">Rendirse</button>
       <button class="btn-opciones" id="btn-aviso">Avisar de un error ⚠️</button>
-      
+
+      <!-- MODAL -->
       <div id="modal-aviso" class="modal">
         <div class="modal-contenido">
           <span class="cerrar" onclick="cerrarModal()">&times;</span>
@@ -42,11 +45,27 @@
       </div>
 
       <div id="mensaje-felicidades"></div>
+
       <div class="contenedor-tabla" id="resultado-comparacion" style="display:none;">
         <table class="tabla-datos">
           <thead>
             <tr>
-              <th>Nombre</th><th>Primera Aparición</th><th>Saga</th><th>Arco</th><th>Estado</th><th>Origen</th><th>Raza</th><th>Sexo</th><th>Altura</th><th>Edad</th><th>Cumpleaños</th><th>Fruta</th><th>Haki</th><th>Recompensa</th><th>Afiliación</th><th>Ocupación</th>
+              <th>Nombre</th>
+              <th>Primera Aparición</th>
+              <th>Saga</th>
+              <th>Arco</th>
+              <th>Estado</th>
+              <th>Origen</th>
+              <th>Raza</th>
+              <th>Sexo</th>
+              <th>Altura</th>
+              <th>Edad</th>
+              <th>Cumpleaños</th>
+              <th>Fruta del Diablo</th>
+              <th>Haki</th>
+              <th>Recompensa</th>
+              <th>Afiliación</th>
+              <th>Ocupación</th>
             </tr>
           </thead>
           <tbody id="comparacion-cuerpo"></tbody>
@@ -54,12 +73,10 @@
       </div>
     </div>
 
-    <button class="btn-opciones hl-btn" onclick="location.href='index.html'" style="margin-top:15px;">
+    <button class="btn-opciones hl-btn" onclick="location.href='index.html'" style="margin-top:20px;">
       🔙 Volver al menú
     </button>
 
-    <script src="/script.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
-
-
