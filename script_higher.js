@@ -1,115 +1,132 @@
 /* ====================================================
-   📜 KaizokuDatos - Adivina los datos (v. mejorada final)
+   💰 Kaizoku Higher or Lower (versión final)
    ==================================================== */
 
 const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
 const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
-const sheetsNames = {
+const sheetsNamesHL = {
   facil: 'Fácil',
   medio: 'Medio',
   dificil: 'Difícil',
   imposible: 'Imposible'
 };
 
-let dificultad = 'facil';
-let personajes = [];
-let personajeObjetivo = null;
+let dificultadHL = 'facil';
+let personajesHL = [];
+let pj1, pj2;
+let racha = 0;
+let mejorRacha = parseInt(localStorage.getItem("mejorRacha") || "0");
+let contadorVictoriasPj1 = 0;
+let contadorVictoriasPj2 = 0;
 
-async function cargarDatosDatos(dif) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNames[dif]}?key=${apiKey}`;
+// =============== CARGA DATOS =================
+async function cargarDatosHL(dif) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNamesHL[dif]}?key=${apiKey}`;
   const res = await fetch(url);
   const data = await res.json();
-  personajes = data.values.slice(1);
-  personajeObjetivo = personajes[Math.floor(Math.random() * personajes.length)];
-  mostrarFormulario();
+  personajesHL = data.values.slice(1).filter(p => p[13] && p[13] !== "---");
+  nuevoDuelo();
 }
 
-function mostrarFormulario() {
-  $('#datos-container').show();
-
-  // Limpiar cabecera anterior
-  $('.datos-header').remove();
-
-  // Mostrar nombre e imagen
-  const nombre = personajeObjetivo[0];
-  const imagen = personajeObjetivo[16] || "https://i.imgur.com/1t6rFZC.png";
-
-  $('#datos-container').prepend(`
-    <div class="datos-header">
-      <img src="${imagen}" alt="${nombre}" class="datos-imagen">
-      <h2 class="nombrePersonaje">${nombre}</h2>
-    </div>
-  `);
-
-  // Campos (sin el nombre)
-  const campos = [
-    "Primera Aparición", "Saga", "Arco", "Estado", "Origen",
-    "Raza", "Sexo", "Altura", "Edad", "Cumpleaños",
-    "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"
-  ];
-
-  const form = $('#datosForm');
-  form.empty();
-
-  campos.forEach((campo, i) => {
-    const realIndex = i + 1; // desplazado porque omitimos el nombre
-    const valorCorrecto = personajeObjetivo[realIndex]?.trim() || "";
-    const bloqueado = valorCorrecto === "---";
-
-    form.append(`
-      <div class="campo-dato">
-        <label>${campo}</label>
-        <input type="text" id="campo-${i}" data-index="${i}" ${bloqueado ? "disabled class='correcto'" : ""} autocomplete="off">
-        <div class="flecha-indicador" id="flecha-${i}"></div>
-      </div>
-    `);
-  });
-}
-
-$('#btn-comprobar').click((e) => {
-  e.preventDefault();
-  comprobarDatos();
-});
-
-function comprobarDatos() {
-  const campos = $("#datosForm input");
-  let aciertos = 0;
-
-  campos.each(function () {
-    const i = $(this).data('index');
-    const valor = $(this).val().trim();
-    const realIndex = i + 1; // desplazado 1 porque omitimos el nombre
-    const correcto = personajeObjetivo[realIndex] ? String(personajeObjetivo[realIndex]).trim() : "";
-    let clase = "incorrecto", flecha = "";
-
-    if ($(this).is(":disabled")) return aciertos++; // si está bloqueado ya cuenta como correcto
-
-    if ([13, 8, 9].includes(realIndex)) {
-      const nV = parseFloat(valor.replace(/[^\d]/g, ""));
-      const nC = parseFloat(correcto.replace(/[^\d]/g, ""));
-      if (nV === nC) clase = "correcto";
-      else if (nV > nC) flecha = "↓";
-      else if (nV < nC) flecha = "↑";
-    } else if (valor.toLowerCase() === correcto.toLowerCase()) {
-      clase = "correcto";
-    }
-
-    $(this).removeClass("correcto incorrecto").addClass(clase);
-    $(`#flecha-${i}`).text(flecha);
-
-    if (clase === "correcto") {
-      $(this).prop("disabled", true);
-      aciertos++;
-    }
-  });
-
-  if (aciertos === $("#datosForm input").length) {
-    alert(`🏴‍☠️ ¡Has completado todos los datos de ${personajeObjetivo[0]}!`);
+// =============== NUEVO DUELO =================
+function nuevoDuelo(mantener = null) {
+  if (!mantener) {
+    pj1 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
+    contadorVictoriasPj1 = 0;
+  } else {
+    pj1 = mantener;
   }
+  pj2 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
+  if (pj1 === pj2) return nuevoDuelo(mantener);
+
+  $("#name1").text(pj1[0]);
+  $("#name2").text(pj2[0]);
+  $("#img1").attr("src", pj1[16] || "https://i.imgur.com/1t6rFZC.png");
+  $("#img2").attr("src", pj2[16] || "https://i.imgur.com/1t6rFZC.png");
+  $("#bounty1").text(pj1[13] + " ฿");
+  $("#bounty2").text("???");
+
+  $("#mensaje").removeClass("msg-visible").hide();
+  $(".hl-card").removeClass("correctoHL incorrectoHL");
+
+  actualizarRacha();
 }
 
-// Dificultad
-$('#facil-datos').click(() => { dificultad = 'facil'; $('#datos-container').show(); cargarDatosDatos('facil'); });
-$('#medio-datos').click(() => { dificultad = 'medio'; $('#datos-container').show(); cargarDatosDatos('medio'); });
-$('#dificil-datos').click(() => { dificultad = 'dificil'; $('#datos-container').show(); cargarDatosDatos('dificil'); });
-$('#imposible-datos').click(() => { dificultad = 'imposible'; $('#datos-container').show(); cargarDatosDatos('imposible'); });
+// =============== ELECCIÓN DE PERSONAJE =================
+function elegirPersonaje(num) {
+  const b1 = parseFloat(pj1[13].replace(/[^\d]/g, ""));
+  const b2 = parseFloat(pj2[13].replace(/[^\d]/g, ""));
+  const ganador = b1 > b2 ? 1 : 2;
+
+  const card1 = $("#card1");
+  const card2 = $("#card2");
+
+  let seleccionado = num === 1 ? card1 : card2;
+
+  if (num === ganador) {
+    // ACIERTO
+    seleccionado.addClass("correctoHL");
+    racha++;
+    mejorRacha = Math.max(mejorRacha, racha);
+    localStorage.setItem("mejorRacha", mejorRacha);
+    mostrarMensajeHL("✅ ¡Correcto!");
+
+    if (ganador === 1) {
+      contadorVictoriasPj1++;
+      contadorVictoriasPj2 = 0;
+    } else {
+      contadorVictoriasPj2++;
+      contadorVictoriasPj1 = 0;
+    }
+
+    let mantener = ganador === 1 ? pj1 : pj2;
+
+    // Si ese personaje ya lleva 2 seguidas, se cambia también
+    if (contadorVictoriasPj1 >= 2 || contadorVictoriasPj2 >= 2) {
+      mantener = null;
+      contadorVictoriasPj1 = 0;
+      contadorVictoriasPj2 = 0;
+    }
+
+    setTimeout(() => nuevoDuelo(mantener), 3000);
+  } else {
+    // FALLO
+    seleccionado.addClass("incorrectoHL");
+    const pjGanador = ganador === 1 ? pj1 : pj2;
+    mostrarMensajeHL(`❌ Fallaste. ${pjGanador[0]} tiene más recompensa.`);
+    racha = 0;
+    contadorVictoriasPj1 = 0;
+    contadorVictoriasPj2 = 0;
+    setTimeout(() => nuevoDuelo(), 3000);
+  }
+
+  actualizarRacha();
+}
+
+// =============== MENSAJE CON FADE =================
+function mostrarMensajeHL(texto) {
+  const msg = $("#mensaje");
+  msg
+    .text(texto)
+    .css({ opacity: 0, display: 'inline-block' })
+    .addClass("msg-visible")
+    .animate({ opacity: 1 }, 300);
+
+  setTimeout(() => {
+    msg.animate({ opacity: 0 }, 300, () => {
+      msg.removeClass("msg-visible").hide();
+    });
+  }, 2500);
+}
+
+// =============== RACHAS =================
+function actualizarRacha() {
+  $("#racha").text(`Racha: ${racha}`);
+  $("#mejorRacha").text(`Mejor racha: ${mejorRacha}`);
+}
+
+// =============== BOTONES DE DIFICULTAD =================
+$('#facil-hl').click(() => { dificultadHL = 'facil'; $('#hl-container').show(); cargarDatosHL('facil'); });
+$('#medio-hl').click(() => { dificultadHL = 'medio'; $('#hl-container').show(); cargarDatosHL('medio'); });
+$('#dificil-hl').click(() => { dificultadHL = 'dificil'; $('#hl-container').show(); cargarDatosHL('dificil'); });
+$('#imposible-hl').click(() => { dificultadHL = 'imposible'; $('#hl-container').show(); cargarDatosHL('imposible'); });
