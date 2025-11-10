@@ -1,181 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adivina los Datos - Kaizoku Quiz</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="https://www.icons101.com/icons/93/Token_Anime_Pack_by_Erehr/128/One%20Piece.PNG">
-</head>
-<body>
-  <div class="datos-container">
-    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" 
-         alt="One Piece" 
-         width="400" 
-         height="200" 
-         style="max-width: 100%; height: auto;">
-    
-    <h1 class="menu-title">Adivina los Datos del Personaje</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="https://www.icons101.com/icons/93/Token_Anime_Pack_by_Erehr/128/One%20Piece.PNG"
+      type="image/x-icon"
+    />
+    <title>KaizokuDatos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="fondo-datos">
+    <img
+      src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png"
+      alt="One Piece Logo"
+      width="500"
+      height="250"
+      style="max-width: 100%; height: auto"
+    />
 
-    <div id="personaje-actual" class="datos-personaje"></div>
+    <h1>Elige la dificultad:</h1>
+    <button class="boton" id="facil-datos"><b>Grumete</b><br />Fácil</button>
+    <button class="boton" id="medio-datos"><b>Pirata</b><br />Medio</button>
+    <button class="boton" id="dificil-datos">
+      <b>Shichibukai</b><br />Difícil
+    </button>
+    <button class="boton" id="imposible-datos"><b>Yonkou</b><br />Imposible</button>
 
-    <form id="form-datos" class="datos-form"></form>
+    <div id="datos-container" style="display:none;">
+      <div class="datos-personaje">
+        <h2 id="nombrePersonaje"></h2>
+      </div>
 
-    <div class="datos-botones">
-      <button type="button" class="btn-opciones" id="btn-comprobar">Comprobar</button>
-      <button type="button" class="btn-opciones" id="btn-nuevo">Nuevo personaje</button>
-      <button type="button" class="btn-opciones" onclick="location.href='index.html'">🔙 Volver al menú</button>
+      <form id="datosForm" class="datos-form"></form>
+
+      <div class="datos-botones">
+        <button class="btn-opciones" id="btn-comprobar">Comprobar</button>
+        <button
+          class="btn-opciones"
+          onclick="location.href='index.html'"
+          type="button"
+        >
+          🔙 Volver al menú
+        </button>
+      </div>
     </div>
 
-    <div id="mensaje-final" class="hl-mensaje"></div>
-  </div>
-
-  <script>
-    // === CONFIGURACIÓN SHEETS ===
-    const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-    const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
-    const sheetName = 'Fácil';
-
-    const columnas = [
-      "Nombre", "Primera Aparición", "Saga", "Arco", "Estado", "Origen", "Raza", "Sexo",
-      "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"
-    ];
-
-    let personajes = [];
-    let personajeActual = null;
-
-    // === FUNCIONES DE UTILIDAD ===
-    function normalizarTexto(txt) {
-      return txt ? txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase() : "";
-    }
-
-    function limpiarNumero(val) {
-      return parseFloat(
-        String(val)
-          .replace(/[^\d.,-]/g, '')
-          .replace(/\./g, '')
-          .replace(',', '.')
-      );
-    }
-
-    function crearFormulario() {
-      const form = document.getElementById('form-datos');
-      form.innerHTML = "";
-      columnas.forEach((col, idx) => {
-        const div = document.createElement('div');
-        div.className = "campo-dato";
-        div.innerHTML = `
-          <label>${col}</label>
-          <input type="text" id="campo-${idx}" data-index="${idx}" autocomplete="off">
-          <span class="flecha-indicador" id="flecha-${idx}"></span>
-        `;
-        form.appendChild(div);
-      });
-    }
-
-    function mostrarPersonaje() {
-      const div = document.getElementById('personaje-actual');
-      div.innerHTML = `<h2>${personajeActual[0]}</h2>`;
-    }
-
-    function comprobarDatos() {
-      let aciertos = 0;
-      const mensaje = document.getElementById('mensaje-final');
-      mensaje.textContent = "";
-
-      columnas.forEach((col, idx) => {
-        const campo = document.getElementById(`campo-${idx}`);
-        const flecha = document.getElementById(`flecha-${idx}`);
-        const valorCorrecto = personajeActual[idx] || "";
-        const valorJugador = campo.value.trim();
-
-        campo.classList.remove("correcto", "incorrecto");
-        flecha.textContent = "";
-
-        // Si ya es correcto y bloqueado, saltar
-        if (campo.disabled) {
-          aciertos++;
-          return;
-        }
-
-        let clase = "incorrecto";
-        let correcto = false;
-
-        // Comparación textual
-        if (![1,8,9,10,13].includes(idx)) {
-          if (normalizarTexto(valorCorrecto) === normalizarTexto(valorJugador)) {
-            clase = "correcto";
-            correcto = true;
-          }
-        } else {
-          // Numéricos o fechas
-          if (idx === 10) { // Cumpleaños tipo "7 julio"
-            if (normalizarTexto(valorCorrecto) === normalizarTexto(valorJugador)) {
-              clase = "correcto"; correcto = true;
-            } else if (valorCorrecto.includes(" ") && valorJugador.includes(" ")) {
-              const [dA, mA] = valorCorrecto.split(" ");
-              const [dJ, mJ] = valorJugador.split(" ");
-              const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
-              const fA = new Date(2025, meses.indexOf(mA), parseInt(dA));
-              const fJ = new Date(2025, meses.indexOf(mJ), parseInt(dJ));
-              if (fJ > fA) flecha.innerHTML = '<span class="flecha-down">↓</span>';
-              else if (fJ < fA) flecha.innerHTML = '<span class="flecha-up">↑</span>';
-            }
-          } else {
-            const nA = limpiarNumero(valorCorrecto);
-            const nJ = limpiarNumero(valorJugador);
-            if (!isNaN(nA) && !isNaN(nJ)) {
-              if (nA === nJ) { clase = "correcto"; correcto = true; }
-              else if (nJ > nA) flecha.innerHTML = '<span class="flecha-down">↓</span>';
-              else if (nJ < nA) flecha.innerHTML = '<span class="flecha-up">↑</span>';
-            }
-          }
-        }
-
-        campo.classList.add(clase);
-        if (correcto) {
-          campo.disabled = true;
-          aciertos++;
-        }
-      });
-
-      if (aciertos === columnas.length) {
-        mensaje.innerHTML = `<span>¡Perfecto! Has completado todos los datos de ${personajeActual[0]} 🎉</span>`;
-      }
-    }
-
-    function nuevoPersonaje() {
-      personajeActual = personajes[Math.floor(Math.random() * personajes.length)];
-      crearFormulario();
-      mostrarPersonaje();
-      document.getElementById('mensaje-final').textContent = "";
-    }
-
-    // === CARGAR DATOS DE SHEETS ===
-    async function cargarDatos() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}?key=${apiKey}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.values) {
-          personajes = data.values.slice(1).filter(p => p[0]);
-          nuevoPersonaje();
-        } else {
-          alert("Error al cargar los datos.");
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Error al cargar personajes.");
-      }
-    }
-
-    // === EVENTOS ===
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarDatos();
-      document.getElementById('btn-comprobar').addEventListener('click', comprobarDatos);
-      document.getElementById('btn-nuevo').addEventListener('click', nuevoPersonaje);
-    });
-  </script>
-</body>
+    <script src="script_datos.js"></script>
+  </body>
 </html>
-
