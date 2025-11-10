@@ -20,6 +20,19 @@ h1 {
     1px 1px #000, -1px -1px #fff, 1px -1px #000, -1px 1px #000;
 }
 
+.fondo-datos {
+  background-image: url("https://i.pinimg.com/736x/95/48/49/95484996b472e3cda2033c50afdcc207.jpg");
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.fondo-higher {
+  background-image: url("https://i.pinimg.com/736x/95/48/49/95484996b472e3cda2033c50afdcc207.jpg");
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+
 /* =========================
    🏝️ MENÚ PRINCIPAL
 ========================= */
@@ -431,3 +444,4 @@ h1 {
     width: 90%;
   }
 }
+
