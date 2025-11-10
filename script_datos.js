@@ -90,9 +90,22 @@ function comprobarDatos() {
     if (clase === "correcto") aciertos++;
   });
 
-  if (aciertos === campos.length) {
-    alert(`¡Has completado todos los datos de ${personajeObjetivo[0]}!`);
-  }
+  if (aciertos === $("#datosForm input").length) {
+     const msg = $("#mensaje-datos");
+   
+     msg
+       .text(`🏴‍☠️ ¡Has completado todos los datos de ${personajeObjetivo[0]}!`)
+       .addClass("visible")
+       .css({ opacity: 0 })
+       .animate({ opacity: 1 }, 600);
+   
+     // Desaparecer automáticamente después de 5 segundos
+     setTimeout(() => {
+       msg.animate({ opacity: 0 }, 600, () => {
+         msg.removeClass("visible");
+       });
+     }, 5000);
+   }
 }
 
 // Botones de dificultad
