@@ -1,5 +1,5 @@
 /* ====================================================
-   📜 KaizokuDatos - Adivina los datos
+   📜 KaizokuDatos - Adivina los datos (v. mejorada)
    ==================================================== */
 
 const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
@@ -26,8 +26,24 @@ async function cargarDatosDatos(dif) {
 
 function mostrarFormulario() {
   $('#datos-container').show();
-  $('#nombrePersonaje').text("¿Quién es? 🤔");
-  const campos = ["Nombre", "Primera Aparición", "Saga", "Arco", "Estado", "Origen", "Raza", "Sexo", "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"];
+
+  // Mostrar nombre e imagen
+  const nombre = personajeObjetivo[0];
+  const imagen = personajeObjetivo[16] || "https://i.imgur.com/1t6rFZC.png";
+  $('#datos-container').prepend(`
+    <div class="datos-header">
+      <img src="${imagen}" alt="${nombre}" class="datos-imagen">
+      <h2 class="nombrePersonaje">${nombre}</h2>
+    </div>
+  `);
+
+  // Campos (sin el nombre)
+  const campos = [
+    "Primera Aparición", "Saga", "Arco", "Estado", "Origen",
+    "Raza", "Sexo", "Altura", "Edad", "Cumpleaños",
+    "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"
+  ];
+
   const form = $('#datosForm');
   form.empty();
   campos.forEach((campo, i) => {
@@ -48,13 +64,16 @@ $('#btn-comprobar').click((e) => {
 
 function comprobarDatos() {
   const campos = $("#datosForm input");
+  let aciertos = 0;
+
   campos.each(function () {
     const i = $(this).data('index');
     const valor = $(this).val().trim();
-    const correcto = personajeObjetivo[i] ? String(personajeObjetivo[i]).trim() : "";
+    const realIndex = i + 1; // desplazado 1 porque omitimos el nombre
+    const correcto = personajeObjetivo[realIndex] ? String(personajeObjetivo[realIndex]).trim() : "";
     let clase = "incorrecto", flecha = "";
 
-    if (i === 13 || i === 8 || i === 9) {
+    if ([13, 8, 9].includes(realIndex)) {
       const nV = parseFloat(valor.replace(/[^\d]/g, ""));
       const nC = parseFloat(correcto.replace(/[^\d]/g, ""));
       if (nV === nC) clase = "correcto";
@@ -66,13 +85,18 @@ function comprobarDatos() {
 
     $(this).removeClass("correcto incorrecto").addClass(clase);
     $(`#flecha-${i}`).text(flecha);
-
     if (clase === "correcto") $(this).prop("disabled", true);
+
+    if (clase === "correcto") aciertos++;
   });
+
+  if (aciertos === campos.length) {
+    alert(`¡Has completado todos los datos de ${personajeObjetivo[0]}!`);
+  }
 }
 
-// Dificultad
-$('#facil-datos').click(() => { dificultad = 'facil'; cargarDatosDatos('facil'); });
-$('#medio-datos').click(() => { dificultad = 'medio'; cargarDatosDatos('medio'); });
-$('#dificil-datos').click(() => { dificultad = 'dificil'; cargarDatosDatos('dificil'); });
-$('#imposible-datos').click(() => { dificultad = 'imposible'; cargarDatosDatos('imposible'); });
+// Botones de dificultad
+$('#facil-datos').click(() => { dificultad = 'facil'; $('#datos-container').show(); cargarDatosDatos('facil'); });
+$('#medio-datos').click(() => { dificultad = 'medio'; $('#datos-container').show(); cargarDatosDatos('medio'); });
+$('#dificil-datos').click(() => { dificultad = 'dificil'; $('#datos-container').show(); cargarDatosDatos('dificil'); });
+$('#imposible-datos').click(() => { dificultad = 'imposible'; $('#datos-container').show(); cargarDatosDatos('imposible'); });
