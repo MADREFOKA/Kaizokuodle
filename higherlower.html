@@ -1,172 +1,67 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Higher or Lower - One Piece Bounties</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="https://www.icons101.com/icons/93/Token_Anime_Pack_by_Erehr/128/One%20Piece.PNG">
-</head>
-<body>
-  <div class="hl-container">
-    <img src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png" 
-         alt="One Piece" width="400" height="200" style="max-width: 100%; height: auto;">
-    
-    <h1 class="menu-title">Higher or Lower - Recompensas</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="https://www.icons101.com/icons/93/Token_Anime_Pack_by_Erehr/128/One%20Piece.PNG"
+      type="image/x-icon"
+    />
+    <title>Higher or Lower - One Piece</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="fondo-higher">
+    <img
+      src="https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png"
+      alt="One Piece Logo"
+      width="500"
+      height="250"
+      style="max-width: 100%; height: auto"
+    />
 
-    <div class="hl-stats">
-      <span>Racha actual: <strong id="racha-actual">0</strong></span>
-      <span>Mejor racha: <strong id="mejor-racha">0</strong></span>
-    </div>
+    <h1>Elige la dificultad:</h1>
+    <button class="boton" id="facil-hl"><b>Grumete</b><br />Fácil</button>
+    <button class="boton" id="medio-hl"><b>Pirata</b><br />Medio</button>
+    <button class="boton" id="dificil-hl"><b>Shichibukai</b><br />Difícil</button>
+    <button class="boton" id="imposible-hl"><b>Yonkou</b><br />Imposible</button>
 
-    <div class="hl-cards">
-      <div class="hl-card">
-        <div class="hl-label">Personaje base</div>
-        <img id="img-left" class="hl-img" src="" alt="Personaje base">
-        <div class="hl-name" id="name-left"></div>
-        <div class="hl-bounty">
-          Recompensa: <span id="bounty-left"></span>
+    <div id="hl-container" class="hl-container" style="display:none;">
+      <div class="hl-stats">
+        <span id="racha">Racha: 0</span>
+        <span id="mejorRacha">Mejor racha: 0</span>
+      </div>
+
+      <div class="hl-cards">
+        <div class="hl-card" id="card1" onclick="elegirPersonaje(1)">
+          <div class="hl-label">Personaje 1</div>
+          <img id="img1" class="hl-img" src="" alt="Personaje 1" />
+          <div class="hl-name" id="name1"></div>
+          <div class="hl-bounty" id="bounty1"></div>
+        </div>
+
+        <div class="hl-vs">VS</div>
+
+        <div class="hl-card" id="card2" onclick="elegirPersonaje(2)">
+          <div class="hl-label">Personaje 2</div>
+          <img id="img2" class="hl-img" src="" alt="Personaje 2" />
+          <div class="hl-name" id="name2"></div>
+          <div class="hl-bounty" id="bounty2"></div>
         </div>
       </div>
 
-      <div class="hl-vs">VS</div>
+      <div class="hl-mensaje" id="mensaje"></div>
 
-      <div class="hl-card">
-        <div class="hl-label">¿Mayor o menor recompensa?</div>
-        <img id="img-right" class="hl-img" src="" alt="Siguiente personaje">
-        <div class="hl-name" id="name-right"></div>
-        <div class="hl-bounty">
-          Recompensa: <span id="bounty-right">???</span>
-        </div>
-      </div>
+      <button
+        class="btn-opciones hl-btn"
+        onclick="location.href='index.html'"
+        type="button"
+      >
+        🔙 Volver al menú
+      </button>
     </div>
 
-    <div class="hl-buttons">
-      <button class="btn-opciones hl-btn" id="btn-mayor">Mayor</button>
-      <button class="btn-opciones hl-btn" id="btn-menor">Menor</button>
-    </div>
-
-    <div id="hl-mensaje" class="hl-mensaje"></div>
-
-    <button class="btn-opciones hl-btn" id="btn-reintentar" style="display:none;">
-      Jugar de nuevo
-    </button>
-
-    <button class="btn-opciones hl-btn" onclick="location.href='index.html'" style="margin-top:15px;">
-      🔙 Volver al menú
-    </button>
-  </div>
-
-  <script>
-    const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-    const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
-    const sheetName = 'Imposible';
-    const COL_NOMBRE = 0, COL_RECOMPENSA = 13, COL_IMAGEN = 16;
-
-    let personajes = [], leftChar = null, rightChar = null;
-    let rachaActual = 0, mejorRacha = 0;
-
-    const imgPlaceholder = "https://logos-world.net/wp-content/uploads/2021/09/One-Piece-Logo-1999.png";
-
-    function getRecompensaNumber(valor) {
-      const digits = String(valor).replace(/[^\d-]/g, '');
-      return digits ? parseInt(digits, 10) : 0;
-    }
-
-    function formatearBerries(valor) {
-      const num = getRecompensaNumber(valor);
-      if (!num) return "???";
-      return num.toLocaleString('es-ES') + " ฿";
-    }
-
-    function actualizarStats() {
-      document.getElementById('racha-actual').textContent = rachaActual;
-      document.getElementById('mejor-racha').textContent = mejorRacha;
-    }
-
-    function guardarMejorRacha() {
-      localStorage.setItem('hl_mejor_racha', String(mejorRacha));
-    }
-
-    function cargarMejorRacha() {
-      const val = localStorage.getItem('hl_mejor_racha');
-      if (val) mejorRacha = parseInt(val, 10) || 0;
-      actualizarStats();
-    }
-
-    function elegirPersonajeAleatorio(exceptName = null) {
-      let elegido = null;
-      do {
-        elegido = personajes[Math.floor(Math.random() * personajes.length)];
-      } while (exceptName && elegido.nombre === exceptName && personajes.length > 1);
-      return elegido;
-    }
-
-    function actualizarUI() {
-      document.getElementById('name-left').textContent = leftChar.nombre;
-      document.getElementById('bounty-left').textContent = formatearBerries(leftChar.recompensa);
-      document.getElementById('img-left').src = leftChar.imagen || imgPlaceholder;
-      document.getElementById('name-right').textContent = rightChar.nombre;
-      document.getElementById('bounty-right').textContent = "???";
-      document.getElementById('img-right').src = rightChar.imagen || imgPlaceholder;
-      document.getElementById('hl-mensaje').textContent = "";
-    }
-
-    function bloquearBotones(b) {
-      document.getElementById('btn-mayor').disabled = b;
-      document.getElementById('btn-menor').disabled = b;
-    }
-
-    function nuevaRonda(primeravez = false) {
-      leftChar = primeravez ? elegirPersonajeAleatorio() : rightChar;
-      rightChar = elegirPersonajeAleatorio(leftChar.nombre);
-      actualizarUI();
-      bloquearBotones(false);
-      document.getElementById('btn-reintentar').style.display = 'none';
-    }
-
-    function manejarRespuesta(tipo) {
-      bloquearBotones(true);
-      const base = getRecompensaNumber(leftChar.recompensa);
-      const comp = getRecompensaNumber(rightChar.recompensa);
-      let acierto = false;
-      if (tipo === "mayor" && comp > base) acierto = true;
-      if (tipo === "menor" && comp < base) acierto = true;
-      document.getElementById('bounty-right').textContent = formatearBerries(rightChar.recompensa);
-      const mensaje = document.getElementById('hl-mensaje');
-      if (acierto) {
-        rachaActual++;
-        if (rachaActual > mejorRacha) { mejorRacha = rachaActual; guardarMejorRacha(); }
-        actualizarStats();
-        mensaje.textContent = "¡Correcto! ☠️";
-        setTimeout(() => nuevaRonda(false), 800);
-      } else {
-        mensaje.textContent = `¡Fallaste! ${rightChar.nombre} tiene ${formatearBerries(rightChar.recompensa)}.`;
-        rachaActual = 0;
-        actualizarStats();
-        document.getElementById('btn-reintentar').style.display = 'inline-block';
-      }
-    }
-
-    async function cargarPersonajes() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}?key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const filas = data.values.slice(1);
-      personajes = filas
-        .filter(f => f[COL_RECOMPENSA] && f[COL_RECOMPENSA] !== "---")
-        .map(f => ({ nombre: f[COL_NOMBRE], recompensa: f[COL_RECOMPENSA], imagen: f[COL_IMAGEN] || imgPlaceholder }));
-      if (personajes.length > 230) personajes = personajes.slice(0, 230);
-      cargarMejorRacha();
-      nuevaRonda(true);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btn-mayor').onclick = () => manejarRespuesta("mayor");
-      document.getElementById('btn-menor').onclick = () => manejarRespuesta("menor");
-      document.getElementById('btn-reintentar').onclick = () => { rachaActual = 0; actualizarStats(); nuevaRonda(true); };
-      cargarPersonajes();
-    });
-  </script>
-</body>
+    <script src="script_higher.js"></script>
+  </body>
 </html>
