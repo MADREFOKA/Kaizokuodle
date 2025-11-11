@@ -2,74 +2,77 @@
    💰 Kaizoku Higher or Lower — lógica exacta MADREFOKA
    ==================================================== */
 
-const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-const apiKey  = 'TU_API_KEY_AQUI'; // ⚠️ Reemplaza tu API key aquí
+const sheetID = "1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ";
+const apiKey = "TU_API_KEY_AQUI"; // <- tu key restringida
 const sheetsNamesHL = {
-  facil: 'Fácil',
-  medio: 'Medio',
-  dificil: 'Difícil',
-  imposible: 'Imposible'
+  facil: "Fácil",
+  medio: "Medio",
+  dificil: "Difícil",
+  imposible: "Imposible",
 };
 
-let dificultadHL = 'facil';
+let dificultadHL = "facil";
 let personajesHL = [];
 let pj1, pj2;
 let racha = 0;
 let mejorRacha = parseInt(localStorage.getItem("mejorRacha") || "0");
 
-// Control de repetidos y permanencia
-let usados = new Set();
-let personajeActual = null;
-let victoriasSeguidas = 0;
+// Control
+let nombresUsadosHL = new Set();
+let ultimoGanadorNombre = null;
+let victoriasConsecutivasGanador = 0;
 
-// ===================================================
-// Cargar datos desde Google Sheets
-// ===================================================
+// ================= CARGAR DATOS =================
 async function cargarDatosHL(dif) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNamesHL[dif]}?key=${apiKey}`;
-  const res = await fetch(url);
-  const data = await res.json();
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNamesHL[dif]}?key=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-  personajesHL = (data.values || [])
-    .slice(1)
-    .filter(p => p[13] && p[13] !== "---");
+    personajesHL = (data.values || [])
+      .slice(1)
+      .filter((p) => p[13] && p[13] !== "---");
 
-  usados.clear();
-  personajeActual = null;
-  victoriasSeguidas = 0;
-  racha = 0;
-  actualizarRacha();
-  nuevoDuelo();
+    nombresUsadosHL.clear();
+    ultimoGanadorNombre = null;
+    victoriasConsecutivasGanador = 0;
+    racha = 0;
+    actualizarRacha();
+
+    if (personajesHL.length >= 2) nuevoDuelo();
+    else alert("No hay suficientes personajes con recompensa en esta dificultad.");
+  } catch (err) {
+    console.error("Error al cargar datos:", err);
+  }
 }
 
-// ===================================================
-// Obtener personaje aleatorio sin repetir
-// ===================================================
-function obtenerPersonaje(excluir = null) {
-  const disponibles = personajesHL.filter(p => {
-    const nombre = p[0];
-    return nombre !== excluir && !usados.has(nombre);
+// ============== UTILIDADES =================
+function normalizarNombre(n) {
+  return n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function obtenerPersonajeNoRepetido(excluir = null) {
+  const excl = excluir ? normalizarNombre(excluir) : null;
+  const disponibles = personajesHL.filter((p) => {
+    const nom = normalizarNombre(p[0]);
+    return nom !== excl && !nombresUsadosHL.has(nom);
   });
-
   if (disponibles.length === 0) {
-    usados.clear();
-    return obtenerPersonaje(excluir);
+    nombresUsadosHL.clear(); // reinicia si se agotan
+    return null;
   }
-
   const elegido = disponibles[Math.floor(Math.random() * disponibles.length)];
-  usados.add(elegido[0]);
+  nombresUsadosHL.add(normalizarNombre(elegido[0]));
   return elegido;
 }
 
-// ===================================================
-// Mostrar nuevo duelo
-// ===================================================
+// ============== NUEVO DUELO =================
 function nuevoDuelo(mantener = null) {
-  if (!mantener) pj1 = obtenerPersonaje();
-  else pj1 = mantener;
+  if (!personajesHL.length) return;
 
-  pj2 = obtenerPersonaje(pj1[0]);
-  if (!pj2) pj2 = obtenerPersonaje();
+  pj1 = mantener || obtenerPersonajeNoRepetido();
+  if (!pj1) pj1 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
+  pj2 = obtenerPersonajeNoRepetido(pj1[0]) || obtenerPersonajeNoRepetido();
 
   $("#name1").text(pj1[0]);
   $("#name2").text(pj2[0]);
@@ -82,24 +85,19 @@ function nuevoDuelo(mantener = null) {
   $(".hl-card").removeClass("correctoHL incorrectoHL");
 }
 
-// ===================================================
-// Elegir personaje (click en carta)
-// ===================================================
+// ============== ELEGIR PERSONAJE =================
 function elegirPersonaje(num) {
-  const recompensa1 = parseFloat(pj1[13].replace(/[^\d]/g, ""));
-  const recompensa2 = parseFloat(pj2[13].replace(/[^\d]/g, ""));
+  const b1 = parseFloat(pj1[13].replace(/[^\d]/g, ""));
+  const b2 = parseFloat(pj2[13].replace(/[^\d]/g, ""));
   const card1 = $("#card1");
   const card2 = $("#card2");
   const seleccionado = num === 1 ? card1 : card2;
 
-  // Determinar ganador
   let ganadorIndex = 0;
-  if (recompensa1 === recompensa2) ganadorIndex = 0;
-  else ganadorIndex = recompensa1 > recompensa2 ? 1 : 2;
+  if (b1 !== b2) ganadorIndex = b1 > b2 ? 1 : 2;
+  const haAcertado = ganadorIndex === 0 || num === ganadorIndex;
 
-  const acierto = ganadorIndex === 0 || num === ganadorIndex;
-
-  if (acierto) {
+  if (haAcertado) {
     seleccionado.addClass("correctoHL");
     racha++;
     mejorRacha = Math.max(mejorRacha, racha);
@@ -109,51 +107,42 @@ function elegirPersonaje(num) {
     const ganador = ganadorIndex === 1 || (ganadorIndex === 0 && num === 1) ? pj1 : pj2;
     const perdedor = ganador === pj1 ? pj2 : pj1;
 
-    // 🧩 Lógica exacta MADREFOKA:
-    // - El mismo personaje puede ganar 2 veces seguidas.
-    // - A la tercera ronda (tras 2 victorias consecutivas),
-    //   se queda el otro personaje, aunque el ganador volviera a ganar.
-
-    if (ganador[0] === personajeActual) {
-      victoriasSeguidas++;
+    const nombreGanador = normalizarNombre(ganador[0]);
+    if (nombreGanador === ultimoGanadorNombre) {
+      victoriasConsecutivasGanador++;
     } else {
-      personajeActual = ganador[0];
-      victoriasSeguidas = 1;
+      ultimoGanadorNombre = nombreGanador;
+      victoriasConsecutivasGanador = 1;
     }
 
+    // ⚓ Lógica MADREFOKA: máximo 2 rondas seguidas → luego se queda el otro
     let siguiente;
-    if (victoriasSeguidas < 3) {
-      // 1ª y 2ª victoria → se mantiene el ganador
-      siguiente = ganador;
-    } else {
-      // 3ª ronda → se queda el otro
+    if (victoriasConsecutivasGanador >= 2) {
       siguiente = perdedor;
-      victoriasSeguidas = 0;
-      personajeActual = null;
+      ultimoGanadorNombre = null;
+      victoriasConsecutivasGanador = 0;
+    } else {
+      siguiente = ganador;
     }
 
     setTimeout(() => nuevoDuelo(siguiente), 3000);
-
   } else {
     seleccionado.addClass("incorrectoHL");
-    const pjGanador = recompensa1 > recompensa2 ? pj1 : pj2;
+    const pjGanador = b1 > b2 ? pj1 : pj2;
     mostrarMensajeHL(`❌ Fallaste. ${pjGanador[0]} tiene más recompensa.`);
-
     racha = 0;
-    personajeActual = null;
-    victoriasSeguidas = 0;
+    ultimoGanadorNombre = null;
+    victoriasConsecutivasGanador = 0;
     setTimeout(() => nuevoDuelo(), 3000);
   }
-
   actualizarRacha();
 }
 
-// ===================================================
-// Mostrar mensaje con fade
-// ===================================================
+// ============== MENSAJES =================
 function mostrarMensajeHL(texto) {
   const msg = $("#mensaje");
-  msg.text(texto)
+  msg
+    .text(texto)
     .css({ opacity: 0, display: "inline-block" })
     .addClass("msg-visible")
     .animate({ opacity: 1 }, 300);
@@ -165,18 +154,14 @@ function mostrarMensajeHL(texto) {
   }, 2500);
 }
 
-// ===================================================
-// Actualizar racha y mejor racha
-// ===================================================
+// ============== RACHAS =================
 function actualizarRacha() {
   $("#racha").text(`Racha: ${racha}`);
   $("#mejorRacha").text(`Mejor racha: ${mejorRacha}`);
 }
 
-// ===================================================
-// Botones de dificultad
-// ===================================================
-$('#facil-hl').click(() => { dificultadHL = 'facil'; $('#hl-container').show(); cargarDatosHL('facil'); });
-$('#medio-hl').click(() => { dificultadHL = 'medio'; $('#hl-container').show(); cargarDatosHL('medio'); });
-$('#dificil-hl').click(() => { dificultadHL = 'dificil'; $('#hl-container').show(); cargarDatosHL('dificil'); });
-$('#imposible-hl').click(() => { dificultadHL = 'imposible'; $('#hl-container').show(); cargarDatosHL('imposible'); });
+// ============== BOTONES DE DIFICULTAD =================
+$("#facil-hl").click(() => { dificultadHL = "facil"; $("#hl-container").show(); cargarDatosHL("facil"); });
+$("#medio-hl").click(() => { dificultadHL = "medio"; $("#hl-container").show(); cargarDatosHL("medio"); });
+$("#dificil-hl").click(() => { dificultadHL = "dificil"; $("#hl-container").show(); cargarDatosHL("dificil"); });
+$("#imposible-hl").click(() => { dificultadHL = "imposible"; $("#hl-container").show(); cargarDatosHL("imposible"); });
