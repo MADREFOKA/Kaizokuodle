@@ -4,7 +4,7 @@
    ==================================================== */
 
 const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-const apiKey  = 'TU_API_KEY_AQUI'; // <- pon aquí la API key que SÍ funciona
+const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
 const sheetsNamesHL = {
   facil: 'Fácil',
   medio: 'Medio',
