@@ -3,8 +3,8 @@
       y coincidencias flexibles en Haki/Ocupación
    ==================================================== */
 
-const sheetID_D = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-const apiKey_D  = 'TU_API_KEY_AQUI'; // <- nueva key restringida
+const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
+const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
 
 let personajeObjetivoD = null;
 
