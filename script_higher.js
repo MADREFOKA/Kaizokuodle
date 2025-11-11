@@ -112,7 +112,7 @@ function nuevoDuelo(mantener = null) {
   $("#name2").text(pj2[0]);
   $("#img1").attr("src", pj1[16] || "https://i.imgur.com/1t6rFZC.png");
   $("#img2").attr("src", pj2[16] || "https://i.imgur.com/1t6rFZC.png");
-  $("#bounty1").text(pj1[13] + " ฿");
+  $("#bounty1").text(pj1[13]);
   $("#bounty2").text("???");
 
   $("#mensaje").removeClass("msg-visible").hide();
