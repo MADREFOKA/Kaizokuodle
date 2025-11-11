@@ -1,9 +1,10 @@
 /* ====================================================
-   💰 Kaizoku Higher or Lower (versión final)
+   💰 Kaizoku Higher or Lower (versión con no repetidos,
+      máximo 2 rondas por personaje y empates correctos)
    ==================================================== */
 
 const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
+const apiKey  = 'TU_API_KEY_AQUI'; // <- pon aquí la nueva key restringida
 const sheetsNamesHL = {
   facil: 'Fácil',
   medio: 'Medio',
@@ -16,28 +17,82 @@ let personajesHL = [];
 let pj1, pj2;
 let racha = 0;
 let mejorRacha = parseInt(localStorage.getItem("mejorRacha") || "0");
-let contadorVictoriasPj1 = 0;
-let contadorVictoriasPj2 = 0;
+
+// NUEVO: nombres usados en la partida (para no repetir)
+let nombresUsadosHL = new Set();
+
+// NUEVO: control de victorias consecutivas del mismo personaje
+let ultimoGanadorNombre = null;
+let victoriasConsecutivasGanador = 0;
 
 // =============== CARGA DATOS =================
 async function cargarDatosHL(dif) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNamesHL[dif]}?key=${apiKey}`;
   const res = await fetch(url);
   const data = await res.json();
-  personajesHL = data.values.slice(1).filter(p => p[13] && p[13] !== "---");
+
+  personajesHL = (data.values || []).slice(1).filter(p => p[13] && p[13] !== "---");
+  nombresUsadosHL.clear();
+  ultimoGanadorNombre = null;
+  victoriasConsecutivasGanador = 0;
+  racha = 0;
+  $("#racha").text(`Racha: 0`);
+  $("#mejorRacha").text(`Mejor racha: ${mejorRacha}`);
+
   nuevoDuelo();
+}
+
+// NUEVO: normalizar nombre para comparar / set
+function normalizarNombre(nombre) {
+  return nombre
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+// NUEVO: obtener personaje aleatorio que no se haya usado aún
+function obtenerPersonajeNoRepetido(excluirNombre = null) {
+  const excl = excluirNombre ? normalizarNombre(excluirNombre) : null;
+
+  const disponibles = personajesHL.filter(p => {
+    const nom = normalizarNombre(p[0]);
+    if (excl && nom === excl) return false;
+    return !nombresUsadosHL.has(nom);
+  });
+
+  if (disponibles.length === 0) {
+    // Si se agotan, se podría reiniciar o mostrar mensaje.
+    // De momento reseteamos usados para no romper la partida.
+    nombresUsadosHL.clear();
+    return null;
+  }
+
+  const elegido = disponibles[Math.floor(Math.random() * disponibles.length)];
+  nombresUsadosHL.add(normalizarNombre(elegido[0]));
+  return elegido;
 }
 
 // =============== NUEVO DUELO =================
 function nuevoDuelo(mantener = null) {
-  if (!mantener) {
-    pj1 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
-    contadorVictoriasPj1 = 0;
-  } else {
+  // Si nos han dicho quién debe quedarse (por lógica de 2 rondas)
+  if (mantener) {
     pj1 = mantener;
+  } else {
+    pj1 = obtenerPersonajeNoRepetido();
   }
-  pj2 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
-  if (pj1 === pj2) return nuevoDuelo(mantener);
+
+  // Puede pasar que al resetear used no haya nada, evitamos errores
+  if (!pj1) pj1 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
+
+  pj2 = obtenerPersonajeNoRepetido(pj1[0]);
+  if (!pj2) {
+    // Si por lo que sea no hay otro disponible distinto, cogemos uno al azar
+    pj2 = personajesHL[Math.floor(Math.random() * personajesHL.length)];
+    if (pj2[0] === pj1[0]) {
+      // aseguramos que no sea el mismo
+      pj2 = personajesHL.find(p => p[0] !== pj1[0]) || pj1;
+    }
+  }
 
   $("#name1").text(pj1[0]);
   $("#name2").text(pj2[0]);
@@ -56,47 +111,81 @@ function nuevoDuelo(mantener = null) {
 function elegirPersonaje(num) {
   const b1 = parseFloat(pj1[13].replace(/[^\d]/g, ""));
   const b2 = parseFloat(pj2[13].replace(/[^\d]/g, ""));
-  const ganador = b1 > b2 ? 1 : 2;
 
   const card1 = $("#card1");
   const card2 = $("#card2");
+  const seleccionado = num === 1 ? card1 : card2;
 
-  let seleccionado = num === 1 ? card1 : card2;
+  let ganadorIndex; // 1, 2 o 0 si empate
 
-  if (num === ganador) {
-    // ACIERTO
+  if (b1 === b2) {
+    ganadorIndex = 0; // empate: cualquiera vale
+  } else if (b1 > b2) {
+    ganadorIndex = 1;
+  } else {
+    ganadorIndex = 2;
+  }
+
+  const haAcertado = (ganadorIndex === 0) || (num === ganadorIndex);
+
+  if (haAcertado) {
+    // ========= ACIERTO =========
     seleccionado.addClass("correctoHL");
     racha++;
     mejorRacha = Math.max(mejorRacha, racha);
     localStorage.setItem("mejorRacha", mejorRacha);
+
     mostrarMensajeHL("✅ ¡Correcto!");
 
-    if (ganador === 1) {
-      contadorVictoriasPj1++;
-      contadorVictoriasPj2 = 0;
+    // Lógica de quién se queda
+    let ganadorPj, perdedorPj;
+
+    if (ganadorIndex === 1 || (ganadorIndex === 0 && num === 1)) {
+      ganadorPj = pj1;
+      perdedorPj = pj2;
+    } else if (ganadorIndex === 2 || (ganadorIndex === 0 && num === 2)) {
+      ganadorPj = pj2;
+      perdedorPj = pj1;
     } else {
-      contadorVictoriasPj2++;
-      contadorVictoriasPj1 = 0;
+      // fallback raro, pero por seguridad
+      ganadorPj = pj1;
+      perdedorPj = pj2;
     }
 
-    let mantener = ganador === 1 ? pj1 : pj2;
+    const nombreGanador = normalizarNombre(ganadorPj[0]);
 
-    // Si ese personaje ya lleva 2 seguidas, se cambia también
-    if (contadorVictoriasPj1 >= 2 || contadorVictoriasPj2 >= 2) {
-      mantener = null;
-      contadorVictoriasPj1 = 0;
-      contadorVictoriasPj2 = 0;
+    if (nombreGanador === ultimoGanadorNombre) {
+      victoriasConsecutivasGanador++;
+    } else {
+      ultimoGanadorNombre = nombreGanador;
+      victoriasConsecutivasGanador = 1;
     }
 
-    setTimeout(() => nuevoDuelo(mantener), 3000);
+    // Regla de máximo 2 rondas por el mismo personaje:
+    // - Si ya lleva 2 victorias seguidas, se queda el otro.
+    // - Si no, se queda el ganador.
+    let mantenerSiguiente;
+
+    if (victoriasConsecutivasGanador >= 2) {
+      mantenerSiguiente = perdedorPj;
+      // reseteamos el contador porque ahora la "estrella" pasa a ser otro
+      ultimoGanadorNombre = null;
+      victoriasConsecutivasGanador = 0;
+    } else {
+      mantenerSiguiente = ganadorPj;
+    }
+
+    setTimeout(() => nuevoDuelo(mantenerSiguiente), 3000);
   } else {
-    // FALLO
+    // ========= FALLO =========
     seleccionado.addClass("incorrectoHL");
-    const pjGanador = ganador === 1 ? pj1 : pj2;
+    const pjGanador = b1 > b2 ? pj1 : pj2;
     mostrarMensajeHL(`❌ Fallaste. ${pjGanador[0]} tiene más recompensa.`);
+
     racha = 0;
-    contadorVictoriasPj1 = 0;
-    contadorVictoriasPj2 = 0;
+    ultimoGanadorNombre = null;
+    victoriasConsecutivasGanador = 0;
+
     setTimeout(() => nuevoDuelo(), 3000);
   }
 
@@ -126,7 +215,7 @@ function actualizarRacha() {
 }
 
 // =============== BOTONES DE DIFICULTAD =================
-$('#facil-hl').click(() => { dificultadHL = 'facil'; $('#hl-container').show(); cargarDatosHL('facil'); });
-$('#medio-hl').click(() => { dificultadHL = 'medio'; $('#hl-container').show(); cargarDatosHL('medio'); });
+$('#facil-hl').click(() => { dificultadHL = 'facil';     $('#hl-container').show(); cargarDatosHL('facil'); });
+$('#medio-hl').click(() => { dificultadHL = 'medio';     $('#hl-container').show(); cargarDatosHL('medio'); });
 $('#dificil-hl').click(() => { dificultadHL = 'dificil'; $('#hl-container').show(); cargarDatosHL('dificil'); });
 $('#imposible-hl').click(() => { dificultadHL = 'imposible'; $('#hl-container').show(); cargarDatosHL('imposible'); });
