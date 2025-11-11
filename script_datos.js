@@ -1,97 +1,124 @@
 /* ====================================================
-   📜 KaizokuDatos - Adivina los datos (versión final)
+   📜 KaizokuDatos - Solo dificultad Fácil, con flechas
+      y coincidencias flexibles en Haki/Ocupación
    ==================================================== */
 
-const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
-const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
-const sheetsNames = {
-  facil: 'Fácil',
-  medio: 'Medio',
-  dificil: 'Difícil',
-  imposible: 'Imposible'
-};
+const sheetID_D = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
+const apiKey_D  = 'TU_API_KEY_AQUI'; // <- nueva key restringida
 
-let dificultad = 'facil';
-let personajes = [];
-let personajeObjetivo = null;
+let personajeObjetivoD = null;
 
-// =============== CARGA DE DATOS =================
-async function cargarDatosDatos(dif) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetsNames[dif]}?key=${apiKey}`;
+const camposMeta = [
+  { id: "primera",    idx: 1,  tipo: "numero" }, // Primera aparición
+  { id: "saga",       idx: 2,  tipo: "texto" },
+  { id: "arco",       idx: 3,  tipo: "texto" },
+  { id: "estado",     idx: 4,  tipo: "texto" },
+  { id: "origen",     idx: 5,  tipo: "texto" },
+  { id: "raza",       idx: 6,  tipo: "texto" },
+  { id: "sexo",       idx: 7,  tipo: "texto" },
+  { id: "altura",     idx: 8,  tipo: "numero" },
+  { id: "edad",       idx: 9,  tipo: "numero" },
+  { id: "cumple",     idx: 10, tipo: "fecha" },
+  { id: "fruta",      idx: 11, tipo: "texto" },
+  { id: "haki",       idx: 12, tipo: "lista" },
+  { id: "recompensa", idx: 13, tipo: "numero" },
+  { id: "afiliacion", idx: 14, tipo: "texto" },
+  { id: "ocupacion",  idx: 15, tipo: "lista" },
+];
+
+// ========= UTILIDADES =========
+function norm(str) {
+  return (str || "")
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function parseNumero(str) {
+  const n = parseFloat(str.replace(/[^\d.]/g, "").replace(",", "."));
+  return isNaN(n) ? null : n;
+}
+
+function parseFecha(str) {
+  // Formato esperado: "5 marzo"
+  const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const partes = norm(str).split(" ");
+  if (partes.length < 2) return null;
+  const dia = parseInt(partes[0], 10);
+  const mesIndex = meses.indexOf(partes[1]);
+  if (isNaN(dia) || mesIndex === -1) return null;
+  // Usamos año fijo porque solo importa orden
+  return new Date(2025, mesIndex, dia).getTime();
+}
+
+function normalizarLista(texto) {
+  return norm(texto)
+    .replace(/ y /g, ",")
+    .replace(/,/g, ",")
+    .split(/[,\s]+/)
+    .filter(Boolean)
+    .sort();
+}
+
+function compararListas(valorUser, valorReal) {
+  const u = normalizarLista(valorUser);
+  const r = normalizarLista(valorReal);
+  if (r.length === 0) return "incorrecto";
+  const comunes = u.filter(x => r.includes(x));
+  if (comunes.length === r.length && u.length === r.length) return "correcto";
+  if (comunes.length > 0) return "parcial";
+  return "incorrecto";
+}
+
+// ========= CARGA PERSONAJE (solo FÁCIL) =========
+async function cargarDatosFacil() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID_D}/values/Fácil!A2:Q1600?key=${apiKey_D}`;
   const res = await fetch(url);
   const data = await res.json();
-  personajes = data.values.slice(1); // quitamos cabecera
-  personajeObjetivo = personajes[Math.floor(Math.random() * personajes.length)];
-  mostrarFormulario();
-}
+  const personajes = (data.values || []);
+  personajeObjetivoD = personajes[Math.floor(Math.random() * personajes.length)];
 
-// =============== DIBUJAR FORMULARIO =================
-function mostrarFormulario() {
-  $('#datos-container').show();
+  // Nombre + imagen
+  document.getElementById("nombrePersonaje").textContent = personajeObjetivoD[0];
+  const img = personajeObjetivoD[16] || "https://i.imgur.com/1t6rFZC.png";
+  const imgEl = document.getElementById("imgPersonaje");
+  if (imgEl) imgEl.src = img;
 
-  // Limpiar cabecera anterior (por si cambias de dificultad)
-  $('.datos-header').remove();
-  $('#mensaje-datos').removeClass('visible').text('');
+  // Inicializar campos
+  camposMeta.forEach(c => {
+    const input = document.getElementById(c.id);
+    const real = personajeObjetivoD[c.idx] || "---";
 
-  const nombre = personajeObjetivo[0];
-  const imagen = personajeObjetivo[16] || "https://i.imgur.com/1t6rFZC.png";
+    input.classList.remove("correcto","incorrecto","parcial");
+    input.disabled = false;
+    input.value = "";
+    const flechaEl = input.nextElementSibling;
+    if (flechaEl) flechaEl.textContent = "";
 
-  $('#datos-container').prepend(`
-    <div class="datos-header">
-      <img src="${imagen}" alt="${nombre}" class="datos-imagen">
-      <h2 class="nombrePersonaje">${nombre}</h2>
-    </div>
-  `);
-
-  // Campos SIN el nombre (empiezan en índice 1)
-  const etiquetas = [
-    "Primera Aparición", "Saga", "Arco", "Estado", "Origen",
-    "Raza", "Sexo", "Altura", "Edad", "Cumpleaños",
-    "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"
-  ];
-
-  const form = $('#datosForm');
-  form.empty();
-
-  etiquetas.forEach((campo, i) => {
-    const realIndex = i + 1; // porque nombre es [0]
-    const valorCorrecto = (personajeObjetivo[realIndex] || "").trim();
-    const esDesconocido = valorCorrecto === '---';
-
-    form.append(`
-      <div class="campo-dato">
-        <label>${campo}</label>
-        <input
-          type="text"
-          id="campo-${i}"
-          data-index="${i}"
-          ${esDesconocido ? "value='---' disabled class='correcto'" : ""}
-          autocomplete="off"
-        >
-        <div class="flecha-indicador" id="flecha-${i}"></div>
-      </div>
-    `);
+    if (real.trim() === "---") {
+      input.value = "---";
+      input.disabled = true;
+      input.classList.add("correcto");
+    }
   });
+
+  const msg = document.getElementById("mensaje-datos");
+  msg.classList.remove("visible");
+  msg.textContent = "";
 }
 
-// =============== COMPROBAR DATOS =================
-$('#btn-comprobar').click((e) => {
-  e.preventDefault();
-  comprobarDatos();
-});
-
-function comprobarDatos() {
-  const campos = $("#datosForm input");
+// ========= COMPARAR =========
+function compararDatos() {
   let aciertos = 0;
 
-  campos.each(function () {
-    const i = $(this).data('index');
-    const realIndex = i + 1; // desplazado por el nombre
-    const correcto = (personajeObjetivo[realIndex] || "").trim();
-    const valor = $(this).val().trim();
+  camposMeta.forEach(c => {
+    const input  = document.getElementById(c.id);
+    const real   = personajeObjetivoD[c.idx] || "";
+    const user   = input.value;
+    const flechaEl = input.nextElementSibling;
 
-    // Si ya está bloqueado (era ---), cuenta como acierto y seguimos
-    if ($(this).is(":disabled")) {
+    if (input.disabled) {
       aciertos++;
       return;
     }
@@ -99,60 +126,76 @@ function comprobarDatos() {
     let clase = "incorrecto";
     let flecha = "";
 
-    // Numéricos: altura (8), edad (9), recompensa (13)
-    if ([8, 9, 13].includes(realIndex)) {
-      const nV = parseFloat(valor.replace(/[^\d]/g, ""));
-      const nC = parseFloat(correcto.replace(/[^\d]/g, ""));
-      if (!isNaN(nV) && !isNaN(nC)) {
-        if (nV === nC) {
+    const nUser = norm(user);
+    const nReal = norm(real);
+
+    if (c.tipo === "numero") {
+      const uNum = parseNumero(user);
+      const rNum = parseNumero(real);
+      if (uNum !== null && rNum !== null) {
+        if (uNum === rNum) {
           clase = "correcto";
-        } else if (nV > nC) {
-          flecha = "↓";
-        } else if (nV < nC) {
+        } else if (uNum < rNum) {
+          clase = "incorrecto";
           flecha = "↑";
+        } else {
+          clase = "incorrecto";
+          flecha = "↓";
         }
       }
+    } else if (c.tipo === "fecha") {
+      const uT = parseFecha(user);
+      const rT = parseFecha(real);
+      if (uT !== null && rT !== null) {
+        if (uT === rT) {
+          clase = "correcto";
+        } else if (uT < rT) {
+          clase = "incorrecto";
+          flecha = "↑";
+        } else {
+          clase = "incorrecto";
+          flecha = "↓";
+        }
+      }
+    } else if (c.tipo === "lista") {
+      clase = compararListas(user, real); // correcto / parcial / incorrecto
     } else {
-      if (valor.toLowerCase() === correcto.toLowerCase()) {
+      if (nUser && nUser === nReal) {
         clase = "correcto";
+      } else if (nUser && nReal.includes(nUser) && nUser.length > 2) {
+        clase = "parcial";
       }
     }
 
-    $(this).removeClass("correcto incorrecto").addClass(clase);
-    $(`#flecha-${i}`).text(flecha);
+    input.classList.remove("correcto","incorrecto","parcial");
+    input.classList.add(clase);
+    if (flechaEl) flechaEl.textContent = flecha;
 
     if (clase === "correcto") {
-      $(this).prop("disabled", true);
+      input.disabled = true;
       aciertos++;
     }
   });
 
-  const totalCampos = $("#datosForm input").length;
+  if (aciertos === camposMeta.length) {
+    const msg = document.getElementById("mensaje-datos");
+    msg.textContent = `🏴‍☠️ ¡Has completado todos los datos de ${personajeObjetivoD[0]}!`;
+    msg.classList.add("visible");
+    msg.style.opacity = 0;
+    $(msg).animate({ opacity: 1 }, 600);
 
-  if (aciertos === totalCampos) {
-    mostrarMensajeDatosCompletado();
+    setTimeout(() => {
+      $(msg).animate({ opacity: 0 }, 600, () => {
+        msg.classList.remove("visible");
+      });
+    }, 5000);
   }
 }
 
-// =============== MENSAJE FINAL BONITO =================
-function mostrarMensajeDatosCompletado() {
-  const msg = $("#mensaje-datos");
-  msg
-    .text(`🏴‍☠️ ¡Has completado todos los datos de ${personajeObjetivo[0]}!`)
-    .addClass("visible")
-    .css({ opacity: 0 })
-    .animate({ opacity: 1 }, 600);
+// ========= EVENTOS =========
+document.getElementById("btn-comprobar").addEventListener("click", function(e) {
+  e.preventDefault();
+  compararDatos();
+});
 
-  // Desaparece a los 5 segundos
-  setTimeout(() => {
-    msg.animate({ opacity: 0 }, 600, () => {
-      msg.removeClass("visible");
-    });
-  }, 5000);
-}
-
-// =============== BOTONES DE DIFICULTAD =================
-$('#facil-datos').click(() => { dificultad = 'facil'; cargarDatosDatos('facil'); });
-$('#medio-datos').click(() => { dificultad = 'medio'; cargarDatosDatos('medio'); });
-$('#dificil-datos').click(() => { dificultad = 'dificil'; cargarDatosDatos('dificil'); });
-$('#imposible-datos').click(() => { dificultad = 'imposible'; cargarDatosDatos('imposible'); });
+window.addEventListener("load", cargarDatosFacil);
