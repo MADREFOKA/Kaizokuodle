@@ -1,32 +1,32 @@
 /* ====================================================
-   📜 KaizokuDatos - Solo dificultad Fácil, con flechas
-      y coincidencias flexibles en Haki/Ocupación
+   📜 KaizokuDatos - Solo dificultad "Fácil" con ayudas
    ==================================================== */
 
 const sheetID = '1OJVVupqt0UJTB8QJKLH_UNYYaWtY41ekqpZBSlpFdxQ';
 const apiKey = 'AIzaSyAiIS758bKjVHSvAN9Ub__7dSQOWbWSLfQ';
 
-let personajeObjetivoD = null;
+let personajeObjetivo = null;
 
+// Campos (nombre en la hoja y tipo)
 const camposMeta = [
-  { id: "primera",    idx: 1,  tipo: "numero" }, // Primera aparición
-  { id: "saga",       idx: 2,  tipo: "texto" },
-  { id: "arco",       idx: 3,  tipo: "texto" },
-  { id: "estado",     idx: 4,  tipo: "texto" },
-  { id: "origen",     idx: 5,  tipo: "texto" },
-  { id: "raza",       idx: 6,  tipo: "texto" },
-  { id: "sexo",       idx: 7,  tipo: "texto" },
-  { id: "altura",     idx: 8,  tipo: "numero" },
-  { id: "edad",       idx: 9,  tipo: "numero" },
-  { id: "cumple",     idx: 10, tipo: "fecha" },
-  { id: "fruta",      idx: 11, tipo: "texto" },
-  { id: "haki",       idx: 12, tipo: "lista" },
-  { id: "recompensa", idx: 13, tipo: "numero" },
-  { id: "afiliacion", idx: 14, tipo: "texto" },
-  { id: "ocupacion",  idx: 15, tipo: "lista" },
+  { id: "primera", label: "Primera Aparición", tipo: "numero" },
+  { id: "saga", label: "Saga", tipo: "texto" },
+  { id: "arco", label: "Arco", tipo: "texto" },
+  { id: "estado", label: "Estado", tipo: "texto" },
+  { id: "origen", label: "Origen", tipo: "texto" },
+  { id: "raza", label: "Raza", tipo: "texto" },
+  { id: "sexo", label: "Sexo", tipo: "texto" },
+  { id: "altura", label: "Altura", tipo: "numero" },
+  { id: "edad", label: "Edad", tipo: "numero" },
+  { id: "cumple", label: "Cumpleaños", tipo: "fecha" },
+  { id: "fruta", label: "Fruta del Diablo", tipo: "texto" },
+  { id: "haki", label: "Haki", tipo: "lista" },
+  { id: "recompensa", label: "Recompensa", tipo: "numero" },
+  { id: "afiliacion", label: "Afiliación", tipo: "texto" },
+  { id: "ocupacion", label: "Ocupación", tipo: "lista" },
 ];
 
-// ========= UTILIDADES =========
+// =============== UTILIDADES ===============
 function norm(str) {
   return (str || "")
     .toLowerCase()
@@ -41,14 +41,12 @@ function parseNumero(str) {
 }
 
 function parseFecha(str) {
-  // Formato esperado: "5 marzo"
   const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   const partes = norm(str).split(" ");
   if (partes.length < 2) return null;
   const dia = parseInt(partes[0], 10);
   const mesIndex = meses.indexOf(partes[1]);
   if (isNaN(dia) || mesIndex === -1) return null;
-  // Usamos año fijo porque solo importa orden
   return new Date(2025, mesIndex, dia).getTime();
 }
 
@@ -71,131 +69,117 @@ function compararListas(valorUser, valorReal) {
   return "incorrecto";
 }
 
-// ========= CARGA PERSONAJE (solo FÁCIL) =========
-async function cargarDatosFacil() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID_D}/values/Fácil!A2:Q1600?key=${apiKey_D}`;
+// =============== CARGAR PERSONAJE ===============
+async function cargarPersonaje() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Fácil?key=${apiKey}`;
   const res = await fetch(url);
   const data = await res.json();
-  const personajes = (data.values || []);
-  personajeObjetivoD = personajes[Math.floor(Math.random() * personajes.length)];
 
-  // Nombre + imagen
-  document.getElementById("nombrePersonaje").textContent = personajeObjetivoD[0];
-  const img = personajeObjetivoD[16] || "https://i.imgur.com/1t6rFZC.png";
-  const imgEl = document.getElementById("imgPersonaje");
-  if (imgEl) imgEl.src = img;
+  const personajes = (data.values || []).slice(1);
+  personajeObjetivo = personajes[Math.floor(Math.random() * personajes.length)];
 
-  // Inicializar campos
-  camposMeta.forEach(c => {
-    const input = document.getElementById(c.id);
-    const real = personajeObjetivoD[c.idx] || "---";
+  const nombre = personajeObjetivo[0];
+  const imagen = personajeObjetivo[16] || "https://i.imgur.com/1t6rFZC.png";
 
-    input.classList.remove("correcto","incorrecto","parcial");
-    input.disabled = false;
-    input.value = "";
-    const flechaEl = input.nextElementSibling;
-    if (flechaEl) flechaEl.textContent = "";
+  $("#datos-container").show().prepend(`
+    <div class="datos-header">
+      <img src="${imagen}" class="datos-imagen">
+      <h2 class="nombrePersonaje">${nombre}</h2>
+    </div>
+  `);
 
-    if (real.trim() === "---") {
-      input.value = "---";
-      input.disabled = true;
-      input.classList.add("correcto");
-    }
+  const form = $("#datosForm");
+  form.empty();
+
+  camposMeta.forEach((campo, i) => {
+    const valorReal = personajeObjetivo[i + 1] || "";
+    const desconocido = valorReal.trim() === "---";
+
+    form.append(`
+      <div class="campo-dato">
+        <label>${campo.label}</label>
+        <input id="${campo.id}" type="text"
+          ${desconocido ? "value='---' disabled class='correcto'" : ""}
+          autocomplete="off">
+        <div class="flecha-indicador" id="flecha-${campo.id}"></div>
+      </div>
+    `);
   });
-
-  const msg = document.getElementById("mensaje-datos");
-  msg.classList.remove("visible");
-  msg.textContent = "";
 }
 
-// ========= COMPARAR =========
-function compararDatos() {
+// =============== COMPARAR DATOS ===============
+function comprobarDatos() {
   let aciertos = 0;
 
-  camposMeta.forEach(c => {
-    const input  = document.getElementById(c.id);
-    const real   = personajeObjetivoD[c.idx] || "";
-    const user   = input.value;
-    const flechaEl = input.nextElementSibling;
+  camposMeta.forEach((campo, i) => {
+    const input = $(`#${campo.id}`);
+    const valorUser = input.val().trim();
+    const valorReal = (personajeObjetivo[i + 1] || "").trim();
+    const flecha = $(`#flecha-${campo.id}`);
 
-    if (input.disabled) {
+    if (input.prop("disabled")) {
       aciertos++;
       return;
     }
 
     let clase = "incorrecto";
-    let flecha = "";
+    let indicador = "";
 
-    const nUser = norm(user);
-    const nReal = norm(real);
-
-    if (c.tipo === "numero") {
-      const uNum = parseNumero(user);
-      const rNum = parseNumero(real);
+    if (campo.tipo === "numero") {
+      const uNum = parseNumero(valorUser);
+      const rNum = parseNumero(valorReal);
       if (uNum !== null && rNum !== null) {
-        if (uNum === rNum) {
-          clase = "correcto";
-        } else if (uNum < rNum) {
-          clase = "incorrecto";
-          flecha = "↑";
-        } else {
-          clase = "incorrecto";
-          flecha = "↓";
-        }
+        if (uNum === rNum) clase = "correcto";
+        else if (uNum < rNum) indicador = "↑";
+        else if (uNum > rNum) indicador = "↓";
       }
-    } else if (c.tipo === "fecha") {
-      const uT = parseFecha(user);
-      const rT = parseFecha(real);
-      if (uT !== null && rT !== null) {
-        if (uT === rT) {
-          clase = "correcto";
-        } else if (uT < rT) {
-          clase = "incorrecto";
-          flecha = "↑";
-        } else {
-          clase = "incorrecto";
-          flecha = "↓";
-        }
+    } else if (campo.tipo === "fecha") {
+      const uF = parseFecha(valorUser);
+      const rF = parseFecha(valorReal);
+      if (uF && rF) {
+        if (uF === rF) clase = "correcto";
+        else if (uF < rF) indicador = "↑";
+        else indicador = "↓";
       }
-    } else if (c.tipo === "lista") {
-      clase = compararListas(user, real); // correcto / parcial / incorrecto
+    } else if (campo.tipo === "lista") {
+      clase = compararListas(valorUser, valorReal);
     } else {
-      if (nUser && nUser === nReal) {
-        clase = "correcto";
-      } else if (nUser && nReal.includes(nUser) && nUser.length > 2) {
-        clase = "parcial";
-      }
+      const nU = norm(valorUser);
+      const nR = norm(valorReal);
+      if (nU === nR && nU.length > 0) clase = "correcto";
+      else if (nR.includes(nU) && nU.length > 2) clase = "parcial";
     }
 
-    input.classList.remove("correcto","incorrecto","parcial");
-    input.classList.add(clase);
-    if (flechaEl) flechaEl.textContent = flecha;
+    input.removeClass("correcto parcial incorrecto").addClass(clase);
+    flecha.text(indicador);
 
     if (clase === "correcto") {
-      input.disabled = true;
+      input.prop("disabled", true);
       aciertos++;
     }
   });
 
-  if (aciertos === camposMeta.length) {
-    const msg = document.getElementById("mensaje-datos");
-    msg.textContent = `🏴‍☠️ ¡Has completado todos los datos de ${personajeObjetivoD[0]}!`;
-    msg.classList.add("visible");
-    msg.style.opacity = 0;
-    $(msg).animate({ opacity: 1 }, 600);
-
-    setTimeout(() => {
-      $(msg).animate({ opacity: 0 }, 600, () => {
-        msg.classList.remove("visible");
-      });
-    }, 5000);
-  }
+  if (aciertos === camposMeta.length) mostrarMensajeFinal();
 }
 
-// ========= EVENTOS =========
-document.getElementById("btn-comprobar").addEventListener("click", function(e) {
-  e.preventDefault();
-  compararDatos();
-});
+// =============== MENSAJE FINAL ===============
+function mostrarMensajeFinal() {
+  const msg = $("#mensaje-datos");
+  msg.text(`🏴‍☠️ ¡Has completado todos los datos de ${personajeObjetivo[0]}!`)
+    .addClass("visible")
+    .css({ opacity: 0 })
+    .animate({ opacity: 1 }, 600);
 
-window.addEventListener("load", cargarDatosFacil);
+  setTimeout(() => {
+    msg.animate({ opacity: 0 }, 600, () => msg.removeClass("visible"));
+  }, 5000);
+}
+
+// =============== EVENTOS ===============
+$(document).ready(() => {
+  cargarPersonaje();
+  $("#btn-comprobar").on("click", (e) => {
+    e.preventDefault();
+    comprobarDatos();
+  });
+});
