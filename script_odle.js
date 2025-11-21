@@ -103,39 +103,75 @@ function seleccionarPersonaje(nombre) {
 
 function compararPersonajes(p) {
   const cuerpo = $('#comparacion-cuerpo');
-  const columnas = ["Nombre", "Primera Aparición", "Saga", "Arco", "Estado", "Origen", "Raza", "Sexo", "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki", "Recompensa", "Afiliación", "Ocupación"];
+  const columnas = [
+    "Nombre", "Primera Aparición", "Saga", "Arco", "Estado", "Origen", "Raza",
+    "Sexo", "Altura", "Edad", "Cumpleaños", "Fruta del Diablo", "Haki",
+    "Recompensa", "Afiliación", "Ocupación"
+  ];
+
   const fila = [];
 
   columnas.forEach((col, i) => {
-    let valA = personajeAleatorio[i] ? String(personajeAleatorio[i]) : "";
-    let valS = p[i] ? String(p[i]) : "";
+    let valA = personajeAleatorio[i] ? String(personajeAleatorio[i]).trim() : "";
+    let valS = p[i] ? String(p[i]).trim() : "";
     let clase = "incorrecto", flecha = "";
 
-    // Texto
-    if ([0,2,3,4,5,6,7,11,12,14].includes(i)) {
-      const norm = t => t.trim().toLowerCase();
-      if (norm(valA) === norm(valS)) clase = "correcto";
-      else if ((i === 11 || i === 12) && (valA.includes(valS) || valS.includes(valA))) clase = "parcial";
+    // Normalizaciones
+    const normLista = txt =>
+      txt.replace(/,/g, "<br>")
+         .replace(/\s*,\s*/g, ",")
+         .trim()
+         .toLowerCase();
+
+    const norm = txt =>
+      txt.replace(/<br>/g, "")
+         .trim()
+         .toLowerCase();
+
+    const esLista = [11, 12, 15].includes(i); // Fruta, Haki, Ocupación
+
+    // --- LISTAS (frutas, haki, ocupación) ---
+    if (esLista) {
+      let normA = normLista(valA);
+      let normS = normLista(valS);
+
+      valS = valS.replace(/,/g, "<br>");
+
+      if (normA === normS && normA !== "") {
+        clase = "correcto";
+      } else if (normA.includes(normS) && normS !== "") {
+        clase = "parcial";
+      }
+
+      fila.push(`<td class="${clase}">${valS}</td>`);
+      return;
     }
 
-    // Números (Altura, Edad, Recompensa)
+    // --- CAMPOS --- ---
+    if (valA === "---" && valS === "---") {
+      clase = "correcto";
+    }
+
+    // --- COMPARACIÓN DE TEXTO ---
+    if ([0,2,3,4,5,6,7,14,15].includes(i)) {
+      if (norm(valA) === norm(valS)) clase = "correcto";
+    }
+
+    // --- NÚMEROS ---
     if ([1,8,9,13].includes(i)) {
       const nA = parseFloat(valA.replace(/[^\d.]/g, ""));
       const nS = parseFloat(valS.replace(/[^\d.]/g, ""));
-      if (isNaN(nA) || isNaN(nS)) clase = "incorrecto";
-      else if (nA === nS) clase = "correcto";
-      else if (nS > nA) { flecha = "↓"; clase = "incorrecto"; }
-      else { flecha = "↑"; clase = "incorrecto"; }
+      if (!isNaN(nA) && !isNaN(nS)) {
+        if (nA === nS) clase = "correcto";
+        else if (nS > nA) flecha = "↓";
+        else flecha = "↑";
+      }
     }
 
-    // Cumpleaños
+    // --- CUMPLEAÑOS ---
     if (i === 10) {
-      if (valA === valS) clase = "correcto";
+      if (norm(valA) === norm(valS)) clase = "correcto";
     }
-
-    // Haki y Ocupación con salto de línea
-    if ([12,14,15].includes(i))
-      valS = valS.replace(/,/g, "<br>");
 
     fila.push(`<td class="${clase}">${valS} ${flecha}</td>`);
   });
