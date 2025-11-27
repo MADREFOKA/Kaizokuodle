@@ -159,8 +159,8 @@ function compararPersonajes(p) {
 
     // --- NÚMEROS ---
     if ([1,8,9,13].includes(i)) {
-      const nA = parseFloat(valA.replace(/[^\d.]/g, ""));
-      const nS = parseFloat(valS.replace(/[^\d.]/g, ""));
+      const nA = parseInt(valA.replace(/[^\d]/g, ""));
+      const nS = parseInt(valS.replace(/[^\d]/g, ""));
       if (!isNaN(nA) && !isNaN(nS)) {
         if (nA === nS) clase = "correcto";
         else if (nS > nA) flecha = "↓";
@@ -225,3 +225,4 @@ function enviarAviso() {
 }
 
 cargarDatos('facil');
+
