@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - One Piece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/utils.js"></script>
+    <style>
+        .timeline-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: move;
+            transition: all 0.3s ease;
+            user-select: none;
+            margin-bottom: 1rem;
+        }
+        .timeline-item:hover {
+            background: white;
+            border-color: #ff6b35;
+            transform: translateX(5px);
+        }
+        .timeline-item.dragging {
+            opacity: 0.5;
+        }
+        .timeline-item.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            color: white;
+        }
+        .timeline-item.incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            color: white;
+        }
+        .timeline-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-background"></div>
+    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
+    
+    <div class="content-wrapper" style="padding: 2rem;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <a href="../index.html" class="btn-secondary" style="text-decoration: none;">← Volver</a>
+                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #f59e0b, #d97706); -webkit-background-clip: text; color: transparent;">TIMELINE CHALLENGE</h1>
+                <div style="width: 120px;"></div>
+            </div>
+            
+            <p style="text-align: center; font-size: 1.25rem; color: white; font-weight: 600; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 2rem;">
+                Ordena los personajes por su primera aparición<br>
+                <span style="font-size: 1rem;">(más antiguo arriba ↑, más reciente abajo ↓)</span>
+            </p>
+            
+            <div id="app">Cargando...</div>
+        </div>
+    </div>
+
+    <script>
+        let characters = [];
+        let items = [];
+        let userOrder = [];
+        let gameOver = false;
+        let draggedIndex = null;
+        let verification = [];
+
+        async function init() {
+            const data = await loadData();
+            characters = data.characters;
+            startGame();
+        }
+
+        function startGame() {
+            const validChars = characters
+                .filter(c => c['Primera Aparición'] && !isNaN(parseInt(c['Primera Aparición'])))
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 10);
+            
+            items = validChars;
+            userOrder = [...validChars].sort(() => Math.random() - 0.5);
+            gameOver = false;
+            verification = [];
+            
+            renderGame();
+        }
+
+        function handleDragStart(index) {
+            draggedIndex = index;
+            document.querySelectorAll('.timeline-item')[index].classList.add('dragging');
+        }
+
+        function handleDragOver(e, index) {
+            e.preventDefault();
+            if (draggedIndex === null || draggedIndex === index) return;
+
+            const newOrder = [...userOrder];
+            const draggedElement = newOrder[draggedIndex];
+            newOrder.splice(draggedIndex, 1);
+            newOrder.splice(index, 0, draggedElement);
+
+            userOrder = newOrder;
+            draggedIndex = index;
+            renderGame();
+        }
+
+        function handleDragEnd() {
+            draggedIndex = null;
+            const draggingItems = document.querySelectorAll('.dragging');
+            draggingItems.forEach(item => item.classList.remove('dragging'));
+        }
+
+        function checkOrder() {
+            const correct = [...items].sort((a, b) => 
+                parseInt(a['Primera Aparición']) - parseInt(b['Primera Aparición'])
+            );
+            
+            verification = userOrder.map((item, idx) => ({
+                ...item,
+                isCorrect: item.Nombre === correct[idx].Nombre
+            }));
+
+            const allCorrect = verification.every(v => v.isCorrect);
+            
+            gameOver = true;
+            renderGame();
+
+            if (allCorrect) {
+                setTimeout(() => {
+                    alert('🎉 ¡PERFECTO! Orden completamente correcto');
+                    saveStats('timeline', {
+                        perfectGames: (getStats('timeline').perfectGames || 0) + 1
+                    });
+                }, 500);
+            }
+        }
+
+        function renderGame() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    ${userOrder.map((item, idx) => {
+                        const verif = verification.find(v => v.Nombre === item.Nombre);
+                        const className = verif ? (verif.isCorrect ? 'correct' : 'incorrect') : '';
+                        
+                        return `
+                            <div 
+                                class="timeline-item ${className}"
+                                draggable="${!gameOver}"
+                                ondragstart="handleDragStart(${idx})"
+                                ondragover="handleDragOver(event, ${idx})"
+                                ondragend="handleDragEnd()"
+                            >
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <span style="font-size: 1.5rem; font-weight: bold; opacity: 0.6; min-width: 40px;">
+                                            #${idx + 1}
+                                        </span>
+                                        <img src="${item.Imagen}" alt="${item.Nombre}"
+                                             onerror="this.style.display='none'">
+                                        <div>
+                                            <h4 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 0.25rem;">
+                                                ${item.Nombre}
+                                            </h4>
+                                            ${gameOver ? `
+                                                <p style="font-size: 0.875rem; opacity: 0.8;">
+                                                    Capítulo: ${item['Primera Aparición']}
+                                                </p>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        ${gameOver ? `
+                                            <span style="font-size: 2rem;">
+                                                ${verif?.isCorrect ? '✅' : '❌'}
+                                            </span>
+                                        ` : `
+                                            <span style="font-size: 2rem; opacity: 0.5; cursor: move;">
+                                                ⋮⋮
+                                            </span>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    ${!gameOver ? `
+                        <button class="btn-primary" onclick="checkOrder()">
+                            ✓ Verificar Orden
+                        </button>
+                    ` : `
+                        <button class="btn-primary" onclick="startGame()">
+                            🔄 Nuevo Timeline
+                        </button>
+                    `}
+                </div>
+
+                ${gameOver ? `
+                    <div style="margin-top: 2rem; text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.9); border-radius: 1rem;">
+                        <h3 style="font-size: 1.5rem; color: #1a1a2e; margin-bottom: 0.5rem;">
+                            Resultado: ${verification.filter(v => v.isCorrect).length}/10 correctos
+                        </h3>
+                        ${verification.every(v => v.isCorrect) ? `
+                            <p style="color: #10b981; font-weight: bold; font-size: 1.25rem;">
+                                ¡Orden perfecto! 🎉
+                            </p>
+                        ` : `
+                            <p style="color: #666;">
+                                Los personajes en verde están en la posición correcta
+                            </p>
+                        `}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        init();
+    </script>
+</body>
+</html>

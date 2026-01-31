@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rellena los Datos - One Piece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/utils.js"></script>
+    <style>
+        .fill-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .fill-card img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 3px solid #4ECDC4;
+        }
+        .field-container {
+            margin-bottom: 1.5rem;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .field-result {
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid;
+            font-size: 0.9rem;
+        }
+        .field-result.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .field-result.partial {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        .field-result.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .arrow-indicator {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-background"></div>
+    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
+    
+    <div class="content-wrapper" style="padding: 2rem;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <a href="../index.html" class="btn-secondary" style="text-decoration: none;">← Volver</a>
+                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #4ECDC4, #44A08D); -webkit-background-clip: text; color: transparent;">
+                    RELLENA LOS DATOS
+                </h1>
+                <div class="stat-card">
+                    <p style="font-size: 0.875rem; color: #666; margin-bottom: 0.25rem;">Puntos Totales</p>
+                    <p id="totalScore" style="font-size: 2rem; font-weight: bold; color: #1a1a2e;">0</p>
+                </div>
+            </div>
+            
+            <div id="app">Cargando...</div>
+        </div>
+    </div>
+
+    <script>
+        let characters = [];
+        let character = null;
+        let answers = {};
+        let revealed = false;
+        let score = 0;
+        let totalScore = parseInt(localStorage.getItem('fillBlanksTotal') || '0');
+
+        const fields = [
+            'Primera Aparición', 'Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 
+            'Estado', 'Altura', 'Edad', 'Cumpleaños', 'Fruta del diablo', 
+            'Haki', 'Recompensa', 'Afiliación', 'Ocupación'
+        ];
+
+        const numericFields = ['Primera Aparición', 'Altura', 'Edad', 'Cumpleaños', 'Recompensa'];
+        const partialFields = ['Fruta del diablo', 'Haki', 'Afiliación', 'Ocupación'];
+
+        async function init() {
+            const data = await loadData();
+            characters = data.characters;
+            document.getElementById('totalScore').textContent = totalScore;
+            newRound();
+        }
+
+        function newRound() {
+            character = characters[Math.floor(Math.random() * characters.length)];
+            answers = {};
+            revealed = false;
+            renderGame();
+        }
+
+        function isEmptyValue(value) {
+            return !value || value === '---' || value.trim() === '';
+        }
+
+        function checkAnswer(field, answer) {
+            const correctValue = character[field]?.toString().toLowerCase().trim() || '';
+            const userValue = answer?.toString().toLowerCase().trim() || '';
+
+            if (isEmptyValue(character[field])) return { status: 'correct', arrow: null };
+            if (userValue === '') return { status: 'incorrect', arrow: null };
+            if (userValue === correctValue) return { status: 'correct', arrow: null };
+
+            // Numeric comparisons
+            if (numericFields.includes(field)) {
+                if (field === 'Cumpleaños') {
+                    const monthsES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                    
+                    const parseDate = (dateStr) => {
+                        const parts = dateStr.split(' ').filter(p => p);
+                        if (parts.length < 2) return null;
+                        const day = parseInt(parts[0]);
+                        const month = monthsES.indexOf(parts[1].toLowerCase());
+                        return month !== -1 ? { day, month } : null;
+                    };
+
+                    const userDate = parseDate(userValue);
+                    const correctDate = parseDate(correctValue);
+
+                    if (userDate && correctDate) {
+                        const userTotal = userDate.month * 31 + userDate.day;
+                        const correctTotal = correctDate.month * 31 + correctDate.day;
+                        return { 
+                            status: 'incorrect', 
+                            arrow: userTotal < correctTotal ? '↑' : '↓'
+                        };
+                    }
+                } else {
+                    const correctNum = parseFloat(correctValue.replace(/[^\d.]/g, ''));
+                    const userNum = parseFloat(userValue.replace(/[^\d.]/g, ''));
+                    if (!isNaN(correctNum) && !isNaN(userNum)) {
+                        return { 
+                            status: 'incorrect', 
+                            arrow: userNum < correctNum ? '↑' : '↓'
+                        };
+                    }
+                }
+            }
+
+            // Partial matches for multi-value fields
+            if (partialFields.includes(field)) {
+                const correctParts = correctValue.split(',').map(p => p.trim());
+                const userParts = userValue.split(',').map(p => p.trim());
+                
+                const hasMatch = userParts.some(up => 
+                    correctParts.some(cp => cp.includes(up) || up.includes(cp))
+                );
+                
+                if (hasMatch) return { status: 'partial', arrow: null };
+            }
+
+            return { status: 'incorrect', arrow: null };
+        }
+
+        function handleCheck() {
+            let correct = 0;
+            fields.forEach(field => {
+                const inputElement = document.getElementById(`field-${field}`);
+                const answer = inputElement ? inputElement.value : '';
+                answers[field] = answer;
+                
+                const result = checkAnswer(field, answer);
+                if (result.status === 'correct') {
+                    correct++;
+                }
+            });
+            
+            score = correct;
+            totalScore += correct;
+            localStorage.setItem('fillBlanksTotal', totalScore.toString());
+            document.getElementById('totalScore').textContent = totalScore;
+            
+            revealed = true;
+            renderGame();
+
+            saveStats('fill-blanks', {
+                totalCorrect: totalScore,
+                lastScore: correct,
+                gamesPlayed: (getStats('fill-blanks').gamesPlayed || 0) + 1
+            });
+        }
+
+        function renderGame() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <div class="fill-card">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <img src="${character.Imagen}" alt="${character.Nombre}"
+                             onerror="this.style.display='none'">
+                        <h2 style="font-size: 2rem; font-weight: bold; color: #1a1a2e; margin-top: 1rem;">
+                            ${character.Nombre}
+                        </h2>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        ${fields.map(field => {
+                            const isEmpty = isEmptyValue(character[field]);
+                            const result = revealed ? checkAnswer(field, answers[field]) : null;
+                            
+                            return `
+                                <div class="field-container">
+                                    <label class="field-label">${field}:</label>
+                                    ${!revealed ? `
+                                        <input
+                                            type="text"
+                                            id="field-${field}"
+                                            class="input-field"
+                                            placeholder="${isEmpty ? 'Auto-correcto' : 'Escribe tu respuesta...'}"
+                                            ${isEmpty ? 'disabled' : ''}
+                                            ${isEmpty ? 'style="background: #d1fae5; border-color: #10b981;"' : ''}
+                                        >
+                                    ` : `
+                                        <div class="field-result ${result.status}">
+                                            <div style="font-weight: bold; margin-bottom: 0.5rem;">
+                                                Tu respuesta: ${answers[field] || '(sin respuesta)'}
+                                                ${result.arrow ? `<span class="arrow-indicator">${result.arrow}</span>` : ''}
+                                            </div>
+                                            <div>
+                                                Correcto: ${character[field] || '---'}
+                                            </div>
+                                        </div>
+                                    `}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; align-items: center;">
+                        ${!revealed ? `
+                            <button class="btn-primary" onclick="handleCheck()">
+                                ✓ Verificar Respuestas
+                            </button>
+                        ` : `
+                            <div style="text-align: center;">
+                                <div style="background: rgba(0,0,0,0.05); padding: 1rem 2rem; border-radius: 1rem; margin-bottom: 1rem;">
+                                    <h3 style="font-size: 1.5rem; color: #1a1a2e; margin-bottom: 0.5rem;">
+                                        Resultado: ${score}/15
+                                    </h3>
+                                    <div style="display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem; color: #666;">
+                                        <span>✅ Correctas: ${fields.filter(f => checkAnswer(f, answers[f]).status === 'correct').length}</span>
+                                        <span>🟡 Parciales: ${fields.filter(f => checkAnswer(f, answers[f]).status === 'partial').length}</span>
+                                        <span>❌ Incorrectas: ${fields.filter(f => checkAnswer(f, answers[f]).status === 'incorrect').length}</span>
+                                    </div>
+                                </div>
+                                <button class="btn-primary" onclick="newRound()">
+                                    Siguiente Personaje →
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                </div>
+
+                ${revealed && score === 15 ? `
+                    <div style="margin-top: 2rem; text-align: center; padding: 2rem; background: linear-gradient(135deg, #10b981, #059669); border-radius: 1rem; color: white;">
+                        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">🎉 ¡PERFECTO! 🎉</h2>
+                        <p style="font-size: 1.25rem;">¡Todas las respuestas correctas!</p>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        init();
+    </script>
+</body>
+</html>
