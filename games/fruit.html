@@ -54,17 +54,17 @@
     <div class="content-wrapper" style="padding: 2rem;">
         <div style="max-width: 900px; margin: 0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                <a href="../index.html" class="btn-secondary" style="text-decoration: none;">← Volver</a>
-                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #9b59b6, #8e44ad); -webkit-background-clip: text; color: transparent;">
+                <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;">← Volver</a>
+                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #9b59b6, #8e44ad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">
                     ADIVINA LA FRUTA/USUARIO
                 </h1>
-                <div class="stat-card">
-                    <p style="font-size: 0.875rem; color: #666; margin-bottom: 0.25rem;">Aciertos</p>
-                    <p id="score" style="font-size: 2rem; font-weight: bold; color: #1a1a2e;">0</p>
+                <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Aciertos</p>
+                    <p id="score" style="font-size: 3rem; font-weight: 800; color: #9b59b6;">0</p>
                 </div>
             </div>
 
-            <div style="display: flex; justify-center; gap: 1rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
                 <button class="mode-btn active" id="userMode" onclick="changeMode('user')">
                     Adivinar Usuario
                 </button>

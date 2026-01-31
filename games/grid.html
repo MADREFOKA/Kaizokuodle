@@ -10,9 +10,7 @@
         body {
             font-family: 'Outfit', sans-serif;
             background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
-            min-height: 100vh;
-            color: #fff;
-            padding: 2rem;
+            min-height: 100vh; color: #fff; padding: 2rem;
         }
         .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
         .btn {
@@ -21,22 +19,17 @@
             color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;
         }
         .btn:hover { border-color: #ff6b35; background: rgba(255, 107, 53, 0.2); }
-        
         .header-container {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 2rem; max-width: 1600px; margin-left: auto; margin-right: auto;
         }
-        
         .score-box {
             background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem;
             border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .score-box h3 { color: #1a1a2e; font-size: 1.1rem; margin-bottom: 0.5rem; }
         .score-box .score { color: #667eea; font-size: 3rem; font-weight: 800; }
-        
-        .search-container {
-            max-width: 800px; margin: 0 auto 2rem; position: relative;
-        }
+        .search-container { max-width: 800px; margin: 0 auto 2rem; position: relative; }
         .input-field {
             width: 100%; padding: 1rem; border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.2);
@@ -66,7 +59,6 @@
             text-align: center; font-size: 1.1rem; padding: 1rem;
             background: rgba(16, 185, 129, 0.1); border-radius: 10px;
         }
-        
         .grid-container { display: flex; justify-content: center; margin: 2rem auto; }
         .grid-table {
             display: grid; grid-template-columns: 200px repeat(3, 200px);
@@ -85,8 +77,7 @@
         }
         .grid-cell.empty:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.03); }
         .grid-cell.empty.selected {
-            background: rgba(255, 215, 0, 0.2);
-            border-color: rgba(255, 215, 0, 0.8);
+            background: rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.8);
         }
         .grid-cell.filled { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
         .grid-cell img {
@@ -106,9 +97,17 @@
         let score = 0;
         let selectedCell = null;
         
-        // TODOS los campos disponibles
-        const ALL_FIELDS = ['Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 'Fruta del diablo', 'Haki', 'Afiliación', 'Ocupación'];
-        const MIN_MATCHES = 3;
+        // Combinaciones VÁLIDAS (NO repetir mismo tipo)
+        const VALID_COMBOS = [
+            ['Saga', 'Raza'], ['Saga', 'Sexo'], ['Saga', 'Estado'], ['Saga', 'Fruta del diablo'], ['Saga', 'Ocupación'], ['Saga', 'Afiliación'],
+            ['Arco', 'Raza'], ['Arco', 'Sexo'], ['Arco', 'Estado'], ['Arco', 'Fruta del diablo'], ['Arco', 'Ocupación'], ['Arco', 'Afiliación'],
+            ['Raza', 'Saga'], ['Raza', 'Arco'], ['Raza', 'Sexo'], ['Raza', 'Estado'], ['Raza', 'Fruta del diablo'], ['Raza', 'Ocupación'], ['Raza', 'Afiliación'],
+            ['Sexo', 'Saga'], ['Sexo', 'Arco'], ['Sexo', 'Raza'], ['Sexo', 'Estado'], ['Sexo', 'Fruta del diablo'], ['Sexo', 'Ocupación'], ['Sexo', 'Afiliación'],
+            ['Estado', 'Saga'], ['Estado', 'Arco'], ['Estado', 'Raza'], ['Estado', 'Sexo'], ['Estado', 'Fruta del diablo'], ['Estado', 'Ocupación'], ['Estado', 'Afiliación'],
+            ['Fruta del diablo', 'Saga'], ['Fruta del diablo', 'Arco'], ['Fruta del diablo', 'Raza'], ['Fruta del diablo', 'Sexo'], ['Fruta del diablo', 'Ocupación'], ['Fruta del diablo', 'Afiliación'],
+            ['Afiliación', 'Saga'], ['Afiliación', 'Arco'], ['Afiliación', 'Raza'], ['Afiliación', 'Sexo'], ['Afiliación', 'Fruta del diablo'], ['Afiliación', 'Ocupación'],
+            ['Ocupación', 'Saga'], ['Ocupación', 'Arco'], ['Ocupación', 'Raza'], ['Ocupación', 'Sexo'], ['Ocupación', 'Fruta del diablo'], ['Ocupación', 'Afiliación']
+        ];
         
         fetch('../characters.json')
             .then(r => r.json())
@@ -150,33 +149,23 @@
         function findAllValidCombinations() {
             const combos = [];
             
-            // Para cada par de campos DIFERENTES
-            for (let i = 0; i < ALL_FIELDS.length; i++) {
-                for (let j = 0; j < ALL_FIELDS.length; j++) {
-                    if (i === j) continue; // NO repetir el mismo campo
-                    
-                    const field1 = ALL_FIELDS[i];
-                    const field2 = ALL_FIELDS[j];
-                    
-                    const values1 = getUniqueValues(field1);
-                    const values2 = getUniqueValues(field2);
-                    
-                    // Para cada valor de cada campo
-                    for (const value1 of values1) {
-                        for (const value2 of values2) {
-                            // Contar personajes que cumplen AMBAS condiciones
-                            const matches = characters.filter(c =>
-                                checkMatch(c, field1, value1) &&
-                                checkMatch(c, field2, value2)
-                            );
-                            
-                            if (matches.length >= MIN_MATCHES) {
-                                combos.push({
-                                    row: { type: field1, value: value1 },
-                                    col: { type: field2, value: value2 },
-                                    count: matches.length
-                                });
-                            }
+            for (const [field1, field2] of VALID_COMBOS) {
+                const values1 = getUniqueValues(field1);
+                const values2 = getUniqueValues(field2);
+                
+                for (const value1 of values1) {
+                    for (const value2 of values2) {
+                        const matches = characters.filter(c =>
+                            checkMatch(c, field1, value1) &&
+                            checkMatch(c, field2, value2)
+                        );
+                        
+                        if (matches.length >= 1) {  // Solo necesitamos 1+
+                            combos.push({
+                                row: { type: field1, value: value1 },
+                                col: { type: field2, value: value2 },
+                                count: matches.length
+                            });
                         }
                     }
                 }
@@ -186,58 +175,34 @@
         }
         
         function generateGrid() {
-            console.log('Buscando combinaciones válidas...');
             const allCombos = findAllValidCombinations();
             console.log(`Encontradas ${allCombos.length} combinaciones válidas`);
             
             if (allCombos.length < 9) {
-                alert(`Error: Solo se encontraron ${allCombos.length} combinaciones válidas (se necesitan al menos 9)`);
+                alert(`Error: Solo ${allCombos.length} combinaciones (necesitas 9)`);
                 return;
             }
             
-            // Seleccionar 9 combinaciones con valores únicos para filas y columnas
             const shuffled = allCombos.sort(() => 0.5 - Math.random());
             const usedRowKeys = new Set();
             const usedColKeys = new Set();
-            const usedRowTypes = new Set();
-            const usedColTypes = new Set();
             const selected = [];
             
             for (const combo of shuffled) {
                 const rowKey = `${combo.row.type}:${combo.row.value}`;
                 const colKey = `${combo.col.type}:${combo.col.value}`;
                 
-                // Verificar que no se repita el mismo tipo en filas/columnas
-                // pero SÍ permitir que row y col tengan el mismo tipo si son valores diferentes
-                const canUse = !usedRowKeys.has(rowKey) && 
-                              !usedColKeys.has(colKey) &&
-                              combo.row.type !== combo.col.type; // NO Raza con Raza
-                
-                if (canUse) {
+                if (!usedRowKeys.has(rowKey) && !usedColKeys.has(colKey)) {
                     selected.push(combo);
                     usedRowKeys.add(rowKey);
                     usedColKeys.add(colKey);
-                    usedRowTypes.add(combo.row.type);
-                    usedColTypes.add(combo.col.type);
-                    
-                    console.log(`Seleccionada: ${combo.row.type}:${combo.row.value} + ${combo.col.type}:${combo.col.value} (${combo.count} personajes)`);
                     
                     if (selected.length === 9) break;
                 }
             }
             
-            if (selected.length < 9) {
-                alert(`Solo se pudieron seleccionar ${selected.length} combinaciones únicas. Recargando...`);
-                location.reload();
-                return;
-            }
-            
-            // Extraer las 3 filas únicas y 3 columnas únicas
             rowCategories = [...new Set(selected.map(s => JSON.stringify(s.row)))].slice(0, 3).map(s => JSON.parse(s));
             colCategories = [...new Set(selected.map(s => JSON.stringify(s.col)))].slice(0, 3).map(s => JSON.parse(s));
-            
-            console.log('Filas:', rowCategories);
-            console.log('Columnas:', colCategories);
             
             grid = Array(3).fill(null).map(() => Array(3).fill(null));
         }
@@ -254,7 +219,6 @@
         
         function selectCell(row, col) {
             if (grid[row][col]) return;
-            
             selectedCell = { row, col };
             document.getElementById('searchInput').value = '';
             document.getElementById('searchInput').focus();
@@ -305,9 +269,7 @@
                 
                 setTimeout(() => {
                     document.getElementById('message').innerHTML = '';
-                    if (score === 9) {
-                        alert('🎉 ¡COMPLETADO! 🎉');
-                    }
+                    if (score === 9) alert('🎉 ¡COMPLETADO! 🎉');
                     renderGame();
                 }, 1000);
             } else {
@@ -327,14 +289,9 @@
                 </div>
                 
                 <div class="search-container">
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        class="input-field" 
+                    <input type="text" id="searchInput" class="input-field" 
                         placeholder="${selectedCell ? 'Escribe el nombre del personaje...' : 'Selecciona una celda primero'}"
-                        oninput="handleSearch(this.value)"
-                        ${!selectedCell ? 'disabled' : ''}
-                    />
+                        oninput="handleSearch(this.value)" ${!selectedCell ? 'disabled' : ''} />
                     <div id="suggestions" class="suggestions"></div>
                 </div>
                 
@@ -343,14 +300,12 @@
                 <div class="grid-container">
                     <div class="grid-table">
                         <div class="grid-cell" style="background: transparent;"></div>
-                        
                         ${colCategories.map(cat => `
                             <div class="grid-cell header">
                                 <div class="category-label">${cat.type}</div>
                                 <div>${cat.value}</div>
                             </div>
                         `).join('')}
-                        
                         ${rowCategories.map((rowCat, rowIdx) => `
                             <div class="grid-cell row-header">
                                 <div class="category-label">${rowCat.type}</div>
@@ -361,18 +316,14 @@
                                 const isSelected = selectedCell && selectedCell.row === rowIdx && selectedCell.col === colIdx;
                                 
                                 if (cell) {
-                                    return `
-                                        <div class="grid-cell filled">
-                                            <img src="${cell.Imagen}" onerror="this.style.display='none'" />
-                                            <div style="font-size: 0.95rem;">${cell.Nombre}</div>
-                                        </div>
-                                    `;
+                                    return `<div class="grid-cell filled">
+                                        <img src="${cell.Imagen}" onerror="this.style.display='none'" />
+                                        <div style="font-size: 0.95rem;">${cell.Nombre}</div>
+                                    </div>`;
                                 } else {
-                                    return `
-                                        <div class="grid-cell empty ${isSelected ? 'selected' : ''}" onclick="selectCell(${rowIdx}, ${colIdx})">
-                                            <div style="font-size: 4rem; opacity: 0.4;">?</div>
-                                        </div>
-                                    `;
+                                    return `<div class="grid-cell empty ${isSelected ? 'selected' : ''}" onclick="selectCell(${rowIdx}, ${colIdx})">
+                                        <div style="font-size: 4rem; opacity: 0.4;">?</div>
+                                    </div>`;
                                 }
                             }).join('')}
                         `).join('')}
