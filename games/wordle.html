@@ -123,6 +123,14 @@
             border: 3px solid #ff6b35;
             margin-bottom: 1rem;
         }
+        .result-box-win {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border: 3px solid #10b981;
+        }
+        .result-box-lose {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border: 3px solid #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -241,9 +249,8 @@
             
             if (char.Nombre === target.Nombre) {
                 gameOver = true;
-            } else if (guesses.length >= 6) {
-                gameOver = true;
             }
+            // SIN LÍMITE DE INTENTOS - removido el else if
             
             renderGame();
         }
@@ -381,9 +388,9 @@
                     </div>
                     
                     ${gameOver ? `
-                        <div style="max-width: 600px; margin: 3rem auto; text-align: center; background: rgba(255,255,255,0.9); padding: 2rem; border-radius: 20px; color: black;">
+                        <div class="${won ? 'result-box-win' : 'result-box-lose'}" style="max-width: 600px; margin: 3rem auto; text-align: center; padding: 2rem; border-radius: 20px; color: black;">
                             <img src="${target.Imagen}" class="result-image" onerror="this.style.display='none'" />
-                            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">${won ? '🎉 ¡GANASTE! 🎉' : '😢 PERDISTE 😢'}</h2>
+                            <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: ${won ? '#059669' : '#dc2626'};">${won ? '🎉 ¡GANASTE! 🎉' : '😢 PERDISTE 😢'}</h2>
                             <p style="font-size: 1.5rem; margin-bottom: 2rem;">El personaje era: <strong style="color: #ff6b35;">${target.Nombre}</strong></p>
                             <button class="btn btn-primary" onclick="startGame()" style="font-size: 1.25rem; padding: 1rem 2rem;">Jugar de nuevo</button>
                         </div>
