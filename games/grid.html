@@ -106,35 +106,15 @@
         let score = 0;
         let selectedCell = null;
         
-        // Categorías LÓGICAS
-        const possibleCombinations = [
-            // Afiliación + Haki
-            { row: { type: 'Afiliación', value: 'Piratas Sombrero de Paja' }, col: { type: 'Haki', value: 'Armadura' } },
-            { row: { type: 'Afiliación', value: 'Marines' }, col: { type: 'Haki', value: 'Observación' } },
-            { row: { type: 'Afiliación', value: 'Piratas Barbablanca' }, col: { type: 'Haki', value: 'Conquistador' } },
-            
-            // Origen + Afiliación
-            { row: { type: 'Origen', value: 'East Blue' }, col: { type: 'Afiliación', value: 'Piratas Sombrero de Paja' } },
-            { row: { type: 'Origen', value: 'Grand Line' }, col: { type: 'Afiliación', value: 'Marines' } },
-            { row: { type: 'Origen', value: 'North Blue' }, col: { type: 'Afiliación', value: 'Piratas Sombrero de Paja' } },
-            
-            // Saga + Afiliación
-            { row: { type: 'Saga', value: 'Arabasta' }, col: { type: 'Afiliación', value: 'Piratas Sombrero de Paja' } },
-            { row: { type: 'Saga', value: 'Enies Lobby' }, col: { type: 'Afiliación', value: 'Marines' } },
-            { row: { type: 'Saga', value: 'Marineford' }, col: { type: 'Afiliación', value: 'Piratas Barbablanca' } },
-            { row: { type: 'Saga', value: 'Dressrosa' }, col: { type: 'Afiliación', value: 'Piratas Sombrero de Paja' } },
-            { row: { type: 'Saga', value: 'Wano' }, col: { type: 'Afiliación', value: 'Piratas Kaido' } },
-            
-            // Fruta + Afiliación
-            { row: { type: 'Fruta del diablo', value: 'Paramecia' }, col: { type: 'Afiliación', value: 'Piratas Sombrero de Paja' } },
-            { row: { type: 'Fruta del diablo', value: 'Zoan' }, col: { type: 'Afiliación', value: 'Marines' } },
-            { row: { type: 'Fruta del diablo', value: 'Logia' }, col: { type: 'Afiliación', value: 'Marines' } }
-        ];
+        // TODOS los campos disponibles
+        const ALL_FIELDS = ['Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 'Fruta del diablo', 'Haki', 'Afiliación', 'Ocupación'];
+        const MIN_MATCHES = 3;
         
         fetch('../characters.json')
             .then(r => r.json())
             .then(data => {
                 characters = data.filter(c => c.Nombre && c.Imagen);
+                console.log(`Loaded ${characters.length} characters`);
                 generateGrid();
                 renderGame();
             })
@@ -145,7 +125,7 @@
         
         function checkMatch(char, type, value) {
             const field = char[type];
-            if (!field || field === '---') return false;
+            if (!field || field === '---' || field === '') return false;
             
             const fieldLower = field.toLowerCase().trim();
             const valueLower = value.toLowerCase().trim();
@@ -158,45 +138,106 @@
             return fieldLower === valueLower || fieldLower.includes(valueLower);
         }
         
+        function getUniqueValues(fieldType) {
+            return [...new Set(
+                characters
+                    .map(c => c[fieldType])
+                    .filter(v => v && v !== '---' && v !== '')
+                    .flatMap(v => v.split(',').map(x => x.trim()))
+            )];
+        }
+        
+        function findAllValidCombinations() {
+            const combos = [];
+            
+            // Para cada par de campos DIFERENTES
+            for (let i = 0; i < ALL_FIELDS.length; i++) {
+                for (let j = 0; j < ALL_FIELDS.length; j++) {
+                    if (i === j) continue; // NO repetir el mismo campo
+                    
+                    const field1 = ALL_FIELDS[i];
+                    const field2 = ALL_FIELDS[j];
+                    
+                    const values1 = getUniqueValues(field1);
+                    const values2 = getUniqueValues(field2);
+                    
+                    // Para cada valor de cada campo
+                    for (const value1 of values1) {
+                        for (const value2 of values2) {
+                            // Contar personajes que cumplen AMBAS condiciones
+                            const matches = characters.filter(c =>
+                                checkMatch(c, field1, value1) &&
+                                checkMatch(c, field2, value2)
+                            );
+                            
+                            if (matches.length >= MIN_MATCHES) {
+                                combos.push({
+                                    row: { type: field1, value: value1 },
+                                    col: { type: field2, value: value2 },
+                                    count: matches.length
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return combos;
+        }
+        
         function generateGrid() {
-            // Filtrar combinaciones válidas (3+ personajes)
-            const validCombos = possibleCombinations.filter(combo => {
-                const matches = characters.filter(c =>
-                    checkMatch(c, combo.row.type, combo.row.value) &&
-                    checkMatch(c, combo.col.type, combo.col.value)
-                );
-                return matches.length >= 3;
-            });
+            console.log('Buscando combinaciones válidas...');
+            const allCombos = findAllValidCombinations();
+            console.log(`Encontradas ${allCombos.length} combinaciones válidas`);
             
-            console.log('Valid combos:', validCombos.length);
-            
-            if (validCombos.length < 9) {
-                alert('Error: No hay suficientes combinaciones válidas');
+            if (allCombos.length < 9) {
+                alert(`Error: Solo se encontraron ${allCombos.length} combinaciones válidas (se necesitan al menos 9)`);
                 return;
             }
             
-            // Seleccionar 9 combinaciones únicas
-            const shuffled = validCombos.sort(() => 0.5 - Math.random());
-            const usedRows = new Set();
-            const usedCols = new Set();
+            // Seleccionar 9 combinaciones con valores únicos para filas y columnas
+            const shuffled = allCombos.sort(() => 0.5 - Math.random());
+            const usedRowKeys = new Set();
+            const usedColKeys = new Set();
+            const usedRowTypes = new Set();
+            const usedColTypes = new Set();
             const selected = [];
             
             for (const combo of shuffled) {
                 const rowKey = `${combo.row.type}:${combo.row.value}`;
                 const colKey = `${combo.col.type}:${combo.col.value}`;
                 
-                if (!usedRows.has(rowKey) && !usedCols.has(colKey) && selected.length < 9) {
-                    selected.push(combo);
-                    usedRows.add(rowKey);
-                    usedCols.add(colKey);
-                }
+                // Verificar que no se repita el mismo tipo en filas/columnas
+                // pero SÍ permitir que row y col tengan el mismo tipo si son valores diferentes
+                const canUse = !usedRowKeys.has(rowKey) && 
+                              !usedColKeys.has(colKey) &&
+                              combo.row.type !== combo.col.type; // NO Raza con Raza
                 
-                if (selected.length === 9) break;
+                if (canUse) {
+                    selected.push(combo);
+                    usedRowKeys.add(rowKey);
+                    usedColKeys.add(colKey);
+                    usedRowTypes.add(combo.row.type);
+                    usedColTypes.add(combo.col.type);
+                    
+                    console.log(`Seleccionada: ${combo.row.type}:${combo.row.value} + ${combo.col.type}:${combo.col.value} (${combo.count} personajes)`);
+                    
+                    if (selected.length === 9) break;
+                }
             }
             
-            // Organizar en 3x3
+            if (selected.length < 9) {
+                alert(`Solo se pudieron seleccionar ${selected.length} combinaciones únicas. Recargando...`);
+                location.reload();
+                return;
+            }
+            
+            // Extraer las 3 filas únicas y 3 columnas únicas
             rowCategories = [...new Set(selected.map(s => JSON.stringify(s.row)))].slice(0, 3).map(s => JSON.parse(s));
             colCategories = [...new Set(selected.map(s => JSON.stringify(s.col)))].slice(0, 3).map(s => JSON.parse(s));
+            
+            console.log('Filas:', rowCategories);
+            console.log('Columnas:', colCategories);
             
             grid = Array(3).fill(null).map(() => Array(3).fill(null));
         }
@@ -212,7 +253,7 @@
         }
         
         function selectCell(row, col) {
-            if (grid[row][col]) return; // Ya está llena
+            if (grid[row][col]) return;
             
             selectedCell = { row, col };
             document.getElementById('searchInput').value = '';
