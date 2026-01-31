@@ -1,77 +1,73 @@
-// Load game data
-let characters = [];
-let fruits = [];
-let ships = [];
-
+// Función para cargar datos desde GitHub Pages o local
 async function loadData() {
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    const basePath = isGitHubPages 
+        ? window.location.pathname.split('/').slice(0, -2).join('/') + '/'
+        : '../';
+    
     try {
-        const [charsRes, fruitsRes, shipsRes] = await Promise.all([
-            fetch('../characters.json'),
-            fetch('../fruits.json'),
-            fetch('../ships.json')
+        const [charactersRes, fruitsRes, shipsRes] = await Promise.all([
+            fetch(basePath + 'characters.json'),
+            fetch(basePath + 'fruits.json'),
+            fetch(basePath + 'ships.json')
         ]);
         
-        characters = await charsRes.json();
-        fruits = await fruitsRes.json();
-        ships = await shipsRes.json();
+        const characters = await charactersRes.json();
+        const fruits = await fruitsRes.json();
+        const ships = await shipsRes.json();
         
         return { characters, fruits, ships };
     } catch (error) {
         console.error('Error loading data:', error);
-        return { characters: [], fruits: [], ships: [] };
+        throw error;
     }
 }
 
-// Make loadData available globally
+// Función para obtener caracteres válidos por dificultad
+function getValidCharactersByDifficulty(characters, difficultyLevels) {
+    return characters.filter(c => 
+        c.Nombre && difficultyLevels.includes(parseInt(c.Dificultad))
+    );
+}
+
+// Función para formatear nombres con /
+function formatNameWithSlash(name) {
+    if (!name) return name;
+    return name.replace(/\s*\/\s*/g, '<br>');
+}
+
+// Función para formatear valores múltiples (con comas)
+function formatMultiValue(value) {
+    if (!value || value === '---') return value;
+    return value.split(',').map(v => v.trim()).join('<br>');
+}
+
+// Función para comparar cumpleaños
+function compareBirthdays(guessVal, targetVal) {
+    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    
+    const parseDate = (str) => {
+        const parts = str.toLowerCase().split(' ').filter(p => p);
+        if (parts.length < 2) return null;
+        const day = parseInt(parts[0]);
+        const monthIdx = months.indexOf(parts[1]);
+        return monthIdx !== -1 ? { day, month: monthIdx } : null;
+    };
+    
+    const gDate = parseDate(guessVal);
+    const tDate = parseDate(targetVal);
+    
+    if (!gDate || !tDate) return null;
+    
+    const gTotal = gDate.month * 31 + gDate.day;
+    const tTotal = tDate.month * 31 + tDate.day;
+    
+    return gTotal < tTotal ? '↑' : (gTotal > tTotal ? '↓' : null);
+}
+
+// Exportar funciones globalmente
 window.loadData = loadData;
-
-// Stats management
-function saveStats(gameName, stats) {
-    const allStats = JSON.parse(localStorage.getItem('opGamesStats') || '{}');
-    allStats[gameName] = {
-        ...(allStats[gameName] || {}),
-        ...stats,
-        lastPlayed: new Date().toISOString()
-    };
-    localStorage.setItem('opGamesStats', JSON.stringify(allStats));
-}
-
-function getStats(gameName) {
-    const allStats = JSON.parse(localStorage.getItem('opGamesStats') || '{}');
-    return allStats[gameName] || {};
-}
-
-// Utility functions
-function shuffleArray(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
-
-function getRandomElement(array) {
-    return array[Math.floor(Math.random() * array.length)];
-}
-
-function parseNumeric(value) {
-    return parseFloat(value.replace(/[^\d.]/g, ''));
-}
-
-function isEmptyValue(value) {
-    return !value || value === '---' || value.trim() === '';
-}
-
-// Export for modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        loadData,
-        saveStats,
-        getStats,
-        shuffleArray,
-        getRandomElement,
-        parseNumeric,
-        isEmptyValue
-    };
-}
+window.getValidCharactersByDifficulty = getValidCharactersByDifficulty;
+window.formatNameWithSlash = formatNameWithSlash;
+window.formatMultiValue = formatMultiValue;
+window.compareBirthdays = compareBirthdays;
