@@ -7,178 +7,95 @@
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        .min-h-screen { min-height: 100vh; }
-        .p-8 { padding: 2rem; }
-        .max-w-7xl { max-width: 80rem; margin: 0 auto; }
-        .text-center { text-align: center; }
-        .mb-12 { margin-bottom: 3rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mt-12 { margin-top: 3rem; }
-        .text-7xl { font-size: 4.5rem; line-height: 1; }
-        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-        .text-gray-800 { color: #1f2937; }
-        .text-gray-600 { color: #4b5563; }
-        .text-white { color: white; }
-        .font-bold { font-weight: 700; }
-        .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
-        .from-yellow-400 { --tw-gradient-from: #fbbf24; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
-        .via-orange-500 { --tw-gradient-via: #f97316; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to); }
-        .to-red-600 { --tw-gradient-to: #dc2626; }
-        .bg-clip-text { -webkit-background-clip: text; background-clip: text; }
-        .text-transparent { color: transparent; }
-        .grid { display: grid; }
-        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        .gap-6 { gap: 1.5rem; }
-        .game-icon-svg { width: 80px; height: 80px; margin: 0 auto 1rem; }
-        @media (min-width: 768px) {
-            .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (min-width: 1024px) {
-            .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            font-size: 3rem;
         }
     </style>
 </head>
 <body>
     <div class="ocean-background"></div>
-    <div class="clouds">
-        <div class="cloud cloud1"></div>
-        <div class="cloud cloud2"></div>
-        <div class="cloud cloud3"></div>
-    </div>
     <div class="waves">
         <div class="wave"></div>
         <div class="wave"></div>
         <div class="wave"></div>
     </div>
-    <div class="ship-container">
-        <svg class="sunny-ship" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="150" cy="140" rx="120" ry="40" fill="#8B4513"/>
-            <ellipse cx="150" cy="135" rx="115" ry="35" fill="#A0522D"/>
-            <rect x="50" y="110" width="200" height="30" rx="5" fill="#CD853F"/>
-            <rect x="60" y="115" width="180" height="20" fill="#DEB887"/>
-            <rect x="145" y="30" width="10" height="90" fill="#8B4513"/>
-            <path d="M 155 40 Q 200 60 195 100 L 155 95 Z" fill="#F5F5DC" stroke="#8B4513" stroke-width="2"/>
-            <circle cx="175" cy="65" r="15" fill="#FFE4B5" stroke="#8B4513" stroke-width="2"/>
-            <ellipse cx="175" cy="58" rx="12" ry="8" fill="#DC143C"/>
-            <rect x="163" y="63" width="24" height="3" fill="#8B4513"/>
-            <rect x="95" y="50" width="8" height="70" fill="#8B4513"/>
-            <path d="M 103 55 Q 130 70 125 100 L 103 95 Z" fill="#F5F5DC" stroke="#8B4513" stroke-width="2"/>
-            <circle cx="250" cy="120" r="20" fill="#FFD700"/>
-            <circle cx="245" cy="115" r="3" fill="#000"/>
-            <circle cx="255" cy="115" r="3" fill="#000"/>
-            <path d="M 245 125 Q 250 128 255 125" stroke="#000" stroke-width="2" fill="none"/>
-            <circle cx="235" cy="110" r="8" fill="#FFA500"/>
-            <circle cx="240" cy="105" r="6" fill="#FFA500"/>
-            <circle cx="265" cy="110" r="8" fill="#FFA500"/>
-            <circle cx="260" cy="105" r="6" fill="#FFA500"/>
-            <rect x="155" y="25" width="2" height="15" fill="#000"/>
-            <path d="M 157 25 L 175 30 L 157 35 Z" fill="#000"/>
-            <rect x="103" y="45" width="2" height="12" fill="#000"/>
-            <path d="M 105 45 L 120 49 L 105 53 Z" fill="#000"/>
-            <circle cx="100" cy="125" r="4" fill="#87CEEB"/>
-            <circle cx="120" cy="125" r="4" fill="#87CEEB"/>
-            <circle cx="180" cy="125" r="4" fill="#87CEEB"/>
-            <circle cx="200" cy="125" r="4" fill="#87CEEB"/>
-            <path d="M 80 135 L 80 145 M 75 145 L 85 145 M 77 148 L 80 145 L 83 148" stroke="#4A4A4A" stroke-width="2" fill="none"/>
-        </svg>
-    </div>
 
-    <div class="content-wrapper">
-        <div class="min-h-screen p-8">
-            <div class="max-w-7xl">
-                <div class="text-center mb-12 fade-in">
-                    <h1 class="title-font text-7xl mb-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 bg-clip-text text-transparent" 
-                        style="text-shadow: 3px 3px 6px rgba(0,0,0,0.3); -webkit-text-stroke: 2px rgba(255,255,255,0.3);">
-                        ONE PIECE GAMES
-                    </h1>
-                    <p class="text-2xl text-white font-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
-                        🏴‍☠️ Colección de juegos para nakamas 🏴‍☠️
-                    </p>
-                </div>
+    <div class="content-wrapper" style="min-height: 100vh; padding: 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <div style="text-center; margin-bottom: 3rem;">
+                <h1 class="title-font" style="font-size: 4.5rem; line-height: 1; margin-bottom: 1rem; background: linear-gradient(to right, #fbbf24, #f97316, #dc2626); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 3px 3px 6px rgba(0,0,0,0.3);">
+                    ONE PIECE GAMES
+                </h1>
+                <p style="font-size: 1.5rem; color: #d1d5db; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+                    🏴‍☠️ Colección de juegos para nakamas 🏴‍☠️
+                </p>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <a href="games/wordle.html" class="game-card fade-in" style="animation-delay: 0s; text-decoration: none;">
-                        <svg class="game-icon-svg" viewBox="0 0 100 100">
-                            <circle cx="35" cy="35" r="25" fill="none" stroke="#FF6B35" stroke-width="4"/>
-                            <line x1="52" y1="52" x2="75" y2="75" stroke="#FF6B35" stroke-width="6" stroke-linecap="round"/>
-                            <rect x="20" y="20" width="30" height="35" fill="#F5E6D3" stroke="#8B4513" stroke-width="2"/>
-                            <circle cx="35" cy="32" r="6" fill="#000"/>
-                            <path d="M 30 40 Q 35 42 40 40" stroke="#000" stroke-width="2" fill="none"/>
-                            <text x="35" y="52" font-size="6" fill="#DC143C" text-anchor="middle" font-weight="bold">WANTED</text>
-                        </svg>
-                        <h3 class="text-2xl font-bold mb-2 text-gray-800">Adivina el Personaje</h3>
-                        <p class="text-gray-600">Wordle de One Piece</p>
-                    </a>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <!-- Adivina el Personaje -->
+                <a href="games/wordle.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease;">
+                    <div class="game-icon" style="background: linear-gradient(135deg, #a855f7, #ec4899);">
+                        🔍
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Adivina el Personaje</h3>
+                    <p style="color: #9ca3af;">Wordle de One Piece con 5 dificultades</p>
+                </a>
 
-                    <a href="games/grid.html" class="game-card fade-in" style="animation-delay: 0.1s; text-decoration: none;">
-                        <svg class="game-icon-svg" viewBox="0 0 100 100">
-                            <rect x="10" y="10" width="25" height="25" fill="#4ECDC4" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="37.5" y="10" width="25" height="25" fill="#FF6B6B" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="65" y="10" width="25" height="25" fill="#FFE66D" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="10" y="37.5" width="25" height="25" fill="#95E1D3" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="37.5" y="37.5" width="25" height="25" fill="#F38181" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="65" y="37.5" width="25" height="25" fill="#AA96DA" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="10" y="65" width="25" height="25" fill="#FCBAD3" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="37.5" y="65" width="25" height="25" fill="#A8D8EA" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <rect x="65" y="65" width="25" height="25" fill="#FFA07A" stroke="#1A535C" stroke-width="2" rx="3"/>
-                            <circle cx="50" cy="50" r="8" fill="#FFE4B5" stroke="#8B4513" stroke-width="1.5"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mb-2 text-gray-800">Grid Challenge</h3>
-                        <p class="text-gray-600">Matriz 3x3</p>
-                    </a>
+                <!-- Grid Challenge -->
+                <a href="games/grid.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.1s;">
+                    <div class="game-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        🎯
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Grid Challenge</h3>
+                    <p style="color: #9ca3af;">Matriz 3x3 de personajes</p>
+                </a>
 
-                    <a href="games/higher.html" class="game-card fade-in" style="animation-delay: 0.2s; text-decoration: none;">
-                        <svg class="game-icon-svg" viewBox="0 0 100 100">
-                            <rect x="20" y="15" width="60" height="70" fill="#F5E6D3" stroke="#8B4513" stroke-width="3" rx="3"/>
-                            <text x="50" y="30" font-size="10" fill="#DC143C" text-anchor="middle" font-weight="bold">WANTED</text>
-                            <text x="50" y="55" font-size="20" fill="#000" text-anchor="middle" font-weight="bold">฿฿฿</text>
-                            <path d="M 30 70 L 30 75 L 35 70 M 30 75 L 25 70" stroke="#00A86B" stroke-width="3" fill="none"/>
-                            <path d="M 70 70 L 70 65 L 75 70 M 70 65 L 65 70" stroke="#DC143C" stroke-width="3" fill="none"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mb-2 text-gray-800">Higher or Lower</h3>
-                        <p class="text-gray-600">Recompensas</p>
-                    </a>
+                <!-- Higher or Lower -->
+                <a href="games/higher.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.2s;">
+                    <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                        📈
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Higher or Lower</h3>
+                    <p style="color: #9ca3af;">Compara recompensas piratas</p>
+                </a>
 
-                    <a href="games/timeline.html" class="game-card fade-in" style="animation-delay: 0.3s; text-decoration: none;">
-                        <svg class="game-icon-svg" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="35" fill="#FFF" stroke="#FF6B35" stroke-width="4"/>
-                            <circle cx="50" cy="50" r="3" fill="#FF6B35"/>
-                            <line x1="50" y1="50" x2="50" y2="25" stroke="#FF6B35" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="65" y2="50" stroke="#FF6B35" stroke-width="2.5" stroke-linecap="round"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mb-2 text-gray-800">Timeline</h3>
-                        <p class="text-gray-600">Orden cronológico</p>
-                    </a>
+                <!-- Timeline -->
+                <a href="games/timeline.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.3s;">
+                    <div class="game-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        ⏰
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Timeline</h3>
+                    <p style="color: #9ca3af;">Ordena por aparición</p>
+                </a>
 
-                    <a href="games/fruit.html" class="game-card fade-in" style="animation-delay: 0.4s; text-decoration: none;">
-                        <svg class="game-icon-svg" viewBox="0 0 100 100">
-                            <ellipse cx="50" cy="55" rx="30" ry="35" fill="#9B59B6"/>
-                            <path d="M 35 40 Q 38 35 42 40 Q 45 35 48 40 Q 52 35 55 40 Q 58 35 62 40 Q 65 35 68 40" stroke="#7D3C98" stroke-width="2" fill="none"/>
-                            <ellipse cx="50" cy="25" rx="12" ry="8" fill="#27AE60"/>
-                            <text x="50" y="58" font-size="25" text-anchor="middle">?</text>
-                        </svg>
-                        <h3 class="text-2xl font-bold mb-2 text-gray-800">Fruta del Diablo</h3>
-                        <p class="text-gray-600">Adivina la fruta</p>
-                    </a>
+                <!-- Adivina Fruta -->
+                <a href="games/fruit.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.4s;">
+                    <div class="game-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        🍎
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Adivina la Fruta/Usuario</h3>
+                    <p style="color: #9ca3af;">Frutas del diablo</p>
+                </a>
 
-                    <a href="games/fill.html" class="game-card fade-in" style="animation-delay: 0.5s; text-decoration: none;">
-                        <svg class="game-icon-svg" viewBox="0 0 100 100">
-                            <rect x="25" y="15" width="50" height="70" fill="#FFF" stroke="#333" stroke-width="3" rx="2"/>
-                            <line x1="25" y1="25" x2="75" y2="25" stroke="#DC143C" stroke-width="2"/>
-                            <rect x="25" y="15" width="8" height="70" fill="#FF6B35"/>
-                            <line x1="35" y1="35" x2="70" y2="35" stroke="#333" stroke-width="1.5"/>
-                            <line x1="35" y1="45" x2="65" y2="45" stroke="#DDD" stroke-width="1.5" stroke-dasharray="5,5"/>
-                        </svg>
-                        <h3 class="text-2xl font-bold mb-2 text-gray-800">Rellena los Datos</h3>
-                        <p class="text-gray-600">Completa info</p>
-                    </a>
-                </div>
+                <!-- Rellena los Datos -->
+                <a href="games/fill.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.5s;">
+                    <div class="game-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        ✏️
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Rellena los Datos</h3>
+                    <p style="color: #9ca3af;">Completa información del personaje</p>
+                </a>
+            </div>
 
-                <div class="mt-12 text-center">
-                    <p class="text-white font-bold text-xl" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">⚓ Que comience la aventura pirata ⚓</p>
-                </div>
+            <div style="margin-top: 3rem; text-align: center;">
+                <p style="color: #9ca3af; font-weight: 600;">⚓ Que comience la aventura pirata ⚓</p>
             </div>
         </div>
     </div>

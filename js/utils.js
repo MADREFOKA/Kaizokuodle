@@ -22,6 +22,9 @@ async function loadData() {
     }
 }
 
+// Make loadData available globally
+window.loadData = loadData;
+
 // Stats management
 function saveStats(gameName, stats) {
     const allStats = JSON.parse(localStorage.getItem('opGamesStats') || '{}');
