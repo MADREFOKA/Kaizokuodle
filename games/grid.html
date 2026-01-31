@@ -122,11 +122,15 @@
         let score = 0;
         let currentCell = null;
         
-        const categories = {
-            'Afiliación': ['Piratas Sombrero de Paja', 'Piratas Barbablanca', 'Marines', 'Revolucionarios'],
-            'Origen': ['East Blue', 'Grand Line', 'North Blue', 'South Blue'],
-            'Raza': ['Humano', 'Gyojin', 'Mink'],
-            'Saga': ['East Blue', 'Arabasta', 'Enies Lobby', 'Marineford', 'Dressrosa', 'Wano']
+        // Categorías que NO pueden repetirse en filas y columnas
+        const rowTypes = ['Origen', 'Saga'];
+        const colTypes = ['Afiliación', 'Raza'];
+        
+        const categoryValues = {
+            'Afiliación': ['Piratas Sombrero de Paja', 'Piratas Barbablanca', 'Marines', 'Revolucionarios', 'Piratas Big Mom', 'Piratas Kaido'],
+            'Origen': ['East Blue', 'Grand Line', 'North Blue', 'South Blue', 'West Blue'],
+            'Raza': ['Humano', 'Gyojin', 'Mink', 'Gigante'],
+            'Saga': ['East Blue', 'Arabasta', 'Skypiea', 'Enies Lobby', 'Marineford', 'Dressrosa', 'Whole Cake', 'Wano']
         };
         
         fetch('../characters.json')
@@ -141,61 +145,96 @@
                 document.getElementById('app').innerHTML = '<div style="text-align:center;">Error cargando datos</div>';
             });
         
-        function findValidCategories() {
+        function checkMatch(char, type, value) {
+            const field = char[type];
+            if (!field) return false;
+            
+            const fieldLower = field.toLowerCase();
+            const valueLower = value.toLowerCase();
+            
+            // Para campos con múltiples valores separados por comas
+            if (fieldLower.includes(',')) {
+                const parts = fieldLower.split(',').map(p => p.trim());
+                return parts.some(part => part === valueLower || part.includes(valueLower) || valueLower.includes(part));
+            }
+            
+            // Para campos simples
+            return fieldLower === valueLower || fieldLower.includes(valueLower) || valueLower.includes(fieldLower);
+        }
+        
+        function findValidCombinations() {
             const validCombos = [];
             
-            for (const [type1, values1] of Object.entries(categories)) {
-                for (const value1 of values1) {
-                    for (const [type2, values2] of Object.entries(categories)) {
-                        if (type1 === type2) continue;
-                        
-                        for (const value2 of values2) {
-                            const matches = characters.filter(c => {
-                                const field1 = c[type1]?.toLowerCase() || '';
-                                const field2 = c[type2]?.toLowerCase() || '';
-                                return field1.includes(value1.toLowerCase()) && field2.includes(value2.toLowerCase());
-                            });
+            // Filas: Origen o Saga
+            // Columnas: Afiliación o Raza
+            for (const rowType of rowTypes) {
+                for (const rowValue of categoryValues[rowType]) {
+                    for (const colType of colTypes) {
+                        for (const colValue of categoryValues[colType]) {
+                            const matches = characters.filter(c => 
+                                checkMatch(c, rowType, rowValue) && checkMatch(c, colType, colValue)
+                            );
                             
                             if (matches.length >= 3) {
-                                validCombos.push({ type1, value1, type2, value2, characters: matches });
+                                validCombos.push({
+                                    rowType, rowValue, colType, colValue,
+                                    count: matches.length,
+                                    characters: matches
+                                });
                             }
                         }
                     }
                 }
             }
+            
             return validCombos;
         }
         
         function generateGrid() {
-            const validCombos = findValidCategories();
+            const validCombos = findValidCombinations();
+            console.log('Valid combinations found:', validCombos.length);
+            
+            if (validCombos.length < 9) {
+                alert('No hay suficientes combinaciones válidas. Recargando...');
+                location.reload();
+                return;
+            }
+            
+            // Seleccionar 3 valores únicos para filas y 3 para columnas
+            const usedRowKeys = new Set();
+            const usedColKeys = new Set();
+            const selectedCombos = [];
+            
             const shuffled = validCombos.sort(() => 0.5 - Math.random());
-            const usedRows = new Set();
-            const usedCols = new Set();
             
             for (const combo of shuffled) {
-                const rowKey = `${combo.type1}:${combo.value1}`;
-                const colKey = `${combo.type2}:${combo.value2}`;
+                const rowKey = `${combo.rowType}:${combo.rowValue}`;
+                const colKey = `${combo.colType}:${combo.colValue}`;
                 
-                if (!usedRows.has(rowKey) && !usedCols.has(colKey)) {
-                    usedRows.add(rowKey);
-                    usedCols.add(colKey);
-                    
-                    if (usedRows.size <= 3 && usedCols.size <= 3) {
-                        if (usedRows.size === 1 || rowCategories.length < 3) {
-                            if (!rowCategories.some(r => r.type === combo.type1 && r.value === combo.value1)) {
-                                rowCategories.push({ type: combo.type1, value: combo.value1 });
-                            }
-                        }
-                        if (usedCols.size === 1 || colCategories.length < 3) {
-                            if (!colCategories.some(c => c.type === combo.type2 && c.value === combo.value2)) {
-                                colCategories.push({ type: combo.type2, value: combo.value2 });
-                            }
-                        }
-                    }
-                    
-                    if (rowCategories.length === 3 && colCategories.length === 3) break;
+                if (usedRowKeys.size < 3 && !usedRowKeys.has(rowKey)) {
+                    usedRowKeys.add(rowKey);
                 }
+                
+                if (usedColKeys.size < 3 && !usedColKeys.has(colKey)) {
+                    usedColKeys.add(colKey);
+                }
+                
+                if (usedRowKeys.size === 3 && usedColKeys.size === 3) break;
             }
+            
+            // Convertir a arrays
+            rowCategories = Array.from(usedRowKeys).map(key => {
+                const [type, value] = key.split(':');
+                return { type, value };
+            });
+            
+            colCategories = Array.from(usedColKeys).map(key => {
+                const [type, value] = key.split(':');
+                return { type, value };
+            });
+            
+            console.log('Rows:', rowCategories);
+            console.log('Cols:', colCategories);
             
             grid = Array(3).fill(null).map(() => Array(3).fill(null));
         }
@@ -204,11 +243,12 @@
             const rowCat = rowCategories[row];
             const colCat = colCategories[col];
             
-            return characters.filter(c => {
-                const field1 = c[rowCat.type]?.toLowerCase() || '';
-                const field2 = c[colCat.type]?.toLowerCase() || '';
-                return field1.includes(rowCat.value.toLowerCase()) && field2.includes(colCat.value.toLowerCase());
-            });
+            const valid = characters.filter(c =>
+                checkMatch(c, rowCat.type, rowCat.value) && checkMatch(c, colCat.type, colCat.value)
+            );
+            
+            console.log(`Cell [${row},${col}]: ${rowCat.type}:${rowCat.value} + ${colCat.type}:${colCat.value} = ${valid.length} characters`);
+            return valid;
         }
         
         function openSearchModal(row, col) {
@@ -266,6 +306,9 @@
             const { row, col } = currentCell;
             const validChars = getValidCharactersForCell(row, col);
             
+            console.log('Selected:', char.Nombre);
+            console.log('Valid characters for this cell:', validChars.map(c => c.Nombre));
+            
             if (validChars.some(c => c.Nombre === char.Nombre)) {
                 grid[row][col] = char;
                 score++;
@@ -276,6 +319,12 @@
                     setTimeout(() => alert('🎉 ¡COMPLETADO! 🎉'), 500);
                 }
             } else {
+                const rowCat = rowCategories[row];
+                const colCat = colCategories[col];
+                const match1 = checkMatch(char, rowCat.type, rowCat.value);
+                const match2 = checkMatch(char, colCat.type, colCat.value);
+                
+                console.log(`${char.Nombre}: ${rowCat.type}=${match1}, ${colCat.type}=${match2}`);
                 document.getElementById('errorMessage').textContent = `❌ ${char.Nombre} no cumple ambas categorías`;
             }
         }
