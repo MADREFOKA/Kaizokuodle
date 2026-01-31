@@ -24,31 +24,42 @@
             background: rgba(255, 255, 255, 0.05);
             color: white;
             transition: all 0.3s;
+            font-size: 1rem;
         }
         .btn:hover { border-color: #ff6b35; background: rgba(255, 107, 53, 0.2); }
         .btn.active { background: #ff6b35; border-color: #ff6b35; }
         .btn-primary { background: #ff6b35; border-color: #ff6b35; }
         .btn-primary:hover { background: #ff8555; }
         .wordle-cell {
-            min-width: 100px; height: 70px;
-            border: 2px solid rgba(0, 0, 0, 0.2); border-radius: 10px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 0.85rem; font-weight: 600; text-align: center; padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.9); color: #1a1a2e;
+            min-width: 110px;
+            min-height: 80px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1a1a2e;
+            line-height: 1.3;
         }
         .wordle-cell.correct { background: linear-gradient(135deg, #10b981, #059669); color: white; }
         .wordle-cell.partial { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
         .wordle-cell.incorrect { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
         .legend-badge {
-            display: inline-flex; align-items: center; padding: 0.5rem 1rem;
-            border-radius: 8px; margin: 0 0.5rem; font-size: 0.9rem;
-            cursor: help; position: relative;
+            display: inline-flex; align-items: center; padding: 0.75rem 1.25rem;
+            border-radius: 8px; margin: 0 0.5rem; font-size: 1rem;
+            cursor: help; position: relative; font-weight: 600;
         }
         .legend-badge:hover .tooltip { opacity: 1; visibility: visible; }
         .tooltip {
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9); color: white; padding: 0.5rem 1rem;
-            border-radius: 6px; font-size: 0.85rem; white-space: nowrap;
+            border-radius: 6px; font-size: 0.9rem; white-space: nowrap;
             margin-bottom: 8px; opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 1000;
         }
         .tooltip::after {
@@ -58,7 +69,7 @@
         .input-field {
             width: 100%; padding: 1rem; border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            background: white; color: black; font-size: 1rem;
+            background: white; color: black; font-size: 1.1rem;
         }
         .suggestions {
             position: absolute; width: 100%; background: white;
@@ -70,6 +81,14 @@
             cursor: pointer; color: black; transition: background 0.2s;
         }
         .suggestion-item:hover { background: #f3f4f6; }
+        .grid-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .grid-wrapper {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +136,11 @@
             renderGame();
         }
         
+        function formatMultiValue(value) {
+            if (!value || value === '---') return value;
+            return value.split(',').map(v => v.trim()).join('<br>');
+        }
+        
         function compareValues(guess, target, field) {
             const g = (guess[field] || '').toString().toLowerCase().trim();
             const t = (target[field] || '').toString().toLowerCase().trim();
@@ -155,10 +179,10 @@
         
         function renderMenu() {
             document.getElementById('app').innerHTML = `
-                <div style="max-width: 1000px; margin: 0 auto;">
+                <div style="max-width: 1200px; margin: 0 auto;">
                     <a href="../index.html" class="btn" style="display: inline-block; margin-bottom: 2rem; text-decoration: none;">← Volver</a>
                     
-                    <h1 class="title-font" style="font-size: 3.5rem; text-align: center; margin-bottom: 2rem; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                    <h1 class="title-font" style="font-size: 3.5rem; text-align: center; margin-bottom: 3rem; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent;">
                         ADIVINA EL PERSONAJE
                     </h1>
                     
@@ -185,7 +209,7 @@
             
             document.getElementById('app').innerHTML = `
                 <div style="max-width: 100%; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
                         <a href="../index.html" class="btn" style="text-decoration: none;">← Menu</a>
                         <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent;">ADIVINA EL PERSONAJE</h1>
                         <div style="display: flex; gap: 0.5rem;">
@@ -194,7 +218,7 @@
                         </div>
                     </div>
                     
-                    <div style="display: flex; justify-center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
                         ${difficulties.map(d => `
                             <button class="btn ${difficulty === d.id ? 'active' : ''}" onclick="difficulty = ${d.id}; startGame();">
                                 ${d.name}
@@ -202,9 +226,9 @@
                         `).join('')}
                     </div>
                     
-                    <div style="display: flex; justify-center; margin-bottom: 1.5rem;">
-                        <div style="display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 0.75rem;">
-                            <span style="font-weight: bold; color: black; margin-right: 1rem;">Leyenda:</span>
+                    <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                        <div style="display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 1rem;">
+                            <span style="font-weight: bold; color: black; margin-right: 1rem; font-size: 1.1rem;">Leyenda:</span>
                             <div class="legend-badge" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
                                 Verde
                                 <div class="tooltip">Correcto - Valor exacto</div>
@@ -233,26 +257,34 @@
                         </div>
                     ` : ''}
                     
-                    <div style="overflow-x: auto;">
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; min-width: fit-content;">
-                            ${fields.map(f => `<div class="wordle-cell" style="font-weight: bold;">${f}</div>`).join('')}
-                        </div>
-                        
-                        ${guesses.map(g => `
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; min-width: fit-content;">
-                                ${fields.map(f => {
-                                    const comp = f === 'Nombre' 
-                                        ? { status: g.Nombre === target.Nombre ? 'correct' : 'incorrect', arrow: null }
-                                        : compareValues(g, target, f);
-                                    return `
-                                        <div class="wordle-cell ${comp.status}">
-                                            <span>${g[f] || '---'}</span>
-                                            ${comp.arrow ? `<div style="font-size: 1.25rem; margin-top: 0.25rem;">${comp.arrow}</div>` : ''}
-                                        </div>
-                                    `;
-                                }).join('')}
+                    <div class="grid-container">
+                        <div class="grid-wrapper">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                ${fields.map(f => `<div class="wordle-cell" style="font-weight: bold; font-size: 1rem;">${f}</div>`).join('')}
                             </div>
-                        `).join('')}
+                            
+                            ${guesses.map(g => `
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    ${fields.map(f => {
+                                        const comp = f === 'Nombre' 
+                                            ? { status: g.Nombre === target.Nombre ? 'correct' : 'incorrect', arrow: null }
+                                            : compareValues(g, target, f);
+                                        
+                                        let displayValue = g[f] || '---';
+                                        if (['Haki', 'Ocupación'].includes(f)) {
+                                            displayValue = formatMultiValue(g[f]);
+                                        }
+                                        
+                                        return `
+                                            <div class="wordle-cell ${comp.status}">
+                                                <span>${displayValue}</span>
+                                                ${comp.arrow ? `<div style="font-size: 1.5rem; margin-top: 0.25rem;">${comp.arrow}</div>` : ''}
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                     
                     ${won || lost ? `
