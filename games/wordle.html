@@ -16,40 +16,74 @@
         }
         .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            transition: all 0.3s;
-            font-size: 1rem;
+            padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600;
+            cursor: pointer; border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05); color: white;
+            transition: all 0.3s; font-size: 1rem;
         }
         .btn:hover { border-color: #ff6b35; background: rgba(255, 107, 53, 0.2); }
         .btn.active { background: #ff6b35; border-color: #ff6b35; }
         .btn-primary { background: #ff6b35; border-color: #ff6b35; }
         .btn-primary:hover { background: #ff8555; }
-        .wordle-cell {
-            min-width: 110px;
-            min-height: 80px;
+        
+        .game-table {
+            border-collapse: separate;
+            border-spacing: 0.5rem;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+        .game-table th, .game-table td {
+            width: 110px;
+            height: 80px;
             border: 2px solid rgba(0, 0, 0, 0.2);
             border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            vertical-align: middle;
             font-size: 0.95rem;
             font-weight: 600;
-            text-align: center;
-            padding: 0.75rem 0.5rem;
+            padding: 0.5rem;
             background: rgba(255, 255, 255, 0.9);
             color: #1a1a2e;
             line-height: 1.3;
+            overflow: hidden;
         }
-        .wordle-cell.correct { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-        .wordle-cell.partial { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-        .wordle-cell.incorrect { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .game-table th {
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .game-table th.imagen, .game-table td.imagen {
+            width: 90px;
+        }
+        .game-table th.nombre, .game-table td.nombre {
+            width: 140px;
+        }
+        .game-table th.recompensa, .game-table td.recompensa {
+            width: 170px;
+        }
+        .game-table td.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .game-table td.partial {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .game-table td.incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .game-table img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .arrow {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-left: 0.25rem;
+        }
+        
         .legend-badge {
             display: inline-flex; align-items: center; padding: 0.75rem 1.25rem;
             border-radius: 8px; margin: 0 0.5rem; font-size: 1rem;
@@ -81,13 +115,13 @@
             cursor: pointer; color: black; transition: background 0.2s;
         }
         .suggestion-item:hover { background: #f3f4f6; }
-        .grid-container {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-        .grid-wrapper {
-            display: inline-block;
+        .result-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 3px solid #ff6b35;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -100,6 +134,7 @@
         let target = null;
         let guesses = [];
         let gameStarted = false;
+        let gameOver = false;
         
         const difficulties = [
             { id: 1, name: 'Grumete', levels: [1] },
@@ -109,9 +144,8 @@
             { id: 5, name: 'Yonkou', levels: [1, 2, 3, 4, 5] }
         ];
         
-        const fields = ['Nombre', 'Primera Aparición', 'Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 'Estado', 'Altura', 'Edad', 'Cumpleaños', 'Fruta del diablo', 'Haki', 'Recompensa', 'Afiliación', 'Ocupación'];
+        const fields = ['Imagen', 'Nombre', 'Primera Aparición', 'Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 'Estado', 'Altura', 'Edad', 'Cumpleaños', 'Fruta del diablo', 'Haki', 'Recompensa', 'Afiliación', 'Ocupación'];
         
-        // Cargar datos
         fetch('../characters.json')
             .then(r => r.json())
             .then(data => {
@@ -133,7 +167,13 @@
             target = valid[Math.floor(Math.random() * valid.length)];
             guesses = [];
             gameStarted = true;
+            gameOver = false;
             renderGame();
+        }
+        
+        function formatName(name) {
+            if (!name) return name;
+            return name.replace(/\s*\/\s*/g, '<br>');
         }
         
         function formatMultiValue(value) {
@@ -141,7 +181,31 @@
             return value.split(',').map(v => v.trim()).join('<br>');
         }
         
+        function compareBirthday(guessVal, targetVal) {
+            const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            
+            const parseDate = (str) => {
+                const parts = str.toLowerCase().split(' ').filter(p => p);
+                if (parts.length < 2) return null;
+                const day = parseInt(parts[0]);
+                const monthIdx = months.indexOf(parts[1]);
+                return monthIdx !== -1 ? { day, month: monthIdx } : null;
+            };
+            
+            const gDate = parseDate(guessVal);
+            const tDate = parseDate(targetVal);
+            
+            if (!gDate || !tDate) return null;
+            
+            const gTotal = gDate.month * 31 + gDate.day;
+            const tTotal = tDate.month * 31 + tDate.day;
+            
+            return gTotal < tTotal ? '↑' : (gTotal > tTotal ? '↓' : null);
+        }
+        
         function compareValues(guess, target, field) {
+            if (field === 'Imagen') return { status: '', arrow: null };
+            
             const g = (guess[field] || '').toString().toLowerCase().trim();
             const t = (target[field] || '').toString().toLowerCase().trim();
             
@@ -155,8 +219,18 @@
                 }
             }
             
-            if (['Raza', 'Fruta del diablo', 'Haki', 'Ocupación'].includes(field)) {
-                if (g.includes(t) || t.includes(g)) return { status: 'partial', arrow: null };
+            if (field === 'Cumpleaños') {
+                const arrow = compareBirthday(g, t);
+                if (arrow) return { status: 'incorrect', arrow };
+            }
+            
+            if (['Raza', 'Fruta del diablo', 'Haki', 'Ocupación', 'Afiliación'].includes(field)) {
+                const gParts = g.split(',').map(p => p.trim().toLowerCase());
+                const tParts = t.split(',').map(p => p.trim().toLowerCase());
+                
+                const hasMatch = gParts.some(gp => tParts.some(tp => gp === tp || gp.includes(tp) || tp.includes(gp)));
+                
+                if (hasMatch) return { status: 'partial', arrow: null };
             }
             
             return { status: 'incorrect', arrow: null };
@@ -164,17 +238,19 @@
         
         function handleGuess(char) {
             guesses.push(char);
-            renderGame();
             
             if (char.Nombre === target.Nombre) {
-                setTimeout(() => {
-                    alert('🎉 ¡GANASTE! 🎉');
-                }, 100);
+                gameOver = true;
             } else if (guesses.length >= 6) {
-                setTimeout(() => {
-                    alert('😢 PERDISTE 😢\n\nEl personaje era: ' + target.Nombre);
-                }, 100);
+                gameOver = true;
             }
+            
+            renderGame();
+        }
+        
+        function surrender() {
+            gameOver = true;
+            renderGame();
         }
         
         function renderMenu() {
@@ -205,7 +281,6 @@
         
         function renderGame() {
             const won = guesses.some(g => g.Nombre === target.Nombre);
-            const lost = guesses.length >= 6 && !won;
             
             document.getElementById('app').innerHTML = `
                 <div style="max-width: 100%; margin: 0 auto;">
@@ -214,7 +289,7 @@
                         <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent;">ADIVINA EL PERSONAJE</h1>
                         <div style="display: flex; gap: 0.5rem;">
                             <button class="btn" onclick="startGame()">🔄</button>
-                            <button class="btn" onclick="guesses = Array(6).fill({}); renderGame();" ${won || lost ? 'disabled' : ''}>🏳️</button>
+                            <button class="btn" onclick="surrender()" ${gameOver ? 'disabled' : ''}>🏳️</button>
                         </div>
                     </div>
                     
@@ -244,7 +319,7 @@
                         </div>
                     </div>
                     
-                    ${!won && !lost ? `
+                    ${!gameOver ? `
                         <div style="max-width: 800px; margin: 0 auto 2rem; position: relative;">
                             <input 
                                 type="text" 
@@ -257,38 +332,57 @@
                         </div>
                     ` : ''}
                     
-                    <div class="grid-container">
-                        <div class="grid-wrapper">
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                                ${fields.map(f => `<div class="wordle-cell" style="font-weight: bold; font-size: 1rem;">${f}</div>`).join('')}
-                            </div>
-                            
-                            ${guesses.map(g => `
-                                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <div style="overflow-x: auto; display: flex; justify-content: center;">
+                        <table class="game-table">
+                            <thead>
+                                <tr>
                                     ${fields.map(f => {
-                                        const comp = f === 'Nombre' 
-                                            ? { status: g.Nombre === target.Nombre ? 'correct' : 'incorrect', arrow: null }
-                                            : compareValues(g, target, f);
-                                        
-                                        let displayValue = g[f] || '---';
-                                        if (['Haki', 'Ocupación'].includes(f)) {
-                                            displayValue = formatMultiValue(g[f]);
-                                        }
-                                        
-                                        return `
-                                            <div class="wordle-cell ${comp.status}">
-                                                <span>${displayValue}</span>
-                                                ${comp.arrow ? `<div style="font-size: 1.5rem; margin-top: 0.25rem;">${comp.arrow}</div>` : ''}
-                                            </div>
-                                        `;
+                                        let className = '';
+                                        if (f === 'Imagen') className = 'imagen';
+                                        else if (f === 'Nombre') className = 'nombre';
+                                        else if (f === 'Recompensa') className = 'recompensa';
+                                        return `<th class="${className}">${f}</th>`;
                                     }).join('')}
-                                </div>
-                            `).join('')}
-                        </div>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${guesses.map(g => `
+                                    <tr>
+                                        ${fields.map(f => {
+                                            if (f === 'Imagen') {
+                                                return `<td class="imagen"><img src="${g.Imagen}" onerror="this.style.display='none'" /></td>`;
+                                            }
+                                            
+                                            const comp = f === 'Nombre' 
+                                                ? { status: g.Nombre === target.Nombre ? 'correct' : 'incorrect', arrow: null }
+                                                : compareValues(g, target, f);
+                                            
+                                            let displayValue = g[f] || '---';
+                                            if (f === 'Nombre') {
+                                                displayValue = formatName(g[f]);
+                                            } else if (['Haki', 'Ocupación'].includes(f)) {
+                                                displayValue = formatMultiValue(g[f]);
+                                            }
+                                            
+                                            let className = comp.status;
+                                            if (f === 'Nombre') className += ' nombre';
+                                            else if (f === 'Recompensa') className += ' recompensa';
+                                            
+                                            return `
+                                                <td class="${className}">
+                                                    ${displayValue}${comp.arrow ? `<span class="arrow">${comp.arrow}</span>` : ''}
+                                                </td>
+                                            `;
+                                        }).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                     
-                    ${won || lost ? `
+                    ${gameOver ? `
                         <div style="max-width: 600px; margin: 3rem auto; text-align: center; background: rgba(255,255,255,0.9); padding: 2rem; border-radius: 20px; color: black;">
+                            <img src="${target.Imagen}" class="result-image" onerror="this.style.display='none'" />
                             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">${won ? '🎉 ¡GANASTE! 🎉' : '😢 PERDISTE 😢'}</h2>
                             <p style="font-size: 1.5rem; margin-bottom: 2rem;">El personaje era: <strong style="color: #ff6b35;">${target.Nombre}</strong></p>
                             <button class="btn btn-primary" onclick="startGame()" style="font-size: 1.25rem; padding: 1rem 2rem;">Jugar de nuevo</button>
@@ -297,7 +391,7 @@
                 </div>
             `;
             
-            if (!won && !lost) {
+            if (!gameOver) {
                 document.getElementById('searchInput').focus();
             }
         }
