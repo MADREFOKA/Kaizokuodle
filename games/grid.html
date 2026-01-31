@@ -9,282 +9,429 @@
     <script src="../js/utils.js"></script>
     <style>
         .grid-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem auto;
+        }
+        .grid-wrapper {
+            display: inline-block;
+        }
+        .grid-table {
             display: grid;
-            grid-template-columns: auto repeat(3, 1fr);
+            grid-template-columns: 200px repeat(3, 200px);
+            grid-template-rows: repeat(4, 200px);
             gap: 1rem;
-            max-width: 800px;
-            margin: 0 auto;
         }
         .grid-cell {
-            aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 0.5rem;
-            color: #1a1a2e;
-            font-weight: 600;
-        }
-        .grid-cell:hover:not(.filled):not(.header) {
-            background: rgba(255, 255, 255, 1);
-            border-color: #ff6b35;
-            transform: scale(1.05);
-        }
-        .grid-cell.filled {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-color: #10b981;
             color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 1rem;
             cursor: default;
-        }
-        .grid-cell.active {
-            border-color: #ff6b35;
-            border-width: 3px;
-            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+            position: relative;
         }
         .grid-cell.header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: bold;
             cursor: default;
         }
-        .grid-cell.header-row {
+        .grid-cell.row-header {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
-        .search-container {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto 2rem;
+        .grid-cell.empty {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .grid-cell.empty:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        .grid-cell.filled {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            cursor: default;
+        }
+        .grid-cell.wrong {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            animation: shake 0.5s;
+        }
+        .grid-cell img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 0.5rem;
+        }
+        .category-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        .score-box {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .score-box h3 {
+            color: #1a1a2e;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .score-box .score {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        .search-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .search-modal.active {
+            display: flex;
+        }
+        .search-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .search-content h3 {
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .search-results {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .search-result-item:hover {
+            background: #f3f4f6;
+        }
+        .search-result-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+        .search-result-item span {
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        .error-message {
+            color: #ef4444;
+            font-weight: 600;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
     </style>
 </head>
 <body>
-    <div class="ocean-background"></div>
-    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
-    
-    <div class="content-wrapper" style="padding: 2rem;">
-        <div style="max-width: 1000px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                <a href="../index.html" class="btn-secondary" style="text-decoration: none;">← Volver</a>
-                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #4ECDC4, #44A08D); -webkit-background-clip: text; color: transparent;">GRID CHALLENGE</h1>
-                <div class="stat-card">
-                    <p style="font-size: 0.875rem; color: #666; margin-bottom: 0.25rem;">Puntos</p>
-                    <p id="score" style="font-size: 2rem; font-weight: bold; color: #1a1a2e;">0/9</p>
-                </div>
-            </div>
-            
-            <div id="app">Cargando...</div>
+    <div id="app">Cargando...</div>
+    <div id="searchModal" class="search-modal">
+        <div class="search-content">
+            <h3 id="modalTitle">Buscar personaje</h3>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="input-field" 
+                placeholder="Escribe el nombre..."
+            />
+            <div id="searchResults" class="search-results"></div>
+            <div id="errorMessage" class="error-message"></div>
         </div>
     </div>
-
+    
     <script>
         let characters = [];
-        let gridConfig = null;
-        let answers = {};
+        let grid = [];
+        let rowCategories = [];
+        let colCategories = [];
         let score = 0;
-        let activeCell = null;
-
-        const categoryFields = {
-            'Saga': 'Saga',
-            'Origen': 'Origen',
-            'Raza': 'Raza',
-            'Sexo': 'Sexo',
-            'Estado': 'Estado',
-            'Fruta del diablo': 'Fruta del diablo',
-            'Haki': 'Haki',
-            'Afiliación': 'Afiliación',
-            'Ocupación': 'Ocupación'
+        let currentCell = null;
+        
+        // Categorías disponibles con sus tipos
+        const categories = {
+            'Afiliación': ['Piratas de Sombrero de Paja', 'Piratas de Barbablanca', 'Marines', 'Revolucionarios', 'Piratas de Big Mom', 'Piratas de Kaido', 'Piratas de Barbanegra'],
+            'Origen': ['East Blue', 'Grand Line', 'New World', 'North Blue', 'South Blue', 'West Blue'],
+            'Raza': ['Humano', 'Tritón', 'Gyojin', 'Mink', 'Gigante'],
+            'Saga': ['East Blue', 'Arabasta', 'Skypiea', 'Water 7', 'Marineford', 'Dressrosa', 'Whole Cake', 'Wano']
         };
-
-        async function init() {
-            const data = await loadData();
-            characters = data.characters;
-            startGame();
-        }
-
-        function getValidValues(field) {
-            const values = {};
-            characters.forEach(c => {
-                const val = c[field];
-                if (val && val !== '---') {
-                    const parts = val.split(',').map(p => p.trim());
-                    parts.forEach(part => {
-                        if (!values[part]) values[part] = 0;
-                        values[part]++;
-                    });
-                }
-            });
-            return Object.entries(values)
-                .filter(([_, count]) => count >= 3)
-                .map(([val, _]) => val);
-        }
-
-        function startGame() {
-            const fieldKeys = Object.keys(categoryFields);
-            const shuffled = [...fieldKeys].sort(() => Math.random() - 0.5);
-            
-            const rowField = shuffled[0];
-            const colField = shuffled[1];
-            
-            const rowValues = getValidValues(rowField).sort(() => Math.random() - 0.5).slice(0, 3);
-            const colValues = getValidValues(colField).sort(() => Math.random() - 0.5).slice(0, 3);
-
-            gridConfig = {
-                rows: rowValues,
-                cols: colValues,
-                rowType: rowField,
-                colType: colField
-            };
-            
-            answers = {};
-            score = 0;
-            activeCell = null;
-            
+        
+        loadData().then(data => {
+            characters = data.characters.filter(c => c.Nombre && c.Imagen);
+            generateGrid();
             renderGame();
-        }
-
-        function renderGame() {
-            const app = document.getElementById('app');
+        }).catch(err => {
+            console.error('Error:', err);
+            document.getElementById('app').innerHTML = '<div style="text-align:center; padding: 3rem;">Error cargando datos. <a href="../index.html" style="color: #ff6b35;">Volver al menú</a></div>';
+        });
+        
+        function findValidCategories() {
+            const validCombos = [];
             
-            app.innerHTML = `
-                <div class="search-container" id="searchContainer" style="display: none;">
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        placeholder="Busca un personaje..." 
-                        class="input-field"
-                        autocomplete="off"
-                    >
-                    <div id="suggestions"></div>
-                </div>
-
-                <div class="grid-container" id="gridContainer">
-                    <div class="grid-cell" style="background: transparent; border: none;"></div>
-                    ${gridConfig.cols.map(col => `
-                        <div class="grid-cell header">${col}</div>
-                    `).join('')}
+            for (const [type1, values1] of Object.entries(categories)) {
+                for (const value1 of values1) {
+                    for (const [type2, values2] of Object.entries(categories)) {
+                        if (type1 === type2) continue;
+                        
+                        for (const value2 of values2) {
+                            const matches = characters.filter(c => {
+                                const field1 = c[type1]?.toLowerCase() || '';
+                                const field2 = c[type2]?.toLowerCase() || '';
+                                return field1.includes(value1.toLowerCase()) && field2.includes(value2.toLowerCase());
+                            });
+                            
+                            if (matches.length >= 3) {
+                                validCombos.push({
+                                    type1, value1, type2, value2,
+                                    count: matches.length,
+                                    characters: matches
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return validCombos;
+        }
+        
+        function generateGrid() {
+            const validCombos = findValidCategories();
+            
+            // Seleccionar 3 categorías para columnas y 3 para filas
+            const shuffled = validCombos.sort(() => 0.5 - Math.random());
+            const selected = [];
+            const usedRows = new Set();
+            const usedCols = new Set();
+            
+            for (const combo of shuffled) {
+                const rowKey = `${combo.type1}:${combo.value1}`;
+                const colKey = `${combo.type2}:${combo.value2}`;
+                
+                if (!usedRows.has(rowKey) && !usedCols.has(colKey)) {
+                    selected.push(combo);
+                    usedRows.add(rowKey);
+                    usedCols.add(colKey);
                     
-                    ${gridConfig.rows.map((row, rowIdx) => `
-                        <div class="grid-cell header header-row">${row}</div>
-                        ${gridConfig.cols.map((col, colIdx) => {
-                            const key = `${rowIdx}-${colIdx}`;
-                            return `
-                                <div 
-                                    class="grid-cell ${answers[key] ? 'filled' : ''} ${activeCell === key ? 'active' : ''}"
-                                    data-cell="${key}"
-                                    onclick="handleCellClick('${key}')"
-                                >
-                                    ${answers[key] || '?'}
-                                </div>
-                            `;
-                        }).join('')}
-                    `).join('')}
-                </div>
-
-                ${score === 9 ? `
-                    <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: rgba(255,255,255,0.9); border-radius: 1rem;">
-                        <h2 style="font-size: 2.5rem; color: #10b981; margin-bottom: 1rem;">🎉 ¡PERFECTO! 🎉</h2>
-                        <p style="font-size: 1.25rem; color: #666; margin-bottom: 1.5rem;">Completaste toda la cuadrícula</p>
-                        <button class="btn-primary" onclick="startGame()">Nuevo Grid</button>
+                    if (usedRows.size === 3 && usedCols.size === 3) break;
+                }
+            }
+            
+            // Organizar en filas y columnas
+            const rowSet = new Set();
+            const colSet = new Set();
+            
+            selected.forEach(combo => {
+                rowSet.add(JSON.stringify({ type: combo.type1, value: combo.value1 }));
+                colSet.add(JSON.stringify({ type: combo.type2, value: combo.value2 }));
+            });
+            
+            rowCategories = Array.from(rowSet).slice(0, 3).map(s => JSON.parse(s));
+            colCategories = Array.from(colSet).slice(0, 3).map(s => JSON.parse(s));
+            
+            // Inicializar grid
+            grid = Array(3).fill(null).map(() => Array(3).fill(null));
+        }
+        
+        function getValidCharactersForCell(row, col) {
+            const rowCat = rowCategories[row];
+            const colCat = colCategories[col];
+            
+            return characters.filter(c => {
+                const field1 = c[rowCat.type]?.toLowerCase() || '';
+                const field2 = c[colCat.type]?.toLowerCase() || '';
+                return field1.includes(rowCat.value.toLowerCase()) && 
+                       field2.includes(colCat.value.toLowerCase());
+            });
+        }
+        
+        function openSearchModal(row, col) {
+            currentCell = { row, col };
+            const modal = document.getElementById('searchModal');
+            const input = document.getElementById('searchInput');
+            const title = document.getElementById('modalTitle');
+            
+            const rowCat = rowCategories[row];
+            const colCat = colCategories[col];
+            
+            title.textContent = `${rowCat.type}: ${rowCat.value} + ${colCat.type}: ${colCat.value}`;
+            input.value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            document.getElementById('errorMessage').textContent = '';
+            
+            modal.classList.add('active');
+            input.focus();
+        }
+        
+        function closeSearchModal() {
+            document.getElementById('searchModal').classList.remove('active');
+            currentCell = null;
+        }
+        
+        function handleSearch(value) {
+            const resultsDiv = document.getElementById('searchResults');
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = '';
+            
+            if (!value) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+            
+            const filtered = characters.filter(c => 
+                c.Nombre.toLowerCase().includes(value.toLowerCase())
+            ).slice(0, 10);
+            
+            if (filtered.length > 0) {
+                resultsDiv.innerHTML = filtered.map(c => `
+                    <div class="search-result-item" onclick="selectCharacter('${c.Nombre.replace(/'/g, "\\'")}')">
+                        <img src="${c.Imagen}" onerror="this.style.display='none'" />
+                        <span>${c.Nombre}</span>
                     </div>
-                ` : ''}
-            `;
-
-            if (activeCell) {
-                document.getElementById('searchContainer').style.display = 'block';
-                const input = document.getElementById('searchInput');
-                input.focus();
-                input.addEventListener('input', handleSearch);
+                `).join('');
+            } else {
+                resultsDiv.innerHTML = '<p style="text-align:center; color: #666; padding: 1rem;">No se encontraron personajes</p>';
             }
         }
-
-        function handleCellClick(key) {
-            if (answers[key]) return;
+        
+        function selectCharacter(name) {
+            const char = characters.find(c => c.Nombre === name);
+            if (!char || !currentCell) return;
             
-            activeCell = key;
-            renderGame();
-        }
-
-        function handleSearch(e) {
-            const value = e.target.value;
-            if (!activeCell) return;
-
-            const [row, col] = activeCell.split('-').map(Number);
+            const { row, col } = currentCell;
+            const validChars = getValidCharactersForCell(row, col);
             
-            if (value.length > 0) {
-                const filtered = characters.filter(c => {
-                    const nameMatch = c.Nombre?.toLowerCase().includes(value.toLowerCase());
-                    const isValid = checkCharacterMatch(c, row, col);
-                    return nameMatch && isValid;
-                }).slice(0, 10);
+            if (validChars.some(c => c.Nombre === char.Nombre)) {
+                // Correcto
+                grid[row][col] = char;
+                score++;
+                closeSearchModal();
+                renderGame();
                 
-                const suggestionsDiv = document.getElementById('suggestions');
-                if (filtered.length > 0) {
-                    suggestionsDiv.innerHTML = `
-                        <div class="dropdown">
-                            ${filtered.map(c => `
-                                <div class="dropdown-item" onclick="selectCharacter('${c.Nombre.replace(/'/g, "\\'")}')">
-                                    ${c.Nombre}
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                } else {
-                    suggestionsDiv.innerHTML = `
-                        <div class="dropdown">
-                            <div class="dropdown-item" style="color: #999; cursor: default;">
-                                No hay personajes válidos para esta combinación
-                            </div>
-                        </div>
-                    `;
+                if (score === 9) {
+                    setTimeout(() => {
+                        alert('🎉 ¡COMPLETADO! 🎉\n\n¡Has completado el Grid Challenge!');
+                    }, 500);
                 }
             } else {
-                document.getElementById('suggestions').innerHTML = '';
+                // Incorrecto
+                document.getElementById('errorMessage').textContent = `❌ ${char.Nombre} no cumple ambas categorías`;
             }
         }
-
-        function checkCharacterMatch(char, rowIdx, colIdx) {
-            const rowValue = gridConfig.rows[rowIdx];
-            const colValue = gridConfig.cols[colIdx];
-            const rowField = gridConfig.rowType;
-            const colField = gridConfig.colType;
-
-            const rowVal = char[rowField]?.toLowerCase() || '';
-            const colVal = char[colField]?.toLowerCase() || '';
-            
-            const rowMatch = rowVal.includes(rowValue.toLowerCase());
-            const colMatch = colVal.includes(colValue.toLowerCase());
-            
-            return rowMatch && colMatch;
+        
+        function renderGame() {
+            document.getElementById('app').innerHTML = `
+                <div style="max-width: 100%; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <a href="../index.html" class="btn" style="text-decoration: none;">← Volver</a>
+                        <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent;">GRID CHALLENGE</h1>
+                        <div style="width: 100px;"></div>
+                    </div>
+                    
+                    <div class="score-box">
+                        <h3>Puntos</h3>
+                        <div class="score">${score}/9</div>
+                    </div>
+                    
+                    <div class="grid-container">
+                        <div class="grid-wrapper">
+                            <div class="grid-table">
+                                <!-- Esquina superior izquierda vacía -->
+                                <div class="grid-cell header" style="background: transparent;"></div>
+                                
+                                <!-- Headers de columnas -->
+                                ${colCategories.map(cat => `
+                                    <div class="grid-cell header">
+                                        <div class="category-label">${cat.type}</div>
+                                        <div>${cat.value}</div>
+                                    </div>
+                                `).join('')}
+                                
+                                <!-- Filas con headers y celdas -->
+                                ${rowCategories.map((rowCat, rowIdx) => `
+                                    <div class="grid-cell row-header">
+                                        <div class="category-label">${rowCat.type}</div>
+                                        <div>${rowCat.value}</div>
+                                    </div>
+                                    ${colCategories.map((colCat, colIdx) => {
+                                        const cell = grid[rowIdx][colIdx];
+                                        if (cell) {
+                                            return `
+                                                <div class="grid-cell filled">
+                                                    <img src="${cell.Imagen}" onerror="this.style.display='none'" />
+                                                    <div>${cell.Nombre}</div>
+                                                </div>
+                                            `;
+                                        } else {
+                                            return `
+                                                <div class="grid-cell empty" onclick="openSearchModal(${rowIdx}, ${colIdx})">
+                                                    <div style="font-size: 3rem;">?</div>
+                                                </div>
+                                            `;
+                                        }
+                                    }).join('')}
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
-
-        function selectCharacter(name) {
-            if (!activeCell) return;
-            
-            const character = characters.find(c => c.Nombre === name);
-            if (!character) return;
-
-            const [row, col] = activeCell.split('-').map(Number);
-            const isCorrect = checkCharacterMatch(character, row, col);
-
-            if (isCorrect) {
-                answers[activeCell] = character.Nombre;
-                score++;
-                document.getElementById('score').textContent = `${score}/9`;
-                
-                activeCell = null;
-                document.getElementById('searchInput').value = '';
-                
-                renderGame();
+        
+        // Event listeners
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'searchModal') {
+                closeSearchModal();
             }
-        }
-
-        init();
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+            }
+        });
+        
+        // Hacer funciones globales
+        window.openSearchModal = openSearchModal;
+        window.closeSearchModal = closeSearchModal;
+        window.selectCharacter = selectCharacter;
     </script>
 </body>
 </html>
