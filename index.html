@@ -3,101 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Piece Games</title>
+    <title>One Piece Games - Colección de Juegos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
     <style>
-        .game-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            font-size: 3rem;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .waves {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23ffffff'/%3E%3C/svg%3E") repeat-x;
+            animation: wave 15s linear infinite;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 10px;
+            opacity: 0.5;
+            animation: wave 20s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .title-font {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+        }
+
+        .game-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.2);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <div class="ocean-background"></div>
     <div class="waves">
         <div class="wave"></div>
         <div class="wave"></div>
-        <div class="wave"></div>
     </div>
+    <div id="root"></div>
 
-    <div class="content-wrapper" style="min-height: 100vh; padding: 2rem;">
-        <div style="max-width: 1400px; margin: 0 auto;">
-            <div style="text-center; margin-bottom: 3rem;">
-                <h1 class="title-font" style="font-size: 4.5rem; line-height: 1; margin-bottom: 1rem; background: linear-gradient(to right, #fbbf24, #f97316, #dc2626); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 3px 3px 6px rgba(0,0,0,0.3);">
-                    ONE PIECE GAMES
-                </h1>
-                <p style="font-size: 1.5rem; color: #d1d5db; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
-                    🏴‍☠️ Colección de juegos para nakamas 🏴‍☠️
-                </p>
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                <!-- Adivina el Personaje -->
-                <a href="games/wordle.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease;">
-                    <div class="game-icon" style="background: linear-gradient(135deg, #a855f7, #ec4899);">
-                        🔍
+        const CHARACTERS_URL = 'characters.json';
+        const FRUITS_URL = 'fruits.json';
+        const SHIPS_URL = 'ships.json';
+
+        function App() {
+            const [currentGame, setCurrentGame] = useState('menu');
+            const [characters, setCharacters] = useState([]);
+            const [fruits, setFruits] = useState([]);
+            const [ships, setShips] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                Promise.all([
+                    fetch(CHARACTERS_URL).then(r => r.json()),
+                    fetch(FRUITS_URL).then(r => r.json()),
+                    fetch(SHIPS_URL).then(r => r.json())
+                ]).then(([chars, fr, sh]) => {
+                    setCharacters(chars);
+                    setFruits(fr);
+                    setShips(sh);
+                    setLoading(false);
+                }).catch(err => {
+                    console.error('Error loading data:', err);
+                    setLoading(false);
+                });
+            }, []);
+
+            if (loading) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="text-6xl mb-4 animate-pulse">🏴‍☠️</div>
+                            <p className="text-2xl font-bold">Cargando datos...</p>
+                        </div>
                     </div>
-                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Adivina el Personaje</h3>
-                    <p style="color: #9ca3af;">Wordle de One Piece con 5 dificultades</p>
-                </a>
+                );
+            }
 
-                <!-- Grid Challenge -->
-                <a href="games/grid.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.1s;">
-                    <div class="game-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
-                        🎯
+            const games = {
+                menu: <GameMenu setCurrentGame={setCurrentGame} />
+            };
+
+            return (
+                <div className="relative z-10">
+                    {games[currentGame]}
+                </div>
+            );
+        }
+
+        function GameMenu({ setCurrentGame }) {
+            const gameList = [
+                { id: 'wordle', name: 'Adivina el Personaje', icon: '🔍', desc: 'Wordle de One Piece con 5 dificultades', color: 'from-purple-600 to-blue-600', url: 'games/wordle.html' },
+                { id: 'grid', name: 'Grid Challenge', icon: '🎯', desc: 'Matriz 3x3 de personajes', color: 'from-green-600 to-teal-600', url: 'games/grid.html' },
+                { id: 'higher', name: 'Higher or Lower', icon: '📈', desc: 'Compara recompensas', color: 'from-red-600 to-orange-600', url: 'games/higher.html' },
+                { id: 'timeline', name: 'Timeline', icon: '⏰', desc: 'Ordena por aparición', color: 'from-yellow-600 to-amber-600', url: 'games/timeline.html' },
+                { id: 'fruit', name: 'Adivina la Fruta/Usuario', icon: '🍎', desc: 'Frutas del diablo', color: 'from-indigo-600 to-purple-600', url: 'games/fruit.html' },
+                { id: 'fill', name: 'Rellena los Datos', icon: '✏️', desc: 'Completa información', color: 'from-cyan-600 to-blue-600', url: 'games/fill.html' }
+            ];
+
+            return (
+                <div className="min-h-screen p-8">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-12 fade-in">
+                            <h1 className="title-font text-7xl mb-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 bg-clip-text text-transparent">
+                                ONE PIECE GAMES
+                            </h1>
+                            <p className="text-xl text-gray-300">🏴‍☠️ Colección de juegos para nakamas 🏴‍☠️</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                            {gameList.map((game, idx) => (
+                                <a
+                                    key={game.id}
+                                    href={game.url}
+                                    className="game-card fade-in"
+                                    style={{ animationDelay: `${idx * 0.1}s`, textDecoration: 'none', color: 'inherit' }}
+                                >
+                                    <div className={`text-6xl mb-4 bg-gradient-to-br ${game.color} w-20 h-20 rounded-xl flex items-center justify-center`}>
+                                        {game.icon}
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-2">{game.name}</h3>
+                                    <p className="text-gray-400">{game.desc}</p>
+                                </a>
+                            ))}
+                        </div>
+
+                        <div className="mt-12 text-center text-gray-400">
+                            <p>⚓ Que comience la aventura pirata ⚓</p>
+                        </div>
                     </div>
-                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Grid Challenge</h3>
-                    <p style="color: #9ca3af;">Matriz 3x3 de personajes</p>
-                </a>
+                </div>
+            );
+        }
 
-                <!-- Higher or Lower -->
-                <a href="games/higher.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.2s;">
-                    <div class="game-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
-                        📈
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Higher or Lower</h3>
-                    <p style="color: #9ca3af;">Compara recompensas piratas</p>
-                </a>
-
-                <!-- Timeline -->
-                <a href="games/timeline.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.3s;">
-                    <div class="game-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                        ⏰
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Timeline</h3>
-                    <p style="color: #9ca3af;">Ordena por aparición</p>
-                </a>
-
-                <!-- Adivina Fruta -->
-                <a href="games/fruit.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.4s;">
-                    <div class="game-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                        🍎
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Adivina la Fruta/Usuario</h3>
-                    <p style="color: #9ca3af;">Frutas del diablo</p>
-                </a>
-
-                <!-- Rellena los Datos -->
-                <a href="games/fill.html" class="game-card" style="text-decoration: none; animation: fadeIn 0.5s ease 0.5s;">
-                    <div class="game-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
-                        ✏️
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Rellena los Datos</h3>
-                    <p style="color: #9ca3af;">Completa información del personaje</p>
-                </a>
-            </div>
-
-            <div style="margin-top: 3rem; text-align: center;">
-                <p style="color: #9ca3af; font-weight: 600;">⚓ Que comience la aventura pirata ⚓</p>
-            </div>
-        </div>
-    </div>
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
 </body>
 </html>
