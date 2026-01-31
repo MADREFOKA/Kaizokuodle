@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adivina el Personaje - One Piece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/utils.js"></script>
+    <style>
+        /* Add wordle-specific styles here */
+        .wordle-cell {
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 0.25rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1a1a2e;
+        }
+        .wordle-cell.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .wordle-cell.partial {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .wordle-cell.incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .wordle-grid {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-background"></div>
+    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
+    
+    <div class="content-wrapper" style="padding: 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <a href="../index.html" class="btn-secondary" style="text-decoration: none;">← Volver</a>
+                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; color: transparent;">ADIVINA EL PERSONAJE</h1>
+                <div style="width: 120px;"></div>
+            </div>
+            
+            <div id="app">Cargando...</div>
+        </div>
+    </div>
+
+    <script>
+        // Wordle game logic here
+        let characters = [];
+        let targetCharacter = null;
+        let guesses = [];
+        let difficulty = 1;
+        let gameStarted = false;
+
+        const difficultyLevels = [
+            { id: 1, name: 'Grumete', levels: [1] },
+            { id: 2, name: 'Novato', levels: [1, 2] },
+            { id: 3, name: 'Supernova', levels: [1, 2, 3] },
+            { id: 4, name: 'Shichibukai', levels: [1, 2, 3, 4] },
+            { id: 5, name: 'Yonkou', levels: [1, 2, 3, 4, 5] }
+        ];
+
+        async function init() {
+            const data = await loadData();
+            characters = data.characters;
+            renderDifficultySelect();
+        }
+
+        function renderDifficultySelect() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                    <p style="font-size: 1.25rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 2rem;">
+                        Selecciona la dificultad
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        ${difficultyLevels.map(d => `
+                            <button class="difficulty-btn ${difficulty === d.id ? 'active' : ''}" onclick="difficulty = ${d.id}; renderDifficultySelect();">
+                                ${d.name}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <button class="btn-primary" onclick="startGame()">Comenzar Juego</button>
+                </div>
+            `;
+        }
+
+        function startGame() {
+            const currentDiff = difficultyLevels.find(d => d.id === difficulty);
+            const validChars = characters.filter(c => 
+                c.Nombre && currentDiff.levels.includes(parseInt(c.Dificultad))
+            );
+            targetCharacter = validChars[Math.floor(Math.random() * validChars.length)];
+            guesses = [];
+            gameStarted = true;
+            renderGame();
+        }
+
+        function renderGame() {
+            const fields = ['Nombre', 'Primera Aparición', 'Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 'Estado', 'Altura', 'Edad', 'Cumpleaños', 'Fruta del diablo', 'Haki', 'Recompensa', 'Afiliación', 'Ocupación'];
+            
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <input type="text" id="guessInput" placeholder="Escribe el nombre del personaje..." class="input-field" style="margin-bottom: 1rem;">
+                    <div id="suggestions" style="position: relative;"></div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.9); padding: 1rem; border-radius: 1rem; margin-bottom: 1.5rem;">
+                    <strong>Leyenda:</strong>
+                    <span style="background: #10b981; color: white; padding: 0.25rem 0.5rem; border-radius: 0.5rem; margin: 0 0.25rem;">Verde = Correcto</span>
+                    <span style="background: #f59e0b; color: white; padding: 0.25rem 0.5rem; border-radius: 0.5rem; margin: 0 0.25rem;">Amarillo = Parcial</span>
+                    <span style="background: #ef4444; color: white; padding: 0.25rem 0.5rem; border-radius: 0.5rem; margin: 0 0.25rem;">Rojo = Incorrecto</span>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <div class="wordle-grid">
+                        ${fields.map(f => `<div class="wordle-cell" style="font-weight: bold;">${f.split(' ')[0]}</div>`).join('')}
+                    </div>
+                    <div id="guessesContainer"></div>
+                </div>
+            `;
+
+            document.getElementById('guessInput').addEventListener('input', handleInput);
+        }
+
+        function handleInput(e) {
+            const value = e.target.value;
+            if (value.length > 0) {
+                const filtered = characters.filter(c => 
+                    c.Nombre?.toLowerCase().includes(value.toLowerCase())
+                ).slice(0, 10);
+                
+                const suggestionsDiv = document.getElementById('suggestions');
+                if (filtered.length > 0) {
+                    suggestionsDiv.innerHTML = `
+                        <div class="dropdown">
+                            ${filtered.map(c => `
+                                <div class="dropdown-item" onclick="makeGuess('${c.Nombre.replace(/'/g, "\\'")}')">
+                                    ${c.Nombre}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    suggestionsDiv.innerHTML = '';
+                }
+            } else {
+                document.getElementById('suggestions').innerHTML = '';
+            }
+        }
+
+        function makeGuess(name) {
+            const character = characters.find(c => c.Nombre === name);
+            if (!character) return;
+
+            guesses.push(character);
+            document.getElementById('guessInput').value = '';
+            document.getElementById('suggestions').innerHTML = '';
+
+            renderGuesses();
+
+            if (character.Nombre === targetCharacter.Nombre) {
+                setTimeout(() => alert('¡GANASTE! 🎉'), 500);
+            } else if (guesses.length >= 6) {
+                setTimeout(() => alert(`Perdiste. El personaje era: ${targetCharacter.Nombre}`), 500);
+            }
+        }
+
+        function renderGuesses() {
+            const fields = ['Nombre', 'Primera Aparición', 'Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 'Estado', 'Altura', 'Edad', 'Cumpleaños', 'Fruta del diablo', 'Haki', 'Recompensa', 'Afiliación', 'Ocupación'];
+            const container = document.getElementById('guessesContainer');
+            
+            container.innerHTML = guesses.map(guess => `
+                <div class="wordle-grid">
+                    ${fields.map(field => {
+                        const comparison = compareValues(guess, targetCharacter, field);
+                        return `<div class="wordle-cell ${comparison.status}">${guess[field] || '---'}${comparison.arrow || ''}</div>`;
+                    }).join('')}
+                </div>
+            `).join('');
+        }
+
+        function compareValues(guess, target, field) {
+            const g = guess[field]?.toString().toLowerCase() || '';
+            const t = target[field]?.toString().toLowerCase() || '';
+            
+            if (g === t) return { status: 'correct', arrow: '' };
+            
+            if (['Primera Aparición', 'Altura', 'Edad', 'Recompensa'].includes(field)) {
+                const gNum = parseFloat(g.replace(/[^\d.]/g, ''));
+                const tNum = parseFloat(t.replace(/[^\d.]/g, ''));
+                if (!isNaN(gNum) && !isNaN(tNum)) {
+                    return { status: 'incorrect', arrow: gNum < tNum ? ' ↑' : ' ↓' };
+                }
+            }
+
+            if (['Raza', 'Fruta del diablo', 'Haki', 'Ocupación'].includes(field)) {
+                if (g.includes(t) || t.includes(g)) return { status: 'partial', arrow: '' };
+            }
+
+            return { status: 'incorrect', arrow: '' };
+        }
+
+        init();
+    </script>
+</body>
+</html>
