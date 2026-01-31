@@ -3,174 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid Challenge - One Piece</title>
+    <title>Grid Challenge</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css">
-    <script src="../js/utils.js"></script>
     <style>
-        .grid-container {
-            display: flex;
-            justify-content: center;
-            margin: 2rem auto;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
         }
-        .grid-wrapper {
+        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+        .btn {
+            padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05);
+            color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none;
             display: inline-block;
         }
+        .btn:hover { border-color: #ff6b35; background: rgba(255, 107, 53, 0.2); }
+        
+        .header-container {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 2rem; max-width: 1400px; margin-left: auto; margin-right: auto;
+        }
+        
+        .score-box {
+            background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem;
+            border-radius: 15px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .score-box h3 { color: #1a1a2e; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .score-box .score { color: #667eea; font-size: 3rem; font-weight: 800; }
+        
+        .grid-container { display: flex; justify-content: center; margin: 2rem auto; }
         .grid-table {
-            display: grid;
-            grid-template-columns: 200px repeat(3, 200px);
-            grid-template-rows: repeat(4, 200px);
-            gap: 1rem;
+            display: grid; grid-template-columns: 180px repeat(3, 180px);
+            grid-template-rows: repeat(4, 180px); gap: 0.8rem;
         }
         .grid-cell {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-align: center;
-            padding: 1rem;
-            cursor: default;
-            position: relative;
+            border-radius: 12px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: white;
+            font-weight: 700; font-size: 1rem; text-align: center; padding: 0.8rem;
         }
         .grid-cell.header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            cursor: default;
         }
         .grid-cell.row-header {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
         .grid-cell.empty {
-            background: rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.3s;
         }
         .grid-cell.empty:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2); transform: scale(1.05);
         }
         .grid-cell.filled {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            cursor: default;
-        }
-        .grid-cell.wrong {
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-            animation: shake 0.5s;
         }
         .grid-cell img {
-            width: 80px;
-            height: 80px;
-            border-radius: 10px;
-            object-fit: cover;
-            margin-bottom: 0.5rem;
+            width: 70px; height: 70px; border-radius: 10px;
+            object-fit: cover; margin-bottom: 0.5rem;
         }
         .category-label {
-            font-size: 0.75rem;
-            opacity: 0.9;
-            margin-bottom: 0.25rem;
+            font-size: 0.7rem; opacity: 0.9; margin-bottom: 0.2rem;
         }
-        .score-box {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1.5rem;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .score-box h3 {
-            color: #1a1a2e;
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        .score-box .score {
-            color: #667eea;
-            font-size: 2.5rem;
-            font-weight: 800;
-        }
+        
         .search-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; align-items: center;
+            justify-content: center; z-index: 1000;
         }
-        .search-modal.active {
-            display: flex;
-        }
+        .search-modal.active { display: flex; }
         .search-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
+            background: white; padding: 2rem; border-radius: 20px;
+            max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
         }
         .search-content h3 {
-            color: #1a1a2e;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+            color: #1a1a2e; margin-bottom: 1rem; font-size: 1.3rem;
         }
-        .search-results {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 1rem;
+        .input-field {
+            width: 100%; padding: 1rem; border-radius: 10px;
+            border: 2px solid #e5e7eb; font-size: 1rem;
         }
+        .search-results { margin-top: 1rem; }
         .search-result-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            cursor: pointer;
-            transition: background 0.2s;
+            display: flex; align-items: center; padding: 1rem;
+            border-bottom: 1px solid #e5e7eb; cursor: pointer; transition: background 0.2s;
         }
-        .search-result-item:hover {
-            background: #f3f4f6;
-        }
+        .search-result-item:hover { background: #f3f4f6; }
         .search-result-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-            margin-right: 1rem;
+            width: 50px; height: 50px; border-radius: 8px;
+            object-fit: cover; margin-right: 1rem;
         }
-        .search-result-item span {
-            color: #1a1a2e;
-            font-weight: 600;
-        }
+        .search-result-item span { color: #1a1a2e; font-weight: 600; }
         .error-message {
-            color: #ef4444;
-            font-weight: 600;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            color: #ef4444; font-weight: 600; margin-top: 1rem;
+            text-align: center; font-size: 1rem;
         }
     </style>
 </head>
 <body>
     <div id="app">Cargando...</div>
-    <div id="searchModal" class="search-modal">
+    <div id="searchModal" class="search-modal" onclick="if(event.target.id==='searchModal') closeSearchModal()">
         <div class="search-content">
             <h3 id="modalTitle">Buscar personaje</h3>
-            <input 
-                type="text" 
-                id="searchInput" 
-                class="input-field" 
-                placeholder="Escribe el nombre..."
-            />
+            <input type="text" id="searchInput" class="input-field" placeholder="Escribe el nombre..." oninput="handleSearch(this.value)" />
             <div id="searchResults" class="search-results"></div>
             <div id="errorMessage" class="error-message"></div>
         </div>
@@ -184,22 +122,24 @@
         let score = 0;
         let currentCell = null;
         
-        // Categorías disponibles con sus tipos
         const categories = {
-            'Afiliación': ['Piratas de Sombrero de Paja', 'Piratas de Barbablanca', 'Marines', 'Revolucionarios', 'Piratas de Big Mom', 'Piratas de Kaido', 'Piratas de Barbanegra'],
-            'Origen': ['East Blue', 'Grand Line', 'New World', 'North Blue', 'South Blue', 'West Blue'],
-            'Raza': ['Humano', 'Tritón', 'Gyojin', 'Mink', 'Gigante'],
-            'Saga': ['East Blue', 'Arabasta', 'Skypiea', 'Water 7', 'Marineford', 'Dressrosa', 'Whole Cake', 'Wano']
+            'Afiliación': ['Piratas Sombrero de Paja', 'Piratas Barbablanca', 'Marines', 'Revolucionarios'],
+            'Origen': ['East Blue', 'Grand Line', 'North Blue', 'South Blue'],
+            'Raza': ['Humano', 'Gyojin', 'Mink'],
+            'Saga': ['East Blue', 'Arabasta', 'Enies Lobby', 'Marineford', 'Dressrosa', 'Wano']
         };
         
-        loadData().then(data => {
-            characters = data.characters.filter(c => c.Nombre && c.Imagen);
-            generateGrid();
-            renderGame();
-        }).catch(err => {
-            console.error('Error:', err);
-            document.getElementById('app').innerHTML = '<div style="text-align:center; padding: 3rem;">Error cargando datos. <a href="../index.html" style="color: #ff6b35;">Volver al menú</a></div>';
-        });
+        fetch('../characters.json')
+            .then(r => r.json())
+            .then(data => {
+                characters = data.filter(c => c.Nombre && c.Imagen);
+                generateGrid();
+                renderGame();
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                document.getElementById('app').innerHTML = '<div style="text-align:center;">Error cargando datos</div>';
+            });
         
         function findValidCategories() {
             const validCombos = [];
@@ -217,26 +157,18 @@
                             });
                             
                             if (matches.length >= 3) {
-                                validCombos.push({
-                                    type1, value1, type2, value2,
-                                    count: matches.length,
-                                    characters: matches
-                                });
+                                validCombos.push({ type1, value1, type2, value2, characters: matches });
                             }
                         }
                     }
                 }
             }
-            
             return validCombos;
         }
         
         function generateGrid() {
             const validCombos = findValidCategories();
-            
-            // Seleccionar 3 categorías para columnas y 3 para filas
             const shuffled = validCombos.sort(() => 0.5 - Math.random());
-            const selected = [];
             const usedRows = new Set();
             const usedCols = new Set();
             
@@ -245,27 +177,26 @@
                 const colKey = `${combo.type2}:${combo.value2}`;
                 
                 if (!usedRows.has(rowKey) && !usedCols.has(colKey)) {
-                    selected.push(combo);
                     usedRows.add(rowKey);
                     usedCols.add(colKey);
                     
-                    if (usedRows.size === 3 && usedCols.size === 3) break;
+                    if (usedRows.size <= 3 && usedCols.size <= 3) {
+                        if (usedRows.size === 1 || rowCategories.length < 3) {
+                            if (!rowCategories.some(r => r.type === combo.type1 && r.value === combo.value1)) {
+                                rowCategories.push({ type: combo.type1, value: combo.value1 });
+                            }
+                        }
+                        if (usedCols.size === 1 || colCategories.length < 3) {
+                            if (!colCategories.some(c => c.type === combo.type2 && c.value === combo.value2)) {
+                                colCategories.push({ type: combo.type2, value: combo.value2 });
+                            }
+                        }
+                    }
+                    
+                    if (rowCategories.length === 3 && colCategories.length === 3) break;
                 }
             }
             
-            // Organizar en filas y columnas
-            const rowSet = new Set();
-            const colSet = new Set();
-            
-            selected.forEach(combo => {
-                rowSet.add(JSON.stringify({ type: combo.type1, value: combo.value1 }));
-                colSet.add(JSON.stringify({ type: combo.type2, value: combo.value2 }));
-            });
-            
-            rowCategories = Array.from(rowSet).slice(0, 3).map(s => JSON.parse(s));
-            colCategories = Array.from(colSet).slice(0, 3).map(s => JSON.parse(s));
-            
-            // Inicializar grid
             grid = Array(3).fill(null).map(() => Array(3).fill(null));
         }
         
@@ -276,8 +207,7 @@
             return characters.filter(c => {
                 const field1 = c[rowCat.type]?.toLowerCase() || '';
                 const field2 = c[colCat.type]?.toLowerCase() || '';
-                return field1.includes(rowCat.value.toLowerCase()) && 
-                       field2.includes(colCat.value.toLowerCase());
+                return field1.includes(rowCat.value.toLowerCase()) && field2.includes(colCat.value.toLowerCase());
             });
         }
         
@@ -296,7 +226,7 @@
             document.getElementById('errorMessage').textContent = '';
             
             modal.classList.add('active');
-            input.focus();
+            setTimeout(() => input.focus(), 100);
         }
         
         function closeSearchModal() {
@@ -306,8 +236,7 @@
         
         function handleSearch(value) {
             const resultsDiv = document.getElementById('searchResults');
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = '';
+            document.getElementById('errorMessage').textContent = '';
             
             if (!value) {
                 resultsDiv.innerHTML = '';
@@ -316,7 +245,7 @@
             
             const filtered = characters.filter(c => 
                 c.Nombre.toLowerCase().includes(value.toLowerCase())
-            ).slice(0, 10);
+            ).slice(0, 15);
             
             if (filtered.length > 0) {
                 resultsDiv.innerHTML = filtered.map(c => `
@@ -338,100 +267,68 @@
             const validChars = getValidCharactersForCell(row, col);
             
             if (validChars.some(c => c.Nombre === char.Nombre)) {
-                // Correcto
                 grid[row][col] = char;
                 score++;
                 closeSearchModal();
                 renderGame();
                 
                 if (score === 9) {
-                    setTimeout(() => {
-                        alert('🎉 ¡COMPLETADO! 🎉\n\n¡Has completado el Grid Challenge!');
-                    }, 500);
+                    setTimeout(() => alert('🎉 ¡COMPLETADO! 🎉'), 500);
                 }
             } else {
-                // Incorrecto
                 document.getElementById('errorMessage').textContent = `❌ ${char.Nombre} no cumple ambas categorías`;
             }
         }
         
         function renderGame() {
             document.getElementById('app').innerHTML = `
-                <div style="max-width: 100%; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <a href="../index.html" class="btn" style="text-decoration: none;">← Volver</a>
-                        <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent;">GRID CHALLENGE</h1>
-                        <div style="width: 100px;"></div>
-                    </div>
-                    
+                <div class="header-container">
+                    <a href="../index.html" class="btn">← Volver</a>
+                    <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent;">GRID CHALLENGE</h1>
                     <div class="score-box">
                         <h3>Puntos</h3>
                         <div class="score">${score}/9</div>
                     </div>
-                    
-                    <div class="grid-container">
-                        <div class="grid-wrapper">
-                            <div class="grid-table">
-                                <!-- Esquina superior izquierda vacía -->
-                                <div class="grid-cell header" style="background: transparent;"></div>
-                                
-                                <!-- Headers de columnas -->
-                                ${colCategories.map(cat => `
-                                    <div class="grid-cell header">
-                                        <div class="category-label">${cat.type}</div>
-                                        <div>${cat.value}</div>
-                                    </div>
-                                `).join('')}
-                                
-                                <!-- Filas con headers y celdas -->
-                                ${rowCategories.map((rowCat, rowIdx) => `
-                                    <div class="grid-cell row-header">
-                                        <div class="category-label">${rowCat.type}</div>
-                                        <div>${rowCat.value}</div>
-                                    </div>
-                                    ${colCategories.map((colCat, colIdx) => {
-                                        const cell = grid[rowIdx][colIdx];
-                                        if (cell) {
-                                            return `
-                                                <div class="grid-cell filled">
-                                                    <img src="${cell.Imagen}" onerror="this.style.display='none'" />
-                                                    <div>${cell.Nombre}</div>
-                                                </div>
-                                            `;
-                                        } else {
-                                            return `
-                                                <div class="grid-cell empty" onclick="openSearchModal(${rowIdx}, ${colIdx})">
-                                                    <div style="font-size: 3rem;">?</div>
-                                                </div>
-                                            `;
-                                        }
-                                    }).join('')}
-                                `).join('')}
+                </div>
+                
+                <div class="grid-container">
+                    <div class="grid-table">
+                        <div class="grid-cell" style="background: transparent;"></div>
+                        
+                        ${colCategories.map(cat => `
+                            <div class="grid-cell header">
+                                <div class="category-label">${cat.type}</div>
+                                <div>${cat.value}</div>
                             </div>
-                        </div>
+                        `).join('')}
+                        
+                        ${rowCategories.map((rowCat, rowIdx) => `
+                            <div class="grid-cell row-header">
+                                <div class="category-label">${rowCat.type}</div>
+                                <div>${rowCat.value}</div>
+                            </div>
+                            ${colCategories.map((colCat, colIdx) => {
+                                const cell = grid[rowIdx][colIdx];
+                                if (cell) {
+                                    return `
+                                        <div class="grid-cell filled">
+                                            <img src="${cell.Imagen}" onerror="this.style.display='none'" />
+                                            <div style="font-size: 0.9rem;">${cell.Nombre}</div>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="grid-cell empty" onclick="openSearchModal(${rowIdx}, ${colIdx})">
+                                            <div style="font-size: 4rem; opacity: 0.5;">?</div>
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                        `).join('')}
                     </div>
                 </div>
             `;
         }
-        
-        // Event listeners
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'searchModal') {
-                closeSearchModal();
-            }
-        });
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
-            }
-        });
-        
-        // Hacer funciones globales
-        window.openSearchModal = openSearchModal;
-        window.closeSearchModal = closeSearchModal;
-        window.selectCharacter = selectCharacter;
     </script>
 </body>
 </html>
