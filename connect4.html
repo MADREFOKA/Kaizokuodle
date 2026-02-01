@@ -67,7 +67,7 @@
             border: 2px solid #fbbf24;
             border-radius: 15px;
             padding: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             text-align: center;
             max-width: 650px;
             margin-left: auto;
@@ -108,7 +108,6 @@
         let foundConnections = [];
         let allConnections = [];
         let message = '';
-        let hintsShown = [];
         let currentDifficulty = 1;
 
         fetch('../characters.json')
@@ -130,8 +129,7 @@
             foundConnections = [];
             allConnections = [];
             message = '';
-            hintsShown = [];
-            document.getElementById('hintContainer').innerHTML = '';
+            updateHints();
             generateGrid();
             renderGame();
         }
@@ -148,7 +146,6 @@
 
             const categories = ['Saga', 'Arco', 'Afiliación', 'Fruta del diablo', 'Haki', 'Ocupación'];
             
-            // Generar 4 grupos diferentes
             const usedChars = new Set();
             const connections = [];
             
@@ -225,6 +222,9 @@
                     selected = [];
                     message = `success:🎉 ¡CORRECTO! Conexión ${conn.category}: ${conn.value}\n(${conn.chars.join(', ')})`;
                     foundMatch = true;
+                    
+                    // Actualizar pistas cuando se acierta
+                    updateHints();
                     break;
                 }
             }
@@ -246,8 +246,8 @@
             renderGame();
         }
 
-        function showHint() {
-            // Buscar conexiones que aún no se han encontrado
+        function updateHints() {
+            // Obtener conexiones que aún no se han encontrado
             const remainingConnections = allConnections.filter((conn, idx) => 
                 !foundConnections.some(fc => {
                     const fcNames = fc.map(i => grid[i].Nombre).sort();
@@ -256,24 +256,26 @@
                 })
             );
             
-            if (remainingConnections.length === 0 || hintsShown.length >= remainingConnections.length) {
-                return;
-            }
+            const hintsContainer = document.getElementById('hintContainer');
+            hintsContainer.innerHTML = '';
             
-            const hintIndex = hintsShown.length;
-            const hintConnection = remainingConnections[hintIndex];
-            hintsShown.push(hintConnection);
+            if (remainingConnections.length > 0) {
+                remainingConnections.forEach((conn, idx) => {
+                    const hintDiv = document.createElement('div');
+                    hintDiv.className = 'hint-box';
+                    hintDiv.innerHTML = `
+                        <h3 style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 700;">💡 PISTA ${idx + 1}</h3>
+                        <p style="color: white; font-size: 1.1rem;">
+                            <strong>Categoría:</strong> ${conn.category}
+                        </p>
+                    `;
+                    hintsContainer.appendChild(hintDiv);
+                });
+            }
+        }
 
-            const hints = document.getElementById('hintContainer');
-            const hintDiv = document.createElement('div');
-            hintDiv.className = 'hint-box';
-            hintDiv.innerHTML = `
-                <h3 style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 700;">💡 PISTA ${hintsShown.length}</h3>
-                <p style="color: white; font-size: 1.1rem;">
-                    <strong>Categoría:</strong> ${hintConnection.category}
-                </p>
-            `;
-            hints.appendChild(hintDiv);
+        function showHint() {
+            updateHints();
         }
 
         function renderGame() {
@@ -289,6 +291,8 @@
                     </div>
                 `;
             }
+            
+            const remainingCount = 4 - foundConnections.length;
             
             app.innerHTML = `
                 ${messageHTML}
@@ -309,8 +313,9 @@
                 </div>
 
                 <div style="text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; font-size: 1.1rem; cursor: pointer;" onclick="showHint()">
-                        💡 Pista (${hintsShown.length}/4)
+                    <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; font-size: 1.1rem; cursor: pointer; ${remainingCount === 0 ? 'opacity: 0.5;' : ''}" 
+                            onclick="showHint()" ${remainingCount === 0 ? 'disabled' : ''}>
+                        💡 Mostrar Pistas (${remainingCount})
                     </button>
                     <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem; ${selected.length !== 4 ? 'opacity: 0.5;' : ''}" 
                             onclick="checkConnection()" ${selected.length !== 4 ? 'disabled' : ''}>
