@@ -66,6 +66,7 @@
         let selected = [];
         let found = [];
         let correctConnection = null;
+        let message = '';
 
         fetch('../characters.json')
             .then(r => r.json())
@@ -77,6 +78,7 @@
         function newRound() {
             selected = [];
             found = [];
+            message = '';
             generateGrid();
             renderGame();
         }
@@ -141,13 +143,10 @@
             if (isCorrect) {
                 found.push(...selected);
                 selected = [];
+                message = `success:🎉 ¡CORRECTO! Conexión: ${correctConnection.category} - ${correctConnection.value}`;
                 document.getElementById('score').textContent = '1';
-                
-                setTimeout(() => {
-                    alert(`🎉 ¡CORRECTO!\nConexión: ${correctConnection.category} - ${correctConnection.value}`);
-                }, 500);
             } else {
-                alert('❌ Estos 4 no comparten la conexión correcta');
+                message = 'error:❌ Estos 4 no comparten la conexión correcta';
                 selected = [];
             }
             
@@ -157,7 +156,19 @@
         function renderGame() {
             const app = document.getElementById('app');
             
+            let messageHTML = '';
+            if (message) {
+                const [type, text] = message.split(':');
+                const bgColor = type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)';
+                messageHTML = `
+                    <div style="background: ${bgColor}; color: white; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; text-align: center; font-size: 1.25rem; font-weight: 700;">
+                        ${text}
+                    </div>
+                `;
+            }
+            
             app.innerHTML = `
+                ${messageHTML}
                 <div class="grid-4x4">
                     ${grid.map((char, idx) => `
                         <div class="char-cell ${selected.includes(idx) ? 'selected' : ''} ${found.includes(idx) ? 'correct' : ''}" 
