@@ -3,348 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid Challenge</title>
+    <title>Grid Challenge - One Piece</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Outfit', sans-serif;
             background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
-            min-height: 100vh; color: #fff; padding: 2rem;
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
         }
         .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
-        .btn {
-            padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05);
-            color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;
+        .difficulty-selector {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
-        .btn:hover { border-color: #ff6b35; background: rgba(255, 107, 53, 0.2); }
-        .header-container {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 2rem; max-width: 1600px; margin-left: auto; margin-right: auto;
-        }
-        .score-box {
-            background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem;
-            border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .score-box h3 { color: #1a1a2e; font-size: 1.1rem; margin-bottom: 0.5rem; }
-        .score-box .score { color: #667eea; font-size: 3rem; font-weight: 800; }
-        .search-container { max-width: 800px; margin: 0 auto 2rem; position: relative; }
-        .input-field {
-            width: 100%; padding: 1rem; border-radius: 10px;
+        .diff-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            background: white; color: black; font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
         }
-        .suggestions {
-            position: absolute; width: 100%; background: white;
-            border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-height: 400px; overflow-y: auto; z-index: 100; margin-top: 0.5rem;
+        .diff-btn:hover { transform: translateY(-2px); }
+        .diff-btn.active {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border-color: #fbbf24;
+            color: #1a1a2e;
         }
-        .suggestion-item {
-            display: flex; align-items: center; padding: 1rem;
-            border-bottom: 1px solid #e5e7eb; cursor: pointer; transition: background 0.2s;
+        .grid-container {
+            display: grid;
+            grid-template-columns: 150px repeat(3, 200px);
+            grid-template-rows: 100px repeat(3, 200px);
+            gap: 0.5rem;
+            max-width: 850px;
+            margin: 0 auto 2rem;
         }
-        .suggestion-item:hover { background: #f3f4f6; }
-        .suggestion-item img {
-            width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 1rem;
+        .header-cell {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #1a1a2e;
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.95rem;
         }
-        .suggestion-item span { color: #1a1a2e; font-weight: 600; }
-        .error-message {
-            color: #ef4444; font-weight: 700; margin-top: 1rem;
-            text-align: center; font-size: 1.1rem; padding: 1rem;
-            background: rgba(239, 68, 68, 0.1); border-radius: 10px;
+        .game-cell {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 1rem;
         }
-        .success-message {
-            color: #10b981; font-weight: 700; margin-top: 1rem;
-            text-align: center; font-size: 1.1rem; padding: 1rem;
-            background: rgba(16, 185, 129, 0.1); border-radius: 10px;
+        .game-cell:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.05); }
+        .game-cell.selected { background: rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
+        .game-cell.correct { background: rgba(16, 185, 129, 0.3); border-color: #10b981; }
+        .cell-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 0.5rem;
         }
-        .grid-container { display: flex; justify-content: center; margin: 2rem auto; }
-        .grid-table {
-            display: grid; grid-template-columns: 200px repeat(3, 200px);
-            grid-template-rows: repeat(4, 200px); gap: 1rem;
+        .cell-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
         }
-        .grid-cell {
-            border-radius: 15px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: white;
-            font-weight: 700; font-size: 1.05rem; text-align: center; padding: 1rem;
+        .hint-box {
+            background: rgba(251, 191, 36, 0.2);
+            border: 2px solid #fbbf24;
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 850px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .grid-cell.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .grid-cell.row-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .grid-cell.empty {
-            background: rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.3s;
-            border: 3px dashed rgba(255, 255, 255, 0.3);
-        }
-        .grid-cell.empty:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.03); }
-        .grid-cell.empty.selected {
-            background: rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.8);
-        }
-        .grid-cell.filled { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-        .grid-cell img {
-            width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-bottom: 0.5rem;
-        }
-        .category-label { font-size: 0.75rem; opacity: 0.95; margin-bottom: 0.3rem; }
     </style>
+<script src="../report-system.js"></script>
 </head>
 <body>
-    <div id="app">Cargando...</div>
-    
+<script>const reporter = new ErrorReporter("Grid Challenge");</script>
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; display: inline-block;">← Volver</a>
+            <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GRID CHALLENGE</h1>
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Aciertos</p>
+                <p id="score" style="font-size: 3rem; font-weight: 800; color: #fbbf24;">0/9</p>
+            </div>
+        </div>
+
+        <div class="difficulty-selector">
+            <button class="diff-btn active" onclick="setDifficulty(1)" id="diff1">⚓ Grumete</button>
+            <button class="diff-btn" onclick="setDifficulty(2)" id="diff2">🗡️ Novato</button>
+            <button class="diff-btn" onclick="setDifficulty(3)" id="diff3">💫 Supernova</button>
+            <button class="diff-btn" onclick="setDifficulty(4)" id="diff4">⚔️ Shichibukai</button>
+            <button class="diff-btn" onclick="setDifficulty(5)" id="diff5">👑 Yonkou</button>
+        </div>
+
+        <div id="hintContainer"></div>
+        
+        <div id="app">Cargando...</div>
+
+        <div style="text-align: center; display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+            <button id="hintBtn" style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;" onclick="showHint()">
+                💡 Mostrar Pista
+            </button>
+            <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: none; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; font-size: 1.1rem; cursor: pointer;" onclick="generateGrid()">
+                🔄 Nuevo Grid
+            </button>
+        </div>
+    </div>
+
     <script>
         let characters = [];
-        let grid = [];
-        let rowCategories = [];
-        let colCategories = [];
-        let score = 0;
-        let selectedCell = null;
-        
-        const VALID_COMBOS = [
-            ['Saga', 'Raza'], ['Saga', 'Sexo'], ['Saga', 'Estado'], ['Saga', 'Fruta del diablo'], ['Saga', 'Ocupación'], ['Saga', 'Afiliación'],
-            ['Arco', 'Raza'], ['Arco', 'Sexo'], ['Arco', 'Estado'], ['Arco', 'Fruta del diablo'], ['Arco', 'Ocupación'], ['Arco', 'Afiliación'],
-            ['Raza', 'Saga'], ['Raza', 'Arco'], ['Raza', 'Sexo'], ['Raza', 'Estado'], ['Raza', 'Fruta del diablo'], ['Raza', 'Ocupación'], ['Raza', 'Afiliación'],
-            ['Sexo', 'Saga'], ['Sexo', 'Arco'], ['Sexo', 'Raza'], ['Sexo', 'Estado'], ['Sexo', 'Fruta del diablo'], ['Sexo', 'Ocupación'], ['Sexo', 'Afiliación'],
-            ['Estado', 'Saga'], ['Estado', 'Arco'], ['Estado', 'Raza'], ['Estado', 'Sexo'], ['Estado', 'Fruta del diablo'], ['Estado', 'Ocupación'], ['Estado', 'Afiliación'],
-            ['Fruta del diablo', 'Saga'], ['Fruta del diablo', 'Arco'], ['Fruta del diablo', 'Raza'], ['Fruta del diablo', 'Sexo'], ['Fruta del diablo', 'Ocupación'], ['Fruta del diablo', 'Afiliación'],
-            ['Afiliación', 'Saga'], ['Afiliación', 'Arco'], ['Afiliación', 'Raza'], ['Afiliación', 'Sexo'], ['Afiliación', 'Fruta del diablo'], ['Afiliación', 'Ocupación'],
-            ['Ocupación', 'Saga'], ['Ocupación', 'Arco'], ['Ocupación', 'Raza'], ['Ocupación', 'Sexo'], ['Ocupación', 'Fruta del diablo'], ['Ocupación', 'Afiliación']
-        ];
-        
+        let grid = { rows: [], cols: [] };
+        let selectedCells = new Set();
+        let correctCells = new Set();
+        let hintShown = false;
+        let currentDifficulty = 1;
+
         fetch('../characters.json')
             .then(r => r.json())
             .then(data => {
                 characters = data.filter(c => c.Nombre && c.Imagen);
-                console.log(`Loaded ${characters.length} characters`);
                 generateGrid();
-                renderGame();
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                document.getElementById('app').innerHTML = '<div style="text-align:center;">Error cargando datos</div>';
             });
-        
-        function checkMatch(char, type, value) {
-            const field = char[type];
-            if (!field || field === '---' || field === '') return false;
-            
-            const fieldLower = field.toLowerCase().trim();
-            const valueLower = value.toLowerCase().trim();
-            
-            if (fieldLower.includes(',')) {
-                const parts = fieldLower.split(',').map(p => p.trim());
-                return parts.some(part => part === valueLower || part.includes(valueLower));
-            }
-            
-            return fieldLower === valueLower || fieldLower.includes(valueLower);
+
+        function setDifficulty(level) {
+            currentDifficulty = level;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`diff${level}`).classList.add('active');
+            generateGrid();
         }
-        
-        function getUniqueValues(fieldType) {
-            return [...new Set(
-                characters
-                    .map(c => c[fieldType])
-                    .filter(v => v && v !== '---' && v !== '')
-                    .flatMap(v => v.split(',').map(x => x.trim()))
-            )];
-        }
-        
-        function findAllValidCombinations() {
-            const combos = [];
-            
-            for (const [field1, field2] of VALID_COMBOS) {
-                const values1 = getUniqueValues(field1);
-                const values2 = getUniqueValues(field2);
-                
-                for (const value1 of values1) {
-                    for (const value2 of values2) {
-                        const matches = characters.filter(c =>
-                            checkMatch(c, field1, value1) &&
-                            checkMatch(c, field2, value2)
-                        );
-                        
-                        // IMPORTANTE: Solo añadir si hay AL MENOS 1 personaje
-                        if (matches.length >= 1) {
-                            combos.push({
-                                row: { type: field1, value: value1 },
-                                col: { type: field2, value: value2 },
-                                count: matches.length
-                            });
-                            console.log(`✓ ${field1}:${value1} + ${field2}:${value2} = ${matches.length} personajes`);
-                        }
-                    }
-                }
-            }
-            
-            return combos;
-        }
-        
+
         function generateGrid() {
-            const allCombos = findAllValidCombinations();
-            console.log(`Encontradas ${allCombos.length} combinaciones válidas`);
+            selectedCells.clear();
+            correctCells.clear();
+            hintShown = false;
+            document.getElementById('hintContainer').innerHTML = '';
+            document.getElementById('score').textContent = '0/9';
             
-            if (allCombos.length < 9) {
-                alert(`Error: Solo ${allCombos.length} combinaciones (necesitas 9)`);
-                return;
-            }
-            
-            const shuffled = allCombos.sort(() => 0.5 - Math.random());
-            const usedRowKeys = new Set();
-            const usedColKeys = new Set();
-            const selected = [];
-            
-            for (const combo of shuffled) {
-                const rowKey = `${combo.row.type}:${combo.row.value}`;
-                const colKey = `${combo.col.type}:${combo.col.value}`;
-                
-                if (!usedRowKeys.has(rowKey) && !usedColKeys.has(colKey)) {
-                    selected.push(combo);
-                    usedRowKeys.add(rowKey);
-                    usedColKeys.add(colKey);
-                    
-                    if (selected.length === 9) break;
-                }
-            }
-            
-            // Verificar que TODAS las 9 celdas tengan al menos 1 personaje
-            rowCategories = [...new Set(selected.map(s => JSON.stringify(s.row)))].slice(0, 3).map(s => JSON.parse(s));
-            colCategories = [...new Set(selected.map(s => JSON.stringify(s.col)))].slice(0, 3).map(s => JSON.parse(s));
-            
-            console.log('Verificando celdas...');
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    const valid = getValidCharactersForCell(i, j);
-                    console.log(`Celda [${i},${j}]: ${rowCategories[i].type}:${rowCategories[i].value} + ${colCategories[j].type}:${colCategories[j].value} = ${valid.length} personajes`);
-                    if (valid.length === 0) {
-                        console.error(`❌ CELDA SIN PERSONAJES! Regenerando...`);
-                        generateGrid(); // Regenerar si alguna celda no tiene personajes
-                        return;
+            // Filtrar personajes por dificultad
+            const difficultyChars = characters.filter(c => {
+                const diff = parseInt(c.Dificultad) || 3;
+                if (currentDifficulty === 1) return diff <= 2; // Grumete: 1-2
+                if (currentDifficulty === 2) return diff <= 3; // Novato: 1-3
+                if (currentDifficulty === 3) return diff >= 2 && diff <= 4; // Supernova: 2-4
+                if (currentDifficulty === 4) return diff >= 3; // Shichibukai: 3-5
+                return diff >= 4; // Yonkou: 4-5
+            });
+
+            const categories = [
+                { field: 'Saga', name: 'Saga' },
+                { field: 'Afiliación', name: 'Afiliación' },
+                { field: 'Fruta del diablo', name: 'Tipo de Fruta' },
+                { field: 'Haki', name: 'Tipo de Haki' },
+                { field: 'Ocupación', name: 'Ocupación' },
+                { field: 'Estado', name: 'Estado' },
+                { field: 'Raza', name: 'Raza' }
+            ];
+
+            const grouped = {};
+            categories.forEach(cat => {
+                grouped[cat.field] = {};
+                difficultyChars.forEach(c => {
+                    const value = c[cat.field];
+                    if (value && value !== '---') {
+                        const values = value.split(',').map(v => v.trim());
+                        values.forEach(v => {
+                            if (!grouped[cat.field][v]) grouped[cat.field][v] = [];
+                            grouped[cat.field][v].push(c);
+                        });
+                    }
+                });
+            });
+
+            // Encontrar combinación válida
+            let attempts = 0;
+            let foundValid = false;
+
+            while (!foundValid && attempts < 100) {
+                attempts++;
+                const cat1 = categories[Math.floor(Math.random() * categories.length)];
+                const cat2 = categories.filter(c => c.field !== cat1.field)[Math.floor(Math.random() * (categories.length - 1))];
+
+                const minChars = currentDifficulty >= 4 ? 2 : 3;
+                const values1 = Object.keys(grouped[cat1.field]).filter(v => grouped[cat1.field][v].length >= minChars);
+                const values2 = Object.keys(grouped[cat2.field]).filter(v => grouped[cat2.field][v].length >= minChars);
+
+                if (values1.length >= 3 && values2.length >= 3) {
+                    const selected1 = values1.sort(() => 0.5 - Math.random()).slice(0, 3);
+                    const selected2 = values2.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+                    let allValid = true;
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 3; j++) {
+                            const valid = getValidCharactersForCell(
+                                grouped,
+                                cat1.field,
+                                selected1[i],
+                                cat2.field,
+                                selected2[j]
+                            );
+                            if (valid.length === 0) {
+                                allValid = false;
+                                break;
+                            }
+                        }
+                        if (!allValid) break;
+                    }
+
+                    if (allValid) {
+                        grid = {
+                            rows: selected1.map(v => ({ category: cat1.name, value: v })),
+                            cols: selected2.map(v => ({ category: cat2.name, value: v })),
+                            rowField: cat1.field,
+                            colField: cat2.field,
+                            grouped: grouped
+                        };
+                        foundValid = true;
                     }
                 }
             }
-            
-            grid = Array(3).fill(null).map(() => Array(3).fill(null));
-        }
-        
-        function getValidCharactersForCell(row, col) {
-            const rowCat = rowCategories[row];
-            const colCat = colCategories[col];
-            
-            return characters.filter(c =>
-                checkMatch(c, rowCat.type, rowCat.value) &&
-                checkMatch(c, colCat.type, colCat.value)
-            );
-        }
-        
-        function selectCell(row, col) {
-            if (grid[row][col]) return;
-            selectedCell = { row, col };
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchInput').focus();
-            document.getElementById('suggestions').innerHTML = '';
-            document.getElementById('message').innerHTML = '';
-            renderGame();
-        }
-        
-        function handleSearch(value) {
-            const suggestionsDiv = document.getElementById('suggestions');
-            document.getElementById('message').innerHTML = '';
-            
-            if (!value || !selectedCell) {
-                suggestionsDiv.innerHTML = '';
+
+            if (!foundValid) {
+                console.error('No se pudo generar grid válido');
                 return;
             }
-            
-            const filtered = characters.filter(c =>
-                c.Nombre.toLowerCase().includes(value.toLowerCase())
-            ).slice(0, 15);
-            
-            if (filtered.length > 0) {
-                suggestionsDiv.innerHTML = filtered.map(c => `
-                    <div class="suggestion-item" onclick="selectCharacter('${c.Nombre.replace(/'/g, "\\'")}')">
-                        <img src="${c.Imagen}" onerror="this.style.display='none'" />
-                        <span>${c.Nombre}</span>
-                    </div>
-                `).join('');
-            } else {
-                suggestionsDiv.innerHTML = '';
-            }
+
+            renderGrid();
         }
-        
-        function selectCharacter(name) {
-            const char = characters.find(c => c.Nombre === name);
-            if (!char || !selectedCell) return;
+
+        function getValidCharactersForCell(grouped, field1, value1, field2, value2) {
+            const chars1 = grouped[field1][value1] || [];
+            const chars2 = grouped[field2][value2] || [];
+            return chars1.filter(c => chars2.some(c2 => c2.Nombre === c.Nombre));
+        }
+
+        function selectCell(row, col) {
+            const key = `${row}-${col}`;
+            if (correctCells.has(key)) return;
+
+            if (selectedCells.has(key)) {
+                selectedCells.delete(key);
+            } else {
+                selectedCells.add(key);
+            }
+            renderGrid();
+        }
+
+        function checkSelection() {
+            if (selectedCells.size === 0) return;
+
+            selectedCells.forEach(key => {
+                const [row, col] = key.split('-').map(Number);
+                const validChars = getValidCharactersForCell(
+                    grid.grouped,
+                    grid.rowField,
+                    grid.rows[row].value,
+                    grid.colField,
+                    grid.cols[col].value
+                );
+
+                if (validChars.length > 0) {
+                    correctCells.add(key);
+                    
+                    const connectionText = `${grid.rows[row].category}: ${grid.rows[row].value} + ${grid.cols[col].category}: ${grid.cols[col].value}`;
+                    const charNames = validChars.map(c => c.Nombre).slice(0, 5).join(', ');
+                    
+                    showMessage(`success:🎉 ¡CORRECTO! Conexión: ${connectionText}\nPersonajes: ${charNames}${validChars.length > 5 ? '...' : ''}`);
+                }
+            });
+
+            selectedCells.clear();
+            document.getElementById('score').textContent = `${correctCells.size}/9`;
             
-            const { row, col } = selectedCell;
-            const validChars = getValidCharactersForCell(row, col);
-            
-            if (validChars.some(c => c.Nombre === char.Nombre)) {
-                grid[row][col] = char;
-                score++;
-                selectedCell = null;
-                document.getElementById('searchInput').value = '';
-                document.getElementById('suggestions').innerHTML = '';
-                document.getElementById('message').innerHTML = '<div class="success-message">✅ ¡Correcto!</div>';
-                
+            if (correctCells.size === 9) {
                 setTimeout(() => {
-                    document.getElementById('message').innerHTML = '';
-                    if (score === 9) alert('🎉 ¡COMPLETADO! 🎉');
-                    renderGame();
-                }, 1000);
-            } else {
-                document.getElementById('message').innerHTML = `<div class="error-message">❌ ${char.Nombre} no cumple ambas categorías</div>`;
+                    const diffNames = ['', 'Grumete', 'Novato', 'Supernova', 'Shichibukai', 'Yonkou'];
+                    showMessage(`success:🏆 ¡COMPLETADO! Grid ${diffNames[currentDifficulty]} perfecto!`);
+                }, 500);
             }
+
+            renderGrid();
         }
-        
-        function renderGame() {
-            document.getElementById('app').innerHTML = `
-                <div class="header-container">
-                    <a href="../index.html" class="btn">← Volver</a>
-                    <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GRID CHALLENGE</h1>
-                    <div class="score-box">
-                        <h3>Puntos</h3>
-                        <div class="score">${score}/9</div>
-                    </div>
-                </div>
-                
-                <div class="search-container">
-                    <input type="text" id="searchInput" class="input-field" 
-                        placeholder="${selectedCell ? 'Escribe el nombre del personaje...' : 'Selecciona una celda primero'}"
-                        oninput="handleSearch(this.value)" ${!selectedCell ? 'disabled' : ''} />
-                    <div id="suggestions" class="suggestions"></div>
-                </div>
-                
-                <div id="message"></div>
-                
-                <div class="grid-container">
-                    <div class="grid-table">
-                        <div class="grid-cell" style="background: transparent;"></div>
-                        ${colCategories.map(cat => `
-                            <div class="grid-cell header">
-                                <div class="category-label">${cat.type}</div>
-                                <div>${cat.value}</div>
-                            </div>
-                        `).join('')}
-                        ${rowCategories.map((rowCat, rowIdx) => `
-                            <div class="grid-cell row-header">
-                                <div class="category-label">${rowCat.type}</div>
-                                <div>${rowCat.value}</div>
-                            </div>
-                            ${colCategories.map((colCat, colIdx) => {
-                                const cell = grid[rowIdx][colIdx];
-                                const isSelected = selectedCell && selectedCell.row === rowIdx && selectedCell.col === colIdx;
-                                
-                                if (cell) {
-                                    return `<div class="grid-cell filled">
-                                        <img src="${cell.Imagen}" onerror="this.style.display='none'" />
-                                        <div style="font-size: 0.95rem;">${cell.Nombre}</div>
-                                    </div>`;
-                                } else {
-                                    return `<div class="grid-cell empty ${isSelected ? 'selected' : ''}" onclick="selectCell(${rowIdx}, ${colIdx})">
-                                        <div style="font-size: 4rem; opacity: 0.4;">?</div>
-                                    </div>`;
-                                }
-                            }).join('')}
-                        `).join('')}
-                    </div>
+
+        function showHint() {
+            if (hintShown) return;
+            hintShown = true;
+
+            const hint = `
+                <div class="hint-box">
+                    <h3 style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 700;">💡 PISTA</h3>
+                    <p style="color: white; font-size: 1.1rem; line-height: 1.5;">
+                        <strong>Filas:</strong> ${grid.rows[0].category}<br>
+                        <strong>Columnas:</strong> ${grid.cols[0].category}
+                    </p>
                 </div>
             `;
+            document.getElementById('hintContainer').innerHTML = hint;
+        }
+
+        function showMessage(messageData) {
+            const [type, text] = messageData.split(':');
+            const bgColor = type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)';
+            
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${bgColor};
+                color: white;
+                padding: 1.5rem 2rem;
+                border-radius: 15px;
+                font-weight: 700;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                white-space: pre-line;
+                max-width: 90%;
+            `;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 3000);
+        }
+
+        function renderGrid() {
+            const app = document.getElementById('app');
+            
+            let html = '<div class="grid-container">';
+            
+            html += '<div></div>';
+            
+            grid.cols.forEach(col => {
+                html += `<div class="header-cell">${col.value}</div>`;
+            });
+            
+            grid.rows.forEach((row, i) => {
+                html += `<div class="header-cell">${row.value}</div>`;
+                
+                grid.cols.forEach((col, j) => {
+                    const key = `${i}-${j}`;
+                    const selected = selectedCells.has(key);
+                    const correct = correctCells.has(key);
+                    
+                    const validChars = getValidCharactersForCell(
+                        grid.grouped,
+                        grid.rowField,
+                        row.value,
+                        grid.colField,
+                        col.value
+                    );
+                    
+                    const char = validChars[0];
+                    
+                    html += `
+                        <div class="game-cell ${selected ? 'selected' : ''} ${correct ? 'correct' : ''}" 
+                             onclick="selectCell(${i}, ${j})">
+                            ${correct && char ? `
+                                <img src="${char.Imagen}" class="cell-image" alt="${char.Nombre}" onerror="this.style.display='none'">
+                                <div class="cell-name">${char.Nombre}</div>
+                            ` : `
+                                <div style="font-size: 2rem; opacity: 0.3;">❓</div>
+                            `}
+                        </div>
+                    `;
+                });
+            });
+            
+            html += '</div>';
+            
+            html += `
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem; ${selectedCells.size === 0 ? 'opacity: 0.5;' : ''}" 
+                            onclick="checkSelection()" ${selectedCells.size === 0 ? 'disabled' : ''}>
+                        ✓ Verificar Selección (${selectedCells.size})
+                    </button>
+                </div>
+            `;
+            
+            app.innerHTML = html;
         }
     </script>
 </body>

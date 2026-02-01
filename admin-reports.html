@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Reportes - One Piece Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
+        }
+        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fbbf24;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-top: 0.5rem;
+        }
+        .report-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+        }
+        .report-card.bug { border-left-color: #ef4444; }
+        .report-card.data { border-left-color: #3b82f6; }
+        .report-card.visual { border-left-color: #a855f7; }
+        .report-card.gameplay { border-left-color: #f59e0b; }
+        .report-card.other { border-left-color: #10b981; }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .badge.bug { background: #fee2e2; color: #991b1b; }
+        .badge.data { background: #dbeafe; color: #1e40af; }
+        .badge.visual { background: #f3e8ff; color: #6b21a8; }
+        .badge.gameplay { background: #fef3c7; color: #92400e; }
+        .badge.other { background: #d1fae5; color: #065f46; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #fbbf24, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    PANEL DE REPORTES
+                </h1>
+                <p style="color: #9ca3af; margin-top: 0.5rem;">Gestión de errores reportados por usuarios</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="exportReports()">
+                    📥 Exportar JSON
+                </button>
+                <button class="btn btn-danger" onclick="clearAllReports()">
+                    🗑️ Limpiar Todo
+                </button>
+            </div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+
+        <div id="reports"></div>
+    </div>
+
+    <script>
+        function loadReports() {
+            const reports = JSON.parse(localStorage.getItem('errorReports') || '[]');
+            
+            // Estadísticas
+            const stats = {
+                total: reports.length,
+                bug: reports.filter(r => r.type === 'bug').length,
+                data: reports.filter(r => r.type === 'data').length,
+                visual: reports.filter(r => r.type === 'visual').length,
+                gameplay: reports.filter(r => r.type === 'gameplay').length,
+                other: reports.filter(r => r.type === 'other').length
+            };
+
+            // Renderizar estadísticas
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.total}</div>
+                    <div class="stat-label">Total Reportes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.bug}</div>
+                    <div class="stat-label">🐛 Bugs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.data}</div>
+                    <div class="stat-label">📊 Datos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.visual}</div>
+                    <div class="stat-label">🎨 Visual</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.gameplay}</div>
+                    <div class="stat-label">🎮 Jugabilidad</div>
+                </div>
+            `;
+
+            // Renderizar reportes
+            const reportsContainer = document.getElementById('reports');
+            
+            if (reports.length === 0) {
+                reportsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No hay reportes</h2>
+                        <p style="color: #9ca3af;">Los usuarios aún no han reportado ningún error</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar por fecha (más recientes primero)
+            reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            reportsContainer.innerHTML = reports.map(report => {
+                const date = new Date(report.timestamp);
+                const typeLabels = {
+                    bug: '🐛 Bug',
+                    data: '📊 Datos',
+                    visual: '🎨 Visual',
+                    gameplay: '🎮 Jugabilidad',
+                    other: '💡 Otro'
+                };
+
+                return `
+                    <div class="report-card ${report.type}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">
+                                    ${report.game}
+                                </h3>
+                                <span class="badge ${report.type}">
+                                    ${typeLabels[report.type]}
+                                </span>
+                            </div>
+                            <div style="text-align: right; color: #666; font-size: 0.85rem;">
+                                ${date.toLocaleDateString('es-ES')}<br>
+                                ${date.toLocaleTimeString('es-ES')}
+                            </div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                            <p style="line-height: 1.6;">${report.description}</p>
+                        </div>
+                        <details style="font-size: 0.85rem; color: #666;">
+                            <summary style="cursor: pointer; font-weight: 600;">Detalles técnicos</summary>
+                            <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.05); border-radius: 5px; font-family: monospace; font-size: 0.75rem;">
+                                <div><strong>URL:</strong> ${report.url}</div>
+                                <div style="margin-top: 0.25rem;"><strong>User Agent:</strong> ${report.userAgent}</div>
+                            </div>
+                        </details>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportReports() {
+            const reports = JSON.parse(localStorage.getItem('errorReports') || '[]');
+            const dataStr = JSON.stringify(reports, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `error-reports-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            showNotification('✓ Reportes exportados', 'success');
+        }
+
+        function clearAllReports() {
+            if (confirm('¿Seguro que quieres borrar TODOS los reportes?\n\nEsta acción no se puede deshacer.')) {
+                localStorage.removeItem('errorReports');
+                loadReports();
+                showNotification('✓ Reportes eliminados', 'success');
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 15px;
+                font-weight: 700;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // Cargar reportes al iniciar
+        loadReports();
+
+        // Recargar cada 30 segundos
+        setInterval(loadReports, 30000);
+    </script>
+</body>
+</html>
