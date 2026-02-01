@@ -1,0 +1,128 @@
+[
+  {
+    "id": 1,
+    "image": "adivinar_0.png",
+    "missing": ["Nami"],
+    "difficulty": 1,
+    "hint": "¡Arlong!"
+  },
+  {
+    "id": 2,
+    "image": "adivinar_1.png",
+    "missing": ["Monkey D. Luffy","Figarland Shanks"],
+    "difficulty": 1,
+    "hint": "Tu brazo..."
+  },
+  {
+    "id": 3,
+    "image": "adivinar_2.png",
+    "missing": ["Monkey D. Luffy", "Trafalgar D. Water Law", "Donquixote Dofflamingo"],
+    "difficulty": 2,
+    "hint": "Pisame daddy..."
+  },
+  {
+    "id": 4,
+    "image": "adivinar_3.png",
+    "missing": ["Nico Robin"],
+    "difficulty": 1,
+    "hint": "¡Gritalo reina!"
+  },
+  {
+    "id": 5,
+    "image": "adivinar_4.png",
+    "missing": ["Monkey D. Luffy", "Bellamy"],
+    "difficulty": 3,
+    "hint": "Perdí mi tripulación llegando allí..."
+  },
+  {
+    "id": 6,
+    "image": "adivinar_5.png",
+    "missing": ["Monkey D. Luffy", "Portgass D. Ace"],
+    "difficulty": 2,
+    "hint": "Arigatou..."
+  },
+  {
+    "id": 7,
+    "image": "adivinar_6.png",
+    "missing": ["Monkey D. Luffy", "Portgass D. Ace", "Sabo"],
+    "difficulty": 2,
+    "hint": "Si brindamos con sake..."
+  },
+  {
+    "id": 8,
+    "image": "adivinar_7.png",
+    "missing": ["Monkey D. Luffy", "Portgass D. Ace", "Galdino"],
+    "difficulty": 2,
+    "hint": "Al fin liberado"
+  },
+  {
+    "id": 9,
+    "image": "adivinar_8.png",
+    "missing": ["Capone Bege", "Pekoms"],
+    "difficulty": 3,
+    "hint": "¿Ultimas palabras?"
+  },
+  {
+    "id": 10,
+    "image": "adivinar_9.png",
+    "missing": ["Roronoa Zoro", "Bartholomew Kuma"],
+    "difficulty": 2,
+    "hint": "No ha pasado nada."
+  },
+  {
+    "id": 11,
+    "image": "adivinar_10.png",
+    "missing": ["Bon Clay", "Lobo"],
+    "difficulty": 3,
+    "hint": "¡Es mi amigo!"
+  },
+  {
+    "id": 12,
+    "image": "adivinar_11.png",
+    "missing": ["Monkey D. Luffy", "Kozuki Momonosuke"],
+    "difficulty": 2,
+    "hint": "No soy una zoan."
+  },
+  {
+    "id": 13,
+    "image": "adivinar_12.png",
+    "missing": ["Vegapunk", "Monkey D. Dragon"],
+    "difficulty": 2,
+    "hint": "Funeral Ohara."
+  },
+  {
+    "id": 14,
+    "image": "adivinar_13.png",
+    "missing": ["Carrot", "Monkey D. Luffy"],
+    "difficulty": 3,
+    "hint": "¡Garchu!"
+  },
+  {
+    "id": 13,
+    "image": "adivinar_14.png",
+    "missing": ["Crocodile", "Monkey D. Luffy"],
+    "difficulty": 3,
+    "hint": "Sayonara..."
+  },
+  {
+    "id": 14,
+    "image": "adivinar_15.png",
+    "missing": ["Bartholomew Kuma", "Monkey D. Luffy"],
+    "difficulty": 2,
+    "hint": "¡CORRED¡¡Huid lejos!"
+  },
+  {
+    "id": 15,
+    "image": "adivinar_16.png",
+    "missing": ["Roronoa Zoro", "Vinsmoke Sanji", "Toko"],
+    "difficulty": 2,
+    "hint": "Sangoro"
+  },
+  {
+    "id": 16,
+    "image": "adivinar_17.png",
+    "missing": ["Jesus Burgess"],
+    "difficulty": 1,
+    "hint": "Intruso en Baltigo"
+  }
+]

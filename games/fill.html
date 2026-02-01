@@ -10,65 +10,55 @@
         body {
             font-family: 'Outfit', sans-serif;
             background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
-            min-height: 100vh;
-            color: #fff;
-            padding: 2rem;
+            min-height: 100vh; color: #fff; padding: 2rem;
         }
         .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+        .difficulty-btn {
+            padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05);
+            color: white; transition: all 0.3s; font-size: 0.95rem;
+        }
+        .difficulty-btn:hover { border-color: #4ECDC4; }
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            border-color: #4ECDC4;
+        }
         .fill-card {
             background: rgba(255, 255, 255, 0.95);
             border: 3px solid rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
+            border-radius: 20px; padding: 2rem;
+            max-width: 1000px; margin: 0 auto;
         }
         .fill-card img {
-            width: 180px;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 15px;
+            width: 180px; height: 180px;
+            object-fit: cover; border-radius: 15px;
             border: 3px solid #4ECDC4;
         }
         .field-container { margin-bottom: 1.5rem; }
         .field-label {
-            font-weight: bold;
-            color: #1a1a2e;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
+            font-weight: bold; color: #1a1a2e;
+            margin-bottom: 0.5rem; font-size: 0.95rem;
         }
         .input-field {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 2px solid #e5e7eb;
+            width: 100%; padding: 0.75rem;
+            border-radius: 8px; border: 2px solid #e5e7eb;
             font-size: 0.95rem;
         }
         .field-result {
-            padding: 1rem;
-            border-radius: 10px;
-            border: 2px solid;
-            font-size: 0.9rem;
+            padding: 1rem; border-radius: 10px;
+            border: 2px solid; font-size: 0.9rem;
         }
         .field-result.correct {
-            background: #d1fae5;
-            border-color: #10b981;
-            color: #065f46;
+            background: #d1fae5; border-color: #10b981; color: #065f46;
         }
         .field-result.partial {
-            background: #fef3c7;
-            border-color: #f59e0b;
-            color: #92400e;
+            background: #fef3c7; border-color: #f59e0b; color: #92400e;
         }
         .field-result.incorrect {
-            background: #fee2e2;
-            border-color: #ef4444;
-            color: #991b1b;
+            background: #fee2e2; border-color: #ef4444; color: #991b1b;
         }
         .arrow-indicator {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-left: 0.5rem;
+            font-size: 1.5rem; font-weight: bold; margin-left: 0.5rem;
         }
     </style>
 </head>
@@ -84,6 +74,14 @@
                 <p id="totalScore" style="font-size: 3rem; font-weight: 800; color: #4ECDC4;">0</p>
             </div>
         </div>
+
+        <div style="display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;">
+            <button class="difficulty-btn active" onclick="selectDifficulty(1)">Grumete (Fácil)</button>
+            <button class="difficulty-btn" onclick="selectDifficulty(2)">Novato (Medio)</button>
+            <button class="difficulty-btn" onclick="selectDifficulty(3)">Supernova (Difícil)</button>
+            <button class="difficulty-btn" onclick="selectDifficulty(4)">Shichibukai (Muy Difícil)</button>
+            <button class="difficulty-btn" onclick="selectDifficulty(5)">Yonkou (Imposible)</button>
+        </div>
         
         <div id="app">Cargando...</div>
     </div>
@@ -95,6 +93,15 @@
         let revealed = false;
         let score = 0;
         let totalScore = parseInt(localStorage.getItem('fillBlanksTotal') || '0');
+        let currentDifficulty = 1;
+
+        const difficulties = [
+            { id: 1, name: 'Grumete', label: 'Fácil', levels: [1] },
+            { id: 2, name: 'Novato', label: 'Medio', levels: [1, 2] },
+            { id: 3, name: 'Supernova', label: 'Difícil', levels: [1, 2, 3] },
+            { id: 4, name: 'Shichibukai', label: 'Muy Difícil', levels: [1, 2, 3, 4] },
+            { id: 5, name: 'Yonkou', label: 'Imposible', levels: [1, 2, 3, 4, 5] }
+        ];
 
         const fields = [
             'Primera Aparición', 'Saga', 'Arco', 'Origen', 'Raza', 'Sexo', 
@@ -113,8 +120,24 @@
                 newRound();
             });
 
+        function selectDifficulty(level) {
+            currentDifficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === level - 1);
+            });
+            newRound();
+        }
+
+        function getFilteredCharacters() {
+            const diff = difficulties.find(d => d.id === currentDifficulty);
+            return characters.filter(c => 
+                c.Dificultad && diff.levels.includes(parseInt(c.Dificultad))
+            );
+        }
+
         function newRound() {
-            character = characters[Math.floor(Math.random() * characters.length)];
+            const filtered = getFilteredCharacters();
+            character = filtered[Math.floor(Math.random() * filtered.length)];
             answers = {};
             revealed = false;
             renderGame();

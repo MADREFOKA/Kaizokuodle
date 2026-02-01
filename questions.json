@@ -1,0 +1,142 @@
+[
+  {
+    "question": "¿Quién es el capitán de los Piratas del Sombrero de Paja?",
+    "options": ["Monkey D. Luffy", "Roronoa Zoro", "Nami", "Sanji"],
+    "correct": 0,
+    "difficulty": 1,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿Qué fruta del diablo comió Luffy?",
+    "options": ["Gomu Gomu no Mi", "Mera Mera no Mi", "Bara Bara no Mi", "Hito Hito no Mi"],
+    "correct": 0,
+    "difficulty": 1,
+    "category": "Frutas"
+  },
+  {
+    "question": "¿Cuál es el sueño de Zoro?",
+    "options": ["Ser el Rey de los Piratas", "Ser el mejor espadachín del mundo", "Encontrar el One Piece", "Dibujar el mapa del mundo"],
+    "correct": 1,
+    "difficulty": 1,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿De qué mar proviene Luffy?",
+    "options": ["North Blue", "South Blue", "East Blue", "West Blue"],
+    "correct": 2,
+    "difficulty": 1,
+    "category": "Geografía"
+  },
+  {
+    "question": "¿Quién fue el primer nakama de Luffy?",
+    "options": ["Nami", "Zoro", "Usopp", "Sanji"],
+    "correct": 1,
+    "difficulty": 1,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿Cómo se llama el barco de los Mugiwara?",
+    "options": ["Going Merry", "Thousand Sunny", "Oro Jackson", "Moby Dick"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Barcos"
+  },
+  {
+    "question": "¿Quién mató a Ace?",
+    "options": ["Barbanegra", "Akainu", "Kizaru", "Sengoku"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Historia"
+  },
+  {
+    "question": "¿Cuántos Shichibukai había originalmente?",
+    "options": ["5", "7", "9", "10"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Organizaciones"
+  },
+  {
+    "question": "¿Qué Yonkou era Barbanegra antes de convertirse en uno?",
+    "options": ["No era Yonkou", "Era Shichibukai", "Era Marine", "Era Revolucionario"],
+    "correct": 1,
+    "difficulty": 3,
+    "category": "Historia"
+  },
+  {
+    "question": "¿Quién entrenó a Luffy durante el timeskip?",
+    "options": ["Shanks", "Rayleigh", "Garp", "Mihawk"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿Qué tipo de fruta es la Gomu Gomu no Mi?",
+    "options": ["Logia", "Zoan", "Paramecia", "Ninguna"],
+    "correct": 2,
+    "difficulty": 1,
+    "category": "Frutas"
+  },
+  {
+    "question": "¿Cuál es la recompensa actual de Luffy?",
+    "options": ["1.500.000.000", "3.000.000.000", "500.000.000", "2.000.000.000"],
+    "correct": 1,
+    "difficulty": 3,
+    "category": "Recompensas"
+  },
+  {
+    "question": "¿Qué fruta comió Sabo?",
+    "options": ["Gomu Gomu no Mi", "Mera Mera no Mi", "Bara Bara no Mi", "Ninguna"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Frutas"
+  },
+  {
+    "question": "¿Quién es el padre de Luffy?",
+    "options": ["Garp", "Dragon", "Shanks", "Roger"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿En qué isla nació Luffy?",
+    "options": ["Dawn Island", "Shells Town", "Orange Town", "Syrup Village"],
+    "correct": 0,
+    "difficulty": 2,
+    "category": "Geografía"
+  },
+  {
+    "question": "¿Quién fue el Rey de los Piratas?",
+    "options": ["Whitebeard", "Gol D. Roger", "Rocks D. Xebec", "Shanks"],
+    "correct": 1,
+    "difficulty": 1,
+    "category": "Historia"
+  },
+  {
+    "question": "¿Cuántos hijos tiene Big Mom?",
+    "options": ["43", "85", "129", "67"],
+    "correct": 1,
+    "difficulty": 4,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿Qué Almirante tiene la fruta Pika Pika no Mi?",
+    "options": ["Aokiji", "Kizaru", "Akainu", "Fujitora"],
+    "correct": 1,
+    "difficulty": 3,
+    "category": "Personajes"
+  },
+  {
+    "question": "¿Quién derrotó a Crocodile?",
+    "options": ["Zoro", "Luffy", "Ace", "Smoker"],
+    "correct": 1,
+    "difficulty": 2,
+    "category": "Batallas"
+  },
+  {
+    "question": "¿Qué es el Poneglyph?",
+    "options": ["Un tesoro", "Piedras con historia antigua", "Un arma", "Un mapa"],
+    "correct": 1,
+    "difficulty": 3,
+    "category": "Historia"
+  }
+]

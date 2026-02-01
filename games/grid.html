@@ -97,7 +97,6 @@
         let score = 0;
         let selectedCell = null;
         
-        // Combinaciones VÁLIDAS (NO repetir mismo tipo)
         const VALID_COMBOS = [
             ['Saga', 'Raza'], ['Saga', 'Sexo'], ['Saga', 'Estado'], ['Saga', 'Fruta del diablo'], ['Saga', 'Ocupación'], ['Saga', 'Afiliación'],
             ['Arco', 'Raza'], ['Arco', 'Sexo'], ['Arco', 'Estado'], ['Arco', 'Fruta del diablo'], ['Arco', 'Ocupación'], ['Arco', 'Afiliación'],
@@ -160,12 +159,14 @@
                             checkMatch(c, field2, value2)
                         );
                         
-                        if (matches.length >= 1) {  // Solo necesitamos 1+
+                        // IMPORTANTE: Solo añadir si hay AL MENOS 1 personaje
+                        if (matches.length >= 1) {
                             combos.push({
                                 row: { type: field1, value: value1 },
                                 col: { type: field2, value: value2 },
                                 count: matches.length
                             });
+                            console.log(`✓ ${field1}:${value1} + ${field2}:${value2} = ${matches.length} personajes`);
                         }
                     }
                 }
@@ -201,8 +202,22 @@
                 }
             }
             
+            // Verificar que TODAS las 9 celdas tengan al menos 1 personaje
             rowCategories = [...new Set(selected.map(s => JSON.stringify(s.row)))].slice(0, 3).map(s => JSON.parse(s));
             colCategories = [...new Set(selected.map(s => JSON.stringify(s.col)))].slice(0, 3).map(s => JSON.parse(s));
+            
+            console.log('Verificando celdas...');
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const valid = getValidCharactersForCell(i, j);
+                    console.log(`Celda [${i},${j}]: ${rowCategories[i].type}:${rowCategories[i].value} + ${colCategories[j].type}:${colCategories[j].value} = ${valid.length} personajes`);
+                    if (valid.length === 0) {
+                        console.error(`❌ CELDA SIN PERSONAJES! Regenerando...`);
+                        generateGrid(); // Regenerar si alguna celda no tiene personajes
+                        return;
+                    }
+                }
+            }
             
             grid = Array(3).fill(null).map(() => Array(3).fill(null));
         }
@@ -281,7 +296,7 @@
             document.getElementById('app').innerHTML = `
                 <div class="header-container">
                     <a href="../index.html" class="btn">← Volver</a>
-                    <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent;">GRID CHALLENGE</h1>
+                    <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GRID CHALLENGE</h1>
                     <div class="score-box">
                         <h3>Puntos</h3>
                         <div class="score">${score}/9</div>

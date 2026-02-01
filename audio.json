@@ -1,0 +1,12 @@
+[
+  {"id": 1, "character": "Monkey D. Luffy", "sound": "Yohohoho", "type": "laugh", "difficulty": 1},
+  {"id": 2, "character": "Brook", "sound": "Yohohoho", "type": "laugh", "difficulty": 1},
+  {"id": 3, "character": "Portgas D. Ace", "sound": "Dereshishishi", "type": "laugh", "difficulty": 2},
+  {"id": 4, "character": "Trafalgar Law", "sound": "Fufufu", "type": "laugh", "difficulty": 2},
+  {"id": 5, "character": "Donquixote Doflamingo", "sound": "Fuffuffuffu", "type": "laugh", "difficulty": 2},
+  {"id": 6, "character": "Caesar Clown", "sound": "Shurororo", "type": "laugh", "difficulty": 3},
+  {"id": 7, "character": "Perona", "sound": "Horohorohoro", "type": "laugh", "difficulty": 2},
+  {"id": 8, "character": "Gecko Moria", "sound": "Kishishishi", "type": "laugh", "difficulty": 3},
+  {"id": 9, "character": "Bartholomew Kuma", "sound": "...", "type": "phrase", "difficulty": 4},
+  {"id": 10, "character": "Blackbeard", "sound": "Zehahaha", "type": "laugh", "difficulty": 2}
+]

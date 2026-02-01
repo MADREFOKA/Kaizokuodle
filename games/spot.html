@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spot the Missing - One Piece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh; color: #fff; padding: 2rem;
+        }
+        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+        .spot-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px; padding: 2rem;
+            max-width: 900px; margin: 0 auto;
+            color: #1a1a2e;
+        }
+        .image-container {
+            position: relative; margin-bottom: 2rem;
+            border-radius: 15px; overflow: hidden;
+        }
+        .spot-image {
+            width: 100%; border-radius: 15px;
+            border: 4px solid #e5e7eb;
+        }
+        .spot-image.correct {
+            border-color: #10b981;
+        }
+        .input-field {
+            width: 100%; padding: 1rem;
+            border-radius: 10px; border: 2px solid #e5e7eb;
+            font-size: 1.1rem; margin-bottom: 1rem;
+        }
+        .guess-list {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .guess-tag {
+            padding: 0.5rem 1rem; border-radius: 20px;
+            font-weight: 600; font-size: 0.95rem;
+        }
+        .guess-tag.correct {
+            background: #10b981; color: white;
+        }
+        .guess-tag.partial {
+            background: #f59e0b; color: white;
+        }
+        .guess-tag.incorrect {
+            background: #ef4444; color: white;
+        }
+    </style>
+</head>
+<body>
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; display: inline-block;">← Volver</a>
+            <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #ec4899, #be185d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SPOT THE MISSING</h1>
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Nivel</p>
+                <p id="level" style="font-size: 3rem; font-weight: 800; color: #ec4899;">1</p>
+            </div>
+        </div>
+        
+        <div id="app">Cargando...</div>
+    </div>
+
+    <script>
+        let images = [];
+        let currentImage = null;
+        let guesses = [];
+        let found = [];
+        let revealed = false;
+        let currentLevel = 1;
+
+        fetch('../spot.json')
+            .then(r => r.json())
+            .then(data => {
+                images = data;
+                newRound();
+            });
+
+        function newRound() {
+            if (currentLevel > images.length) {
+                endGame();
+                return;
+            }
+            currentImage = images[currentLevel - 1];
+            guesses = [];
+            found = [];
+            revealed = false;
+            renderGame();
+        }
+
+        function addGuess() {
+            const input = document.getElementById('guessInput');
+            const guess = input.value.trim();
+            
+            if (!guess) return;
+            
+            const isCorrect = currentImage.missing.some(m => 
+                m.toLowerCase() === guess.toLowerCase()
+            );
+            const isPartial = !isCorrect && currentImage.missing.some(m => 
+                m.toLowerCase().includes(guess.toLowerCase()) || 
+                guess.toLowerCase().includes(m.toLowerCase())
+            );
+            
+            if (isCorrect) {
+                found.push(guess);
+                guesses.push({ name: guess, status: 'correct' });
+            } else if (isPartial) {
+                guesses.push({ name: guess, status: 'partial' });
+            } else {
+                guesses.push({ name: guess, status: 'incorrect' });
+            }
+            
+            input.value = '';
+            
+            if (found.length === currentImage.missing.length) {
+                revealed = true;
+                setTimeout(() => {
+                    alert(`🎉 ¡COMPLETADO! Nivel ${currentLevel}`);
+                    currentLevel++;
+                    document.getElementById('level').textContent = currentLevel;
+                    setTimeout(() => newRound(), 1000);
+                }, 500);
+            }
+            
+            renderGame();
+        }
+
+        function skipLevel() {
+            revealed = true;
+            renderGame();
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            document.getElementById('level').textContent = currentLevel;
+            newRound();
+        }
+
+        function endGame() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="spot-card" style="text-align: center;">
+                    <h2 style="font-size: 3rem; margin-bottom: 2rem; color: #ec4899;">¡COMPLETASTE TODOS LOS NIVELES!</h2>
+                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #ec4899, #be185d); color: white; font-size: 1.3rem; width: 100%;" onclick="location.reload()">
+                        Jugar de nuevo
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderGame() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <div class="spot-card">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.5rem; color: #ec4899; margin-bottom: 0.5rem;">
+                            ${currentImage.hint}
+                        </h3>
+                        <p style="font-size: 1rem; color: #666;">
+                            Encuentra ${currentImage.missing.length} personajes que faltan
+                        </p>
+                    </div>
+
+                    <div class="image-container">
+                        <img src="../images/${currentImage.image}" class="spot-image ${revealed ? 'correct' : ''}" alt="Imagen" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 600%22%3E%3Crect fill=%22%23ddd%22 width=%22800%22 height=%22600%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3EImagen no encontrada%3C/text%3E%3C/svg%3E'">
+                    </div>
+
+                    ${guesses.length > 0 ? `
+                        <div class="guess-list">
+                            ${guesses.map(g => `
+                                <span class="guess-tag ${g.status}">
+                                    ${g.name} ${g.status === 'correct' ? '✓' : g.status === 'partial' ? '~' : '✗'}
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${!revealed ? `
+                        <div style="margin-bottom: 1rem;">
+                            <input
+                                type="text"
+                                id="guessInput"
+                                class="input-field"
+                                placeholder="Escribe el nombre del personaje que falta..."
+                                onkeypress="if(event.key==='Enter') addGuess()"
+                                autofocus
+                            >
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: 2px solid #ec4899; background: white; color: #ec4899; font-size: 1.1rem; cursor: pointer; flex: 1;" onclick="skipLevel()">
+                                Mostrar Respuesta
+                            </button>
+                            <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: none; background: linear-gradient(135deg, #ec4899, #be185d); color: white; font-size: 1.1rem; cursor: pointer; flex: 2;" onclick="addGuess()">
+                                Añadir
+                            </button>
+                        </div>
+                        <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                            Encontrados: ${found.length}/${currentImage.missing.length}
+                        </p>
+                    ` : `
+                        <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #10b981, #059669); border-radius: 15px; color: white;">
+                            <h4 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">
+                                Personajes que faltaban:
+                            </h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                ${currentImage.missing.map(m => `
+                                    <span style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 10px; font-weight: 600;">
+                                        ${m}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: none; background: #ec4899; color: white; font-size: 1.1rem; cursor: pointer; width: 100%;" onclick="nextLevel()">
+                            Siguiente Nivel →
+                        </button>
+                    `}
+                </div>
+            `;
+
+            if (!revealed) {
+                document.getElementById('guessInput')?.focus();
+            }
+        }
+    </script>
+</body>
+</html>
