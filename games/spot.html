@@ -16,7 +16,7 @@
         .spot-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px; padding: 2rem;
-            max-width: 900px; margin: 0 auto;
+            max-width: 1000px; margin: 0 auto;
             color: #1a1a2e;
         }
         .image-container {
@@ -26,6 +26,7 @@
         .spot-image {
             width: 100%; border-radius: 15px;
             border: 4px solid #e5e7eb;
+            display: block;
         }
         .spot-image.correct {
             border-color: #10b981;
@@ -45,9 +46,6 @@
         }
         .guess-tag.correct {
             background: #10b981; color: white;
-        }
-        .guess-tag.partial {
-            background: #f59e0b; color: white;
         }
         .guess-tag.incorrect {
             background: #ef4444; color: white;
@@ -74,25 +72,100 @@
         let guesses = [];
         let found = [];
         let revealed = false;
-        let currentLevel = 1;
+        let currentLevel = 0;
+        let characters = [];
 
-        fetch('../spot.json')
-            .then(r => r.json())
-            .then(data => {
-                images = data;
-                newRound();
+        // Cargar personajes y luego el juego
+        Promise.all([
+            fetch('../characters.json').then(r => r.json()),
+            fetch('../spot.json').then(r => r.json())
+        ]).then(([charsData, spotData]) => {
+            characters = charsData;
+            images = spotData;
+            newRound();
+        });
+
+        function getAlternativeNames(characterName) {
+            // Buscar el personaje en characters.json
+            const char = characters.find(c => 
+                c.Nombre && c.Nombre.toLowerCase().includes(characterName.toLowerCase())
+            );
+            
+            if (!char) return [characterName];
+            
+            // Extraer todos los nombres separados por " / "
+            const allNames = char.Nombre.split(' / ').map(n => n.trim());
+            
+            // Para cada nombre completo, también agregar versiones cortas
+            const alternatives = [];
+            allNames.forEach(name => {
+                alternatives.push(name); // Nombre completo
+                
+                // Si tiene "Monkey D. Luffy", agregar "Luffy"
+                const parts = name.split(' ');
+                if (parts.length > 1) {
+                    alternatives.push(parts[parts.length - 1]); // Último nombre
+                }
+                
+                // Si tiene "Mister 0", agregar "Mr. 0", "Mr 0", "Mister0"
+                if (name.includes('Mister')) {
+                    alternatives.push(name.replace('Mister', 'Mr.'));
+                    alternatives.push(name.replace('Mister', 'Mr'));
+                    alternatives.push(name.replace(' ', ''));
+                }
+                if (name.includes('Mr.')) {
+                    alternatives.push(name.replace('Mr.', 'Mister'));
+                    alternatives.push(name.replace('Mr.', 'Mr'));
+                    alternatives.push(name.replace(' ', ''));
+                }
             });
+            
+            return [...new Set(alternatives.map(n => n.toLowerCase()))];
+        }
 
         function newRound() {
-            if (currentLevel > images.length) {
+            if (currentLevel >= images.length) {
                 endGame();
                 return;
             }
-            currentImage = images[currentLevel - 1];
+            currentImage = images[currentLevel];
             guesses = [];
             found = [];
             revealed = false;
             renderGame();
+        }
+
+        function normalizeInput(input) {
+            return input.toLowerCase().trim()
+                .replace(/\s+/g, ' ') // Normalizar espacios
+                .replace(/\./g, ''); // Quitar puntos
+        }
+
+        function checkGuess(guess) {
+            const normalizedGuess = normalizeInput(guess);
+            
+            // Buscar en cada personaje faltante
+            for (const missing of currentImage.missing) {
+                const alternatives = getAlternativeNames(missing);
+                
+                for (const alt of alternatives) {
+                    const normalizedAlt = normalizeInput(alt);
+                    
+                    // Coincidencia exacta
+                    if (normalizedGuess === normalizedAlt) {
+                        return { match: true, fullName: missing };
+                    }
+                    
+                    // Coincidencia parcial (contiene)
+                    if (normalizedAlt.includes(normalizedGuess) || normalizedGuess.includes(normalizedAlt)) {
+                        if (normalizedGuess.length >= 3) { // Mínimo 3 caracteres
+                            return { match: true, fullName: missing };
+                        }
+                    }
+                }
+            }
+            
+            return { match: false, fullName: null };
         }
 
         function addGuess() {
@@ -101,32 +174,22 @@
             
             if (!guess) return;
             
-            const isCorrect = currentImage.missing.some(m => 
-                m.toLowerCase() === guess.toLowerCase()
-            );
-            const isPartial = !isCorrect && currentImage.missing.some(m => 
-                m.toLowerCase().includes(guess.toLowerCase()) || 
-                guess.toLowerCase().includes(m.toLowerCase())
-            );
+            const result = checkGuess(guess);
             
-            if (isCorrect) {
-                found.push(guess);
-                guesses.push({ name: guess, status: 'correct' });
-            } else if (isPartial) {
-                guesses.push({ name: guess, status: 'partial' });
+            if (result.match && !found.includes(result.fullName)) {
+                found.push(result.fullName);
+                guesses.push({ name: guess, status: 'correct', fullName: result.fullName });
             } else {
                 guesses.push({ name: guess, status: 'incorrect' });
             }
             
             input.value = '';
             
+            // Si encontró todos, mostrar solución
             if (found.length === currentImage.missing.length) {
                 revealed = true;
                 setTimeout(() => {
-                    alert(`🎉 ¡COMPLETADO! Nivel ${currentLevel}`);
-                    currentLevel++;
-                    document.getElementById('level').textContent = currentLevel;
-                    setTimeout(() => newRound(), 1000);
+                    alert(`🎉 ¡COMPLETADO! Nivel ${currentLevel + 1}`);
                 }, 500);
             }
             
@@ -140,7 +203,7 @@
 
         function nextLevel() {
             currentLevel++;
-            document.getElementById('level').textContent = currentLevel;
+            document.getElementById('level').textContent = currentLevel + 1;
             newRound();
         }
 
@@ -149,6 +212,9 @@
             app.innerHTML = `
                 <div class="spot-card" style="text-align: center;">
                     <h2 style="font-size: 3rem; margin-bottom: 2rem; color: #ec4899;">¡COMPLETASTE TODOS LOS NIVELES!</h2>
+                    <p style="font-size: 1.5rem; margin-bottom: 2rem;">
+                        ${images.length} niveles superados 🎉
+                    </p>
                     <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #ec4899, #be185d); color: white; font-size: 1.3rem; width: 100%;" onclick="location.reload()">
                         Jugar de nuevo
                     </button>
@@ -159,6 +225,12 @@
         function renderGame() {
             const app = document.getElementById('app');
             
+            // Determinar qué imagen mostrar
+            const imageNumber = currentImage.image.replace('adivinar_', '').replace('.png', '');
+            const currentImageSrc = revealed 
+                ? `../images/Solucion_${imageNumber}.png`
+                : `../images/Adivinar_${imageNumber}.png`;
+            
             app.innerHTML = `
                 <div class="spot-card">
                     <div style="text-align: center; margin-bottom: 1.5rem;">
@@ -166,19 +238,19 @@
                             ${currentImage.hint}
                         </h3>
                         <p style="font-size: 1rem; color: #666;">
-                            Encuentra ${currentImage.missing.length} personajes que faltan
+                            Encuentra ${currentImage.missing.length} personaje${currentImage.missing.length > 1 ? 's' : ''} que falta${currentImage.missing.length > 1 ? 'n' : ''}
                         </p>
                     </div>
 
                     <div class="image-container">
-                        <img src="../images/${currentImage.image}" class="spot-image ${revealed ? 'correct' : ''}" alt="Imagen" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 600%22%3E%3Crect fill=%22%23ddd%22 width=%22800%22 height=%22600%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3EImagen no encontrada%3C/text%3E%3C/svg%3E'">
+                        <img src="${currentImageSrc}" class="spot-image ${revealed ? 'correct' : ''}" alt="Imagen" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 600%22%3E%3Crect fill=%22%23ddd%22 width=%22800%22 height=%22600%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3EImagen no encontrada%3C/text%3E%3C/svg%3E'">
                     </div>
 
                     ${guesses.length > 0 ? `
                         <div class="guess-list">
                             ${guesses.map(g => `
                                 <span class="guess-tag ${g.status}">
-                                    ${g.name} ${g.status === 'correct' ? '✓' : g.status === 'partial' ? '~' : '✗'}
+                                    ${g.name} ${g.status === 'correct' ? '✓' : '✗'}
                                 </span>
                             `).join('')}
                         </div>
@@ -212,11 +284,14 @@
                                 Personajes que faltaban:
                             </h4>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                ${currentImage.missing.map(m => `
-                                    <span style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 10px; font-weight: 600;">
-                                        ${m}
-                                    </span>
-                                `).join('')}
+                                ${currentImage.missing.map(m => {
+                                    const wasFound = found.includes(m);
+                                    return `
+                                        <span style="padding: 0.5rem 1rem; background: ${wasFound ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}; border-radius: 10px; font-weight: 600;">
+                                            ${m} ${wasFound ? '✓' : ''}
+                                        </span>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                         <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: none; background: #ec4899; color: white; font-size: 1.1rem; cursor: pointer; width: 100%;" onclick="nextLevel()">

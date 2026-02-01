@@ -98,7 +98,7 @@
     "hint": "¡Garchu!"
   },
   {
-    "id": 13,
+    "id": 15,
     "image": "adivinar_14.png",
     "missing": ["Crocodile", "Monkey D. Luffy"],
     "difficulty": 3,
