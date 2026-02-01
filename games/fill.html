@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rellena los Datos - One Piece</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css">
-    <script src="../js/utils.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
+        }
+        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
         .fill-card {
             background: rgba(255, 255, 255, 0.95);
             border: 3px solid rgba(0, 0, 0, 0.1);
@@ -23,13 +30,18 @@
             border-radius: 15px;
             border: 3px solid #4ECDC4;
         }
-        .field-container {
-            margin-bottom: 1.5rem;
-        }
+        .field-container { margin-bottom: 1.5rem; }
         .field-label {
             font-weight: bold;
             color: #1a1a2e;
             margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
             font-size: 0.95rem;
         }
         .field-result {
@@ -61,24 +73,19 @@
     </style>
 </head>
 <body>
-    <div class="ocean-background"></div>
-    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
-    
-    <div class="content-wrapper" style="padding: 2rem;">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;">← Volver</a>
-                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #4ECDC4, #44A08D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">
-                    RELLENA LOS DATOS
-                </h1>
-                <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                    <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Puntos Totales</p>
-                    <p id="totalScore" style="font-size: 3rem; font-weight: 800; color: #4ECDC4;">0</p>
-                </div>
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; display: inline-block;">← Volver</a>
+            <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #4ECDC4, #44A08D); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                RELLENA LOS DATOS
+            </h1>
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Puntos Totales</p>
+                <p id="totalScore" style="font-size: 3rem; font-weight: 800; color: #4ECDC4;">0</p>
             </div>
-            
-            <div id="app">Cargando...</div>
         </div>
+        
+        <div id="app">Cargando...</div>
     </div>
 
     <script>
@@ -98,12 +105,13 @@
         const numericFields = ['Primera Aparición', 'Altura', 'Edad', 'Cumpleaños', 'Recompensa'];
         const partialFields = ['Fruta del diablo', 'Haki', 'Afiliación', 'Ocupación'];
 
-        async function init() {
-            const data = await loadData();
-            characters = data.characters;
-            document.getElementById('totalScore').textContent = totalScore;
-            newRound();
-        }
+        fetch('../characters.json')
+            .then(r => r.json())
+            .then(data => {
+                characters = data;
+                document.getElementById('totalScore').textContent = totalScore;
+                newRound();
+            });
 
         function newRound() {
             character = characters[Math.floor(Math.random() * characters.length)];
@@ -124,7 +132,6 @@
             if (userValue === '') return { status: 'incorrect', arrow: null };
             if (userValue === correctValue) return { status: 'correct', arrow: null };
 
-            // Numeric comparisons
             if (numericFields.includes(field)) {
                 if (field === 'Cumpleaños') {
                     const monthsES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -160,7 +167,6 @@
                 }
             }
 
-            // Partial matches for multi-value fields
             if (partialFields.includes(field)) {
                 const correctParts = correctValue.split(',').map(p => p.trim());
                 const userParts = userValue.split(',').map(p => p.trim());
@@ -195,12 +201,6 @@
             
             revealed = true;
             renderGame();
-
-            saveStats('fill-blanks', {
-                totalCorrect: totalScore,
-                lastScore: correct,
-                gamesPlayed: (getStats('fill-blanks').gamesPlayed || 0) + 1
-            });
         }
 
         function renderGame() {
@@ -209,8 +209,7 @@
             app.innerHTML = `
                 <div class="fill-card">
                     <div style="text-align: center; margin-bottom: 2rem;">
-                        <img src="${character.Imagen}" alt="${character.Nombre}"
-                             onerror="this.style.display='none'">
+                        <img src="${character.Imagen}" alt="${character.Nombre}" onerror="this.style.display='none'">
                         <h2 style="font-size: 2rem; font-weight: bold; color: #1a1a2e; margin-top: 1rem;">
                             ${character.Nombre}
                         </h2>
@@ -251,7 +250,7 @@
 
                     <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; align-items: center;">
                         ${!revealed ? `
-                            <button style="padding: 1rem 3rem; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.25rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: all 0.3s;" onclick="handleCheck()">
+                            <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);" onclick="handleCheck()">
                                 ✓ Verificar Respuestas
                             </button>
                         ` : `
@@ -266,7 +265,7 @@
                                         <span>❌ Incorrectas: ${fields.filter(f => checkAnswer(f, answers[f]).status === 'incorrect').length}</span>
                                     </div>
                                 </div>
-                                <button class="btn-primary" onclick="newRound()">
+                                <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: none; background: #4ECDC4; color: white; font-size: 1.1rem; cursor: pointer;" onclick="newRound()">
                                     Siguiente Personaje →
                                 </button>
                             </div>
@@ -282,8 +281,6 @@
                 ` : ''}
             `;
         }
-
-        init();
     </script>
 </body>
 </html>

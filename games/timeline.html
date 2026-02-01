@@ -5,11 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - One Piece</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css">
-    <script src="../js/utils.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
+        }
+        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
         .timeline-item {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: 2px solid rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             padding: 1rem;
@@ -17,15 +24,14 @@
             transition: all 0.3s ease;
             user-select: none;
             margin-bottom: 1rem;
+            color: #1a1a2e;
         }
         .timeline-item:hover {
             background: white;
             border-color: #ff6b35;
             transform: translateX(5px);
         }
-        .timeline-item.dragging {
-            opacity: 0.5;
-        }
+        .timeline-item.dragging { opacity: 0.5; }
         .timeline-item.correct {
             background: linear-gradient(135deg, #10b981, #059669);
             border-color: #10b981;
@@ -45,27 +51,22 @@
     </style>
 </head>
 <body>
-    <div class="ocean-background"></div>
-    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
-    
-    <div class="content-wrapper" style="padding: 2rem;">
-        <div style="max-width: 900px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;">← Volver</a>
-                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">TIMELINE CHALLENGE</h1>
-                <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                    <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Puntos</p>
-                    <p id="score" style="font-size: 3rem; font-weight: 800; color: #f59e0b;">0</p>
-                </div>
+    <div style="max-width: 900px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; display: inline-block;">← Volver</a>
+            <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TIMELINE CHALLENGE</h1>
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Puntos</p>
+                <p id="score" style="font-size: 3rem; font-weight: 800; color: #f59e0b;">0</p>
             </div>
-            
-            <p style="text-align: center; font-size: 1.25rem; color: white; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); margin-bottom: 2rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px;">
-                Ordena los personajes por su primera aparición<br>
-                <span style="font-size: 1rem;">(más antiguo arriba ↑, más reciente abajo ↓)</span>
-            </p>
-            
-            <div id="app">Cargando...</div>
         </div>
+        
+        <p style="text-align: center; font-size: 1.25rem; color: #1a1a2e; font-weight: 700; margin-bottom: 2rem; background: rgba(255,255,255,0.95); padding: 1.5rem; border-radius: 15px;">
+            Ordena los personajes por su primera aparición<br>
+            <span style="font-size: 1rem;">(más antiguo arriba ↑, más reciente abajo ↓)</span>
+        </p>
+        
+        <div id="app">Cargando...</div>
     </div>
 
     <script>
@@ -76,11 +77,12 @@
         let draggedIndex = null;
         let verification = [];
 
-        async function init() {
-            const data = await loadData();
-            characters = data.characters;
-            startGame();
-        }
+        fetch('../characters.json')
+            .then(r => r.json())
+            .then(data => {
+                characters = data;
+                startGame();
+            });
 
         function startGame() {
             const validChars = characters
@@ -92,6 +94,7 @@
             userOrder = [...validChars].sort(() => Math.random() - 0.5);
             gameOver = false;
             verification = [];
+            document.getElementById('score').textContent = '0';
             
             renderGame();
         }
@@ -132,17 +135,15 @@
             }));
 
             const allCorrect = verification.every(v => v.isCorrect);
+            const correctCount = verification.filter(v => v.isCorrect).length;
+            
+            document.getElementById('score').textContent = correctCount;
             
             gameOver = true;
             renderGame();
 
             if (allCorrect) {
-                setTimeout(() => {
-                    alert('🎉 ¡PERFECTO! Orden completamente correcto');
-                    saveStats('timeline', {
-                        perfectGames: (getStats('timeline').perfectGames || 0) + 1
-                    });
-                }, 500);
+                setTimeout(() => alert('🎉 ¡PERFECTO! Orden completamente correcto'), 500);
             }
         }
 
@@ -168,8 +169,7 @@
                                         <span style="font-size: 1.5rem; font-weight: bold; opacity: 0.6; min-width: 40px;">
                                             #${idx + 1}
                                         </span>
-                                        <img src="${item.Imagen}" alt="${item.Nombre}"
-                                             onerror="this.style.display='none'">
+                                        <img src="${item.Imagen}" alt="${item.Nombre}" onerror="this.style.display='none'">
                                         <div>
                                             <h4 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 0.25rem;">
                                                 ${item.Nombre}
@@ -200,19 +200,19 @@
 
                 <div style="display: flex; gap: 1rem; justify-content: center;">
                     ${!gameOver ? `
-                        <button style="padding: 1rem 3rem; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.25rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: all 0.3s;" onclick="checkOrder()">
+                        <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);" onclick="checkOrder()">
                             ✓ Verificar Orden
                         </button>
                     ` : `
-                        <button style="padding: 1rem 3rem; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.25rem; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); transition: all 0.3s;" onclick="startGame()">
+                        <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);" onclick="startGame()">
                             🔄 Nuevo Timeline
                         </button>
                     `}
                 </div>
 
                 ${gameOver ? `
-                    <div style="margin-top: 2rem; text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.9); border-radius: 1rem;">
-                        <h3 style="font-size: 1.5rem; color: #1a1a2e; margin-bottom: 0.5rem;">
+                    <div style="margin-top: 2rem; text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.95); border-radius: 15px; color: #1a1a2e;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">
                             Resultado: ${verification.filter(v => v.isCorrect).length}/10 correctos
                         </h3>
                         ${verification.every(v => v.isCorrect) ? `
@@ -228,8 +228,6 @@
                 ` : ''}
             `;
         }
-
-        init();
     </script>
 </body>
 </html>

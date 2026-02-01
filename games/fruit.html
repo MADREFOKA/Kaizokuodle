@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adivina la Fruta/Usuario - One Piece</title>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css">
-    <script src="../js/utils.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
+        }
+        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
         .fruit-card {
             background: rgba(255, 255, 255, 0.95);
             border: 3px solid rgba(155, 89, 182, 0.5);
@@ -45,36 +52,38 @@
             border-color: #9b59b6;
             color: white;
         }
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid rgba(155, 89, 182, 0.3);
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
-    <div class="ocean-background"></div>
-    <div class="waves"><div class="wave"></div><div class="wave"></div></div>
-    
-    <div class="content-wrapper" style="padding: 2rem;">
-        <div style="max-width: 900px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; transition: all 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;">← Volver</a>
-                <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #9b59b6, #8e44ad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">
-                    ADIVINA LA FRUTA/USUARIO
-                </h1>
-                <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                    <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Aciertos</p>
-                    <p id="score" style="font-size: 3rem; font-weight: 800; color: #9b59b6;">0</p>
-                </div>
+    <div style="max-width: 900px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <a href="../index.html" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: white; text-decoration: none; display: inline-block;">← Volver</a>
+            <h1 class="title-font" style="font-size: 2.5rem; text-align: center; background: linear-gradient(to right, #9b59b6, #8e44ad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                ADIVINA LA FRUTA/USUARIO
+            </h1>
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Aciertos</p>
+                <p id="score" style="font-size: 3rem; font-weight: 800; color: #9b59b6;">0</p>
             </div>
-
-            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
-                <button class="mode-btn active" id="userMode" onclick="changeMode('user')">
-                    Adivinar Usuario
-                </button>
-                <button class="mode-btn" id="nameMode" onclick="changeMode('name')">
-                    Adivinar Nombre
-                </button>
-            </div>
-            
-            <div id="app">Cargando...</div>
         </div>
+
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+            <button class="mode-btn active" id="userMode" onclick="changeMode('user')">
+                Adivinar Usuario
+            </button>
+            <button class="mode-btn" id="nameMode" onclick="changeMode('name')">
+                Adivinar Nombre
+            </button>
+        </div>
+        
+        <div id="app">Cargando...</div>
     </div>
 
     <script>
@@ -85,11 +94,12 @@
         let score = 0;
         let mode = 'user';
 
-        async function init() {
-            const data = await loadData();
-            fruits = data.fruits;
-            newRound();
-        }
+        fetch('../fruits.json')
+            .then(r => r.json())
+            .then(data => {
+                fruits = data;
+                newRound();
+            });
 
         function changeMode(newMode) {
             mode = newMode;
@@ -115,10 +125,6 @@
             if (correct) {
                 score++;
                 document.getElementById('score').textContent = score;
-                saveStats('fruit-guesser', {
-                    correctGuesses: (getStats('fruit-guesser').correctGuesses || 0) + 1,
-                    mode: mode
-                });
             }
             
             revealed = true;
@@ -157,12 +163,12 @@
                                 onkeypress="if(event.key==='Enter') handleSubmit()"
                                 autofocus
                             >
-                            <button class="btn-primary" onclick="handleSubmit()">
-                                Confirmar
+                            <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.5);" onclick="handleSubmit()">
+                                ✓ Confirmar
                             </button>
                         </div>
                     ` : `
-                        <div class="fade-in">
+                        <div>
                             <div style="margin-bottom: 2rem; padding: 1.5rem; background: ${
                                 (mode === 'user' 
                                     ? document.getElementById('guessInput')?.value.toLowerCase().trim() === currentFruit.USUARIO.toLowerCase().trim()
@@ -181,7 +187,7 @@
                                     </p>
                                 ` : ''}
                             </div>
-                            <button class="btn-primary" onclick="newRound()">
+                            <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: none; background: #9b59b6; color: white; font-size: 1.1rem; cursor: pointer;" onclick="newRound()">
                                 Siguiente →
                             </button>
                         </div>
@@ -193,8 +199,6 @@
                 document.getElementById('guessInput')?.focus();
             }
         }
-
-        init();
     </script>
 </body>
 </html>
