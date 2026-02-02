@@ -67,7 +67,7 @@
             border: 2px solid #fbbf24;
             border-radius: 15px;
             padding: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             text-align: center;
             max-width: 650px;
             margin-left: auto;
@@ -84,7 +84,7 @@
             <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CONNECT 4</h1>
             <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                 <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Conexiones</p>
-                <p id="score" style="font-size: 3rem; font-weight: 800; color: #fbbf24;">0</p>
+                <p id="score" style="font-size: 3rem; font-weight: 800; color: #fbbf24;">0/4</p>
             </div>
         </div>
 
@@ -105,10 +105,9 @@
         let characters = [];
         let grid = [];
         let selected = [];
-        let found = [];
-        let correctConnection = null;
+        let foundConnections = [];
+        let allConnections = [];
         let message = '';
-        let hintShown = false;
         let currentDifficulty = 1;
 
         fetch('../characters.json')
@@ -127,16 +126,15 @@
 
         function newRound() {
             selected = [];
-            found = [];
+            foundConnections = [];
+            allConnections = [];
             message = '';
-            hintShown = false;
-            document.getElementById('hintContainer').innerHTML = '';
+            updateHints();
             generateGrid();
             renderGame();
         }
 
         function generateGrid() {
-            // Filtrar personajes por dificultad
             const difficultyChars = characters.filter(c => {
                 const diff = parseInt(c.Dificultad) || 3;
                 if (currentDifficulty === 1) return diff <= 2;
@@ -146,44 +144,81 @@
                 return diff >= 4;
             });
 
-            const categories = ['Saga', 'Afiliación', 'Fruta del diablo', 'Haki'];
+            // Usar solo una categoría para evitar solapamientos
+            const categories = ['Arco', 'Afiliación', 'Ocupación', 'Haki'];
             const category = categories[Math.floor(Math.random() * categories.length)];
             
+            // Agrupar personajes por esta categoría
             const grouped = {};
             difficultyChars.forEach(c => {
                 const value = c[category];
                 if (value && value !== '---') {
-                    if (!grouped[value]) grouped[value] = [];
-                    grouped[value].push(c);
+                    const values = value.split(',').map(v => v.trim());
+                    values.forEach(v => {
+                        if (!grouped[v]) grouped[v] = [];
+                        grouped[v].push(c);
+                    });
                 }
             });
 
-            const validGroups = Object.entries(grouped).filter(([_, chars]) => chars.length >= 4);
+            // Obtener grupos válidos (con al menos 4 personajes)
+            const validGroups = Object.entries(grouped)
+                .filter(([_, chars]) => chars.length >= 4)
+                .sort(() => 0.5 - Math.random());
             
-            if (validGroups.length === 0) {
+            if (validGroups.length < 4) {
+                // Si no hay suficientes grupos, volver a intentar
                 generateGrid();
                 return;
             }
 
-            const [value, chars] = validGroups[Math.floor(Math.random() * validGroups.length)];
-            const connection = chars.sort(() => 0.5 - Math.random()).slice(0, 4);
+            // Seleccionar 4 grupos diferentes
+            const connections = [];
+            const usedChars = new Set();
             
-            correctConnection = {
-                chars: connection.map(c => c.Nombre),
-                category,
-                value
-            };
-
-            const others = difficultyChars
-                .filter(c => !connection.some(cc => cc.Nombre === c.Nombre))
-                .sort(() => 0.5 - Math.random())
-                .slice(0, 12);
-
-            grid = [...connection, ...others].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < 4; i++) {
+                const [value, chars] = validGroups[i];
+                
+                // Filtrar personajes que no han sido usados
+                const availableChars = chars.filter(c => !usedChars.has(c.Nombre));
+                
+                if (availableChars.length < 4) {
+                    // No hay suficientes personajes únicos, reintentar
+                    generateGrid();
+                    return;
+                }
+                
+                // Tomar 4 personajes únicos
+                const connection = availableChars
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 4);
+                
+                connections.push({
+                    chars: connection.map(c => c.Nombre),
+                    category,
+                    value,
+                    objects: connection
+                });
+                
+                // Marcar personajes como usados
+                connection.forEach(c => usedChars.add(c.Nombre));
+            }
+            
+            allConnections = connections;
+            grid = [];
+            connections.forEach(conn => {
+                grid.push(...conn.objects);
+            });
+            grid = grid.sort(() => 0.5 - Math.random());
+            
+            console.log('Conexiones generadas:');
+            connections.forEach((conn, i) => {
+                console.log(`${i+1}. ${conn.category}: ${conn.value} → ${conn.chars.join(', ')}`);
+            });
         }
 
         function toggleSelect(index) {
-            if (found.includes(index)) return;
+            if (foundConnections.some(conn => conn.includes(index))) return;
             
             const idx = selected.indexOf(index);
             if (idx > -1) {
@@ -199,35 +234,75 @@
         function checkConnection() {
             if (selected.length !== 4) return;
             
-            const selectedNames = selected.map(i => grid[i].Nombre);
-            const isCorrect = correctConnection.chars.every(name => selectedNames.includes(name));
+            const selectedNames = selected.map(i => grid[i].Nombre).sort();
             
-            if (isCorrect) {
-                found.push(...selected);
-                selected = [];
-                message = `success:🎉 ¡CORRECTO! Conexión: ${correctConnection.category} - ${correctConnection.value}\nPersonajes: ${correctConnection.chars.join(', ')}`;
-                document.getElementById('score').textContent = '1';
-            } else {
+            let foundMatch = false;
+            for (const conn of allConnections) {
+                // Verificar si ya encontramos esta conexión
+                const alreadyFound = foundConnections.some(fc => {
+                    const fcNames = fc.map(i => grid[i].Nombre).sort();
+                    return JSON.stringify(fcNames) === JSON.stringify(conn.chars.sort());
+                });
+                
+                if (alreadyFound) continue;
+                
+                const connNames = conn.chars.sort();
+                if (JSON.stringify(selectedNames) === JSON.stringify(connNames)) {
+                    foundConnections.push([...selected]);
+                    selected = [];
+                    message = `success:🎉 ¡CORRECTO! Conexión ${conn.category}: ${conn.value}\n(${conn.chars.join(', ')})`;
+                    foundMatch = true;
+                    updateHints();
+                    break;
+                }
+            }
+            
+            if (!foundMatch) {
                 message = 'error:❌ Estos 4 no comparten la conexión correcta';
                 selected = [];
+            }
+            
+            document.getElementById('score').textContent = `${foundConnections.length}/4`;
+            
+            if (foundConnections.length === 4) {
+                setTimeout(() => {
+                    message = 'success:🏆 ¡COMPLETADO! ¡Encontraste las 4 conexiones!';
+                    renderGame();
+                }, 500);
             }
             
             renderGame();
         }
 
-        function showHint() {
-            if (hintShown) return;
-            hintShown = true;
+        function updateHints() {
+            const remainingConnections = allConnections.filter(conn => {
+                return !foundConnections.some(fc => {
+                    const fcNames = fc.map(i => grid[i].Nombre).sort();
+                    return JSON.stringify(fcNames) === JSON.stringify(conn.chars.sort());
+                });
+            });
+            
+            const hintsContainer = document.getElementById('hintContainer');
+            hintsContainer.innerHTML = '';
+            
+            if (remainingConnections.length > 0) {
+                remainingConnections.forEach((conn, idx) => {
+                    const hintDiv = document.createElement('div');
+                    hintDiv.className = 'hint-box';
+                    hintDiv.innerHTML = `
+                        <h3 style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 700;">💡 PISTA ${idx + 1}</h3>
+                        <p style="color: white; font-size: 1.1rem;">
+                            <strong>Categoría:</strong> ${conn.category}<br>
+                            <strong>Valor:</strong> ${conn.value}
+                        </p>
+                    `;
+                    hintsContainer.appendChild(hintDiv);
+                });
+            }
+        }
 
-            const hint = `
-                <div class="hint-box">
-                    <h3 style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 700;">💡 PISTA</h3>
-                    <p style="color: white; font-size: 1.1rem;">
-                        <strong>Categoría:</strong> ${correctConnection.category}
-                    </p>
-                </div>
-            `;
-            document.getElementById('hintContainer').innerHTML = hint;
+        function showHint() {
+            updateHints();
         }
 
         function renderGame() {
@@ -244,23 +319,30 @@
                 `;
             }
             
+            const remainingCount = 4 - foundConnections.length;
+            
             app.innerHTML = `
                 ${messageHTML}
                 <div class="grid-4x4">
-                    ${grid.map((char, idx) => `
-                        <div class="char-cell ${selected.includes(idx) ? 'selected' : ''} ${found.includes(idx) ? 'correct' : ''}" 
-                             onclick="toggleSelect(${idx})">
-                            <img src="${char.Imagen}" alt="${char.Nombre}" onerror="this.style.display='none'">
-                            <div style="font-size: 0.9rem; font-weight: 700; text-align: center;">
-                                ${char.Nombre}
+                    ${grid.map((char, idx) => {
+                        const isFound = foundConnections.some(conn => conn.includes(idx));
+                        const isSelected = selected.includes(idx);
+                        return `
+                            <div class="char-cell ${isSelected ? 'selected' : ''} ${isFound ? 'correct' : ''}" 
+                                 onclick="toggleSelect(${idx})">
+                                <img src="${char.Imagen}" alt="${char.Nombre}" onerror="this.style.display='none'">
+                                <div style="font-size: 0.9rem; font-weight: 700; text-align: center;">
+                                    ${char.Nombre}
+                                </div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
 
                 <div style="text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; font-size: 1.1rem; cursor: pointer;" onclick="showHint()">
-                        💡 Mostrar Pista
+                    <button style="padding: 1rem 2rem; border-radius: 10px; font-weight: 600; border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; font-size: 1.1rem; cursor: pointer; ${remainingCount === 0 ? 'opacity: 0.5;' : ''}" 
+                            onclick="showHint()" ${remainingCount === 0 ? 'disabled' : ''}>
+                        💡 Mostrar Pistas (${remainingCount})
                     </button>
                     <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem; ${selected.length !== 4 ? 'opacity: 0.5;' : ''}" 
                             onclick="checkConnection()" ${selected.length !== 4 ? 'disabled' : ''}>
