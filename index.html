@@ -3,115 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Piece Games</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <title>Kaizokuodle - One Piece Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
         body {
             font-family: 'Outfit', sans-serif;
-            background: linear-gradient(135deg, #0a1929 0%, #1e3a5f 50%, #0a1929 100%);
-            min-height: 100vh;
+            background: url('images/background.webp') center center / cover no-repeat fixed;
             color: #fff;
             padding: 1.5rem;
-            zoom: 0.8;
+            position: relative;
         }
-        .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 2.5rem; }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 41, 0.75);
+            z-index: -1;
+        }
+        
+        .title-font { 
+            font-family: 'Bangers', cursive; 
+            letter-spacing: 2px; 
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 2rem; 
+        }
+        
         .title {
-            font-size: 3.5rem;
+            font-size: clamp(2rem, 5vw, 3.5rem);
             background: linear-gradient(to right, #fbbf24, #f97316, #dc2626);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
+        
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+            font-weight: 600;
+        }
+        
         .maintenance-banner {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
-            padding: 1rem;
+            padding: 0.8rem 1rem;
             border-radius: 12px;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             font-weight: 600;
+            font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
         }
+        
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.2rem; 
-            max-width: 1000px; 
-            margin: 0 auto; 
+            max-width: 100%; 
         }
+        
         .game-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 58, 95, 0.85);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(251, 191, 36, 0.3);
             border-radius: 16px;
             padding: 1.5rem;
             transition: all 0.3s ease;
             cursor: pointer;
             text-decoration: none;
             color: inherit;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             position: relative;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
+        
         .game-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 215, 0, 0.5);
-            box-shadow: 0 15px 45px rgba(255, 215, 0, 0.2);
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(251, 191, 36, 0.8);
+            box-shadow: 0 15px 40px rgba(251, 191, 36, 0.3);
+            background: rgba(30, 58, 95, 0.95);
         }
+        
         .game-card.locked {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             pointer-events: none;
+            filter: grayscale(50%);
         }
+        
         .game-card.locked .locked-badge {
             position: absolute;
             top: 10px;
             right: 10px;
             background: #ef4444;
             color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
             font-weight: bold;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
         }
-        .game-icon { font-size: 3rem; margin-bottom: 0.8rem; }
-        .game-name { font-size: 1.25rem; font-weight: bold; margin-bottom: 0.4rem; }
-        .game-desc { color: #9ca3af; font-size: 0.9rem; }
+        
+        .game-icon { 
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        
+        .game-name { 
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fbbf24;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .game-desc { 
+            color: #e5e7eb;
+            font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+            line-height: 1.4;
+            font-weight: 400;
+        }
 
         /* RESPONSIVE DESIGN */
-        @media (max-width: 1024px) {
-            body { zoom: 0.75; }
-            .title { font-size: 3rem; }
-            .grid { gap: 1rem; }
+        @media (min-width: 1400px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
-
+        
+        @media (max-width: 1024px) {
+            body { padding: 1.2rem; }
+            .grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+        }
+        
         @media (max-width: 768px) {
-            body { zoom: 1; padding: 1rem; }
-            .title { font-size: 2.5rem; }
-            .grid { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 1rem; 
+            body { padding: 1rem; }
+            .header { margin-bottom: 1.5rem; }
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
             }
             .game-card { padding: 1.2rem; }
-            .game-icon { font-size: 2.5rem; }
-            .game-name { font-size: 1.1rem; }
         }
-
+        
         @media (max-width: 480px) {
             body { padding: 0.75rem; }
-            .title { font-size: 2rem; }
-            .header { margin-bottom: 1.5rem; }
-            .maintenance-banner { font-size: 0.85rem; padding: 0.75rem; }
-            .grid { 
-                grid-template-columns: 1fr; 
-                gap: 0.8rem; 
+            .header { margin-bottom: 1rem; }
+            .maintenance-banner { 
+                padding: 0.6rem 0.8rem;
+                margin-bottom: 1rem;
             }
-            .game-card { padding: 1rem; }
-            .game-icon { font-size: 2rem; }
-            .game-name { font-size: 1rem; }
-            .game-desc { font-size: 0.85rem; }
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 0.7rem;
+            }
+            .game-card { 
+                padding: 1rem;
+                border-radius: 12px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            body { padding: 0.5rem; }
+            .game-card { padding: 0.8rem; }
         }
     </style>
 <script src="report-system.js"></script>
@@ -121,7 +206,7 @@
     <div class="container">
         <div class="header">
             <h1 class="title title-font">KAIZOKUODLE</h1>
-            <p style="font-size: 1.2rem; opacity: 0.8;">Colección de juegos de One Piece</p>
+            <p class="subtitle">Colección de juegos de One Piece</p>
         </div>
 
         <div class="maintenance-banner">
@@ -131,77 +216,77 @@
         <div class="grid">
             <a href="games/wordle.html" class="game-card">
                 <div class="game-icon">🔤</div>
-                <h3 class="game-name title-font">Adivina el Personaje</h3>
+                <h3 class="game-name">Adivina el Personaje</h3>
                 <p class="game-desc">Adivina el personaje en 6 intentos</p>
             </a>
 
             <a href="games/grid.html" class="game-card">
                 <div class="game-icon">📊</div>
-                <h3 class="game-name title-font">Grid Challenge</h3>
+                <h3 class="game-name">Grid Challenge</h3>
                 <p class="game-desc">Encuentra personajes que cumplan dos criterios</p>
             </a>
 
             <a href="games/spot.html" class="game-card">
                 <div class="game-icon">🔍</div>
-                <h3 class="game-name title-font">Recuerda esta escena</h3>
+                <h3 class="game-name">Recuerda esta escena</h3>
                 <p class="game-desc">¿Qué personajes faltan en la escena?</p>
             </a>
 
             <a href="games/higher.html" class="game-card">
                 <div class="game-icon">⬆️</div>
-                <h3 class="game-name title-font">Higher or Lower</h3>
+                <h3 class="game-name">Higher or Lower</h3>
                 <p class="game-desc">¿Qué personaje tiene mayor recompensa?</p>
             </a>
 
             <a href="games/timeline.html" class="game-card">
                 <div class="game-icon">📅</div>
-                <h3 class="game-name title-font">Timeline</h3>
+                <h3 class="game-name">Timeline</h3>
                 <p class="game-desc">Ordena personajes por aparición</p>
             </a>
 
             <a href="games/fruit.html" class="game-card">
                 <div class="game-icon">🍎</div>
-                <h3 class="game-name title-font">Adivina Fruta/Usuario</h3>
+                <h3 class="game-name">Adivina Fruta/Usuario</h3>
                 <p class="game-desc">¿De quién es esta fruta del diablo?</p>
             </a>
 
             <a href="games/fill.html" class="game-card">
                 <div class="game-icon">📝</div>
-                <h3 class="game-name title-font">Rellena los Datos</h3>
+                <h3 class="game-name">Rellena los Datos</h3>
                 <p class="game-desc">Completa la información del personaje</p>
             </a>
 
             <a href="games/connect4.html" class="game-card">
                 <div class="game-icon">🔗</div>
-                <h3 class="game-name title-font">Connect 4</h3>
+                <h3 class="game-name">Connect 4</h3>
                 <p class="game-desc">Encuentra grupos de 4 personajes conectados</p>
             </a>
 
             <div class="game-card locked">
                 <div class="locked-badge">🔒 BLOQUEADO</div>
                 <div class="game-icon">❓</div>
-                <h3 class="game-name title-font">Trivial</h3>
+                <h3 class="game-name">Trivial</h3>
                 <p class="game-desc">Próximamente...</p>
             </div>
 
             <div class="game-card locked">
                 <div class="locked-badge">🔒 BLOQUEADO</div>
                 <div class="game-icon">🚢</div>
-                <h3 class="game-name title-font">Barcos</h3>
+                <h3 class="game-name">Barcos</h3>
                 <p class="game-desc">Próximamente...</p>
             </div>
 
             <div class="game-card locked">
                 <div class="locked-badge">🔒 BLOQUEADO</div>
                 <div class="game-icon">🔤</div>
-                <h3 class="game-name title-font">Pasapalabra</h3>
+                <h3 class="game-name">Pasapalabra</h3>
                 <p class="game-desc">Próximamente...</p>
             </div>
 
             <div class="game-card locked">
                 <div class="locked-badge">🔒 BLOQUEADO</div>
                 <div class="game-icon">🔊</div>
-                <h3 class="game-name title-font">Audioquizz</h3>
+                <h3 class="game-name">Audioquizz</h3>
                 <p class="game-desc">Próximamente...</p>
             </div>
         </div>
