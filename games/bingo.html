@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo - One Piece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        .bingo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .timer {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+        .character-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: #1a1a2e;
+        }
+        .character-display img {
+            width: 200px;
+            height: 200px;
+            border-radius: 15px;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+        .character-display h2 {
+            font-size: 2rem;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+        }
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 0 auto 2rem;
+            max-width: 900px;
+        }
+        .bingo-cell {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a2e;
+        }
+        .bingo-cell:hover {
+            transform: scale(1.05);
+            border-color: #f59e0b;
+        }
+        .bingo-cell.selected {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-color: #3b82f6;
+            color: white;
+        }
+        .bingo-cell.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            color: white;
+        }
+        .bingo-cell.incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            color: white;
+        }
+        .bingo-cell .category {
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.8;
+            margin-bottom: 0.3rem;
+        }
+        .bingo-cell .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .bingo-cell .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    <script src="../report-system.js"></script>
+</head>
+<body>
+<script>const reporter = new ErrorReporter("Bingo");</script>
+    <div class="bingo-container">
+        <a href="../index.html" style="position: fixed; top: 20px; left: 20px; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; z-index: 1000; backdrop-filter: blur(10px);">← Volver</a>
+        
+        <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem;">ONE PIECE BINGO</h1>
+        
+        <div id="app">Cargando...</div>
+    </div>
+
+    <script>
+        let characters = [];
+        let currentCharacter = null;
+        let bingoGrid = [];
+        let timeLeft = 180; // 3 minutos
+        let timerInterval = null;
+        let gameStarted = false;
+        let score = 0;
+
+        const categories = [
+            { field: 'Afiliación', icon: '🏴‍☠️', values: ['Revolucionario', 'Marine', 'Pirata', 'Mugiwara', 'Cipher Pol'] },
+            { field: 'Fruta del diablo', icon: '🍎', values: ['Paramecia', 'Logia', 'Zoan', 'Zoan mítica', 'Sin fruta'] },
+            { field: 'Haki', icon: '⚡', values: ['Armadura', 'Observación', 'Conquistador', 'Sin Haki'] },
+            { field: 'Ocupación', icon: '⚔️', values: ['Capitán', 'Espadachín', 'Cocinero', 'Navegante', 'Francotirador'] },
+            { field: 'Estado', icon: '💀', values: ['Vivo', 'Muerto', 'Desconocido'] },
+            { field: 'Raza', icon: '👤', values: ['Humano', 'Tritón', 'Gigante', 'Visón', 'Cyborg'] }
+        ];
+
+        fetch('../characters.json')
+            .then(r => r.json())
+            .then(data => {
+                characters = data.filter(c => c.Nombre && c.Imagen);
+                generateBingoGrid();
+            });
+
+        function generateBingoGrid() {
+            bingoGrid = [];
+            const usedCombos = new Set();
+            
+            // Generar 16 casillas únicas
+            while (bingoGrid.length < 16) {
+                const cat = categories[Math.floor(Math.random() * categories.length)];
+                const value = cat.values[Math.floor(Math.random() * cat.values.length)];
+                const combo = `${cat.field}:${value}`;
+                
+                if (!usedCombos.has(combo)) {
+                    usedCombos.add(combo);
+                    bingoGrid.push({
+                        category: cat.field,
+                        value: value,
+                        icon: cat.icon,
+                        selected: false,
+                        correct: null
+                    });
+                }
+            }
+            
+            selectRandomCharacter();
+            renderGame();
+        }
+
+        function selectRandomCharacter() {
+            currentCharacter = characters[Math.floor(Math.random() * characters.length)];
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            gameStarted = true;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+                renderGame();
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function toggleCell(index) {
+            if (!gameStarted) startTimer();
+            if (bingoGrid[index].correct !== null) return;
+            
+            bingoGrid[index].selected = !bingoGrid[index].selected;
+            renderGame();
+        }
+
+        function checkAnswers() {
+            let correctCount = 0;
+            
+            bingoGrid.forEach(cell => {
+                if (cell.selected) {
+                    const charValue = currentCharacter[cell.category];
+                    if (charValue && charValue !== '---') {
+                        const values = charValue.split(',').map(v => v.trim());
+                        cell.correct = values.includes(cell.value);
+                    } else {
+                        cell.correct = false;
+                    }
+                    
+                    if (cell.correct) correctCount++;
+                }
+            });
+            
+            score += correctCount;
+            
+            setTimeout(() => {
+                bingoGrid.forEach(cell => {
+                    cell.selected = false;
+                    cell.correct = null;
+                });
+                selectRandomCharacter();
+                renderGame();
+            }, 2000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            alert(`🎉 ¡Juego terminado!\n\nPuntuación: ${score} aciertos`);
+            timeLeft = 180;
+            score = 0;
+            gameStarted = false;
+            timerInterval = null;
+            generateBingoGrid();
+        }
+
+        function renderGame() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <div class="timer">${formatTime(timeLeft)}</div>
+                
+                <div class="character-display">
+                    <img src="${currentCharacter.Imagen}" alt="${currentCharacter.Nombre}" onerror="this.style.display='none'">
+                    <h2>${currentCharacter.Nombre}</h2>
+                    <p style="font-size: 1.2rem; color: #666;">Puntuación: ${score}</p>
+                </div>
+
+                <div class="bingo-grid">
+                    ${bingoGrid.map((cell, idx) => `
+                        <div class="bingo-cell ${cell.selected ? 'selected' : ''} ${cell.correct === true ? 'correct' : ''} ${cell.correct === false ? 'incorrect' : ''}" 
+                             onclick="toggleCell(${idx})">
+                            <div class="icon">${cell.icon}</div>
+                            <div class="category">${cell.category}</div>
+                            <div class="value">${cell.value}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem;" 
+                            onclick="checkAnswers()">
+                        ✓ Verificar
+                    </button>
+                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.3rem;" 
+                            onclick="selectRandomCharacter(); renderGame();">
+                        ⏭️ Siguiente
+                    </button>
+                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 1.3rem;" 
+                            onclick="endGame()">
+                        🔄 Reiniciar
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
