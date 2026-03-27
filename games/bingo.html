@@ -8,93 +8,123 @@
     <link rel="stylesheet" href="../css/common.css">
     <style>
         .bingo-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
             text-align: center;
         }
         .timer {
-            background: rgba(239, 68, 68, 0.9);
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
-            padding: 1.5rem 2rem;
-            border-radius: 15px;
-            font-size: 3rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 2.5rem;
             font-weight: 800;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             display: inline-block;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
         }
         .character-display {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
             color: #1a1a2e;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
         .character-display img {
-            width: 200px;
-            height: 200px;
-            border-radius: 15px;
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
             object-fit: cover;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            border: 3px solid #f59e0b;
         }
         .character-display h2 {
-            font-size: 2rem;
+            font-size: 1.75rem;
             color: #f59e0b;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .character-display .score {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
         }
         .bingo-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin: 0 auto 2rem;
-            max-width: 900px;
+            gap: 0.75rem;
+            margin: 0 auto 1.5rem;
+            max-width: 750px;
         }
         .bingo-cell {
             background: rgba(255, 255, 255, 0.95);
             border: 3px solid rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            padding: 1.5rem;
+            border-radius: 12px;
+            padding: 1rem;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
-            min-height: 120px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #1a1a2e;
+            position: relative;
         }
-        .bingo-cell:hover {
+        .bingo-cell:hover:not(.locked) {
             transform: scale(1.05);
             border-color: #f59e0b;
         }
-        .bingo-cell.selected {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border-color: #3b82f6;
-            color: white;
-        }
-        .bingo-cell.correct {
+        .bingo-cell.locked.correct {
             background: linear-gradient(135deg, #10b981, #059669);
             border-color: #10b981;
             color: white;
+            cursor: not-allowed;
         }
-        .bingo-cell.incorrect {
+        .bingo-cell.locked.incorrect {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             border-color: #ef4444;
             color: white;
         }
-        .bingo-cell .category {
-            font-size: 0.9rem;
-            font-weight: 600;
-            opacity: 0.8;
-            margin-bottom: 0.3rem;
-        }
-        .bingo-cell .value {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        .bingo-cell .icon {
-            font-size: 2.5rem;
+        .bingo-cell img {
+            max-width: 60px;
+            max-height: 60px;
             margin-bottom: 0.5rem;
+            object-fit: contain;
+        }
+        .bingo-cell img.failed {
+            display: none;
+        }
+        .bingo-cell .label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .controls button {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .controls button:hover {
+            transform: translateY(-2px);
+        }
+        .skip-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .restart-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
         }
     </style>
     <script src="../report-system.js"></script>
@@ -104,7 +134,7 @@
     <div class="bingo-container">
         <a href="../index.html" style="position: fixed; top: 20px; left: 20px; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; z-index: 1000; backdrop-filter: blur(10px);">← Volver</a>
         
-        <h1 class="title-font" style="font-size: 3rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem;">ONE PIECE BINGO</h1>
+        <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1.5rem;">ONE PIECE BINGO</h1>
         
         <div id="app">Cargando...</div>
     </div>
@@ -113,18 +143,21 @@
         let characters = [];
         let currentCharacter = null;
         let bingoGrid = [];
-        let timeLeft = 180; // 3 minutos
+        let timeLeft = 120; // 2 minutos
         let timerInterval = null;
         let gameStarted = false;
-        let score = 0;
+        let gameEnded = false;
+        let correctCells = 0;
 
         const categories = [
-            { field: 'Afiliación', icon: '🏴‍☠️', values: ['Revolucionario', 'Marine', 'Pirata', 'Mugiwara', 'Cipher Pol'] },
+            { field: 'Afiliación', icon: '🏴‍☠️', values: ['Revolucionario', 'Marine', 'Pirata', 'Mugiwara', 'Cipher Pol', 'Shichibukai'] },
             { field: 'Fruta del diablo', icon: '🍎', values: ['Paramecia', 'Logia', 'Zoan', 'Zoan mítica', 'Sin fruta'] },
             { field: 'Haki', icon: '⚡', values: ['Armadura', 'Observación', 'Conquistador', 'Sin Haki'] },
-            { field: 'Ocupación', icon: '⚔️', values: ['Capitán', 'Espadachín', 'Cocinero', 'Navegante', 'Francotirador'] },
+            { field: 'Ocupación', icon: '⚔️', values: ['Capitán', 'Espadachín', 'Cocinero', 'Navegante', 'Francotirador', 'Doctor'] },
             { field: 'Estado', icon: '💀', values: ['Vivo', 'Muerto', 'Desconocido'] },
-            { field: 'Raza', icon: '👤', values: ['Humano', 'Tritón', 'Gigante', 'Visón', 'Cyborg'] }
+            { field: 'Raza', icon: '👤', values: ['Humano', 'Tritón', 'Gigante', 'Visón', 'Cyborg'] },
+            { field: 'Saga', icon: '📖', values: ['East Blue', 'Arabasta', 'Skypiea', 'Water 7', 'Summit War', 'Nuevo Mundo'] },
+            { field: 'Arco', icon: '🌊', values: ['Romance Dawn', 'Arlong Park', 'Alabasta', 'Enies Lobby', 'Marineford', 'Dressrosa', 'Whole Cake', 'Wano'] }
         ];
 
         fetch('../characters.json')
@@ -138,8 +171,7 @@
             bingoGrid = [];
             const usedCombos = new Set();
             
-            // Generar 16 casillas únicas
-            while (bingoGrid.length < 16) {
+            while (bingoGrid.length < 12) {
                 const cat = categories[Math.floor(Math.random() * categories.length)];
                 const value = cat.values[Math.floor(Math.random() * cat.values.length)];
                 const combo = `${cat.field}:${value}`;
@@ -150,7 +182,7 @@
                         category: cat.field,
                         value: value,
                         icon: cat.icon,
-                        selected: false,
+                        locked: false,
                         correct: null
                     });
                 }
@@ -161,17 +193,19 @@
         }
 
         function selectRandomCharacter() {
+            if (gameEnded) return;
             currentCharacter = characters[Math.floor(Math.random() * characters.length)];
+            renderGame();
         }
 
         function startTimer() {
-            if (timerInterval) return;
+            if (timerInterval || gameEnded) return;
             gameStarted = true;
             
             timerInterval = setInterval(() => {
                 timeLeft--;
                 if (timeLeft <= 0) {
-                    endGame();
+                    endGame(false);
                 }
                 renderGame();
             }, 1000);
@@ -183,50 +217,62 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        function toggleCell(index) {
+        function clickCell(index) {
             if (!gameStarted) startTimer();
-            if (bingoGrid[index].correct !== null) return;
+            if (gameEnded || bingoGrid[index].locked) return;
             
-            bingoGrid[index].selected = !bingoGrid[index].selected;
+            const cell = bingoGrid[index];
+            const charValue = currentCharacter[cell.category];
+            
+            let isCorrect = false;
+            if (charValue && charValue !== '---') {
+                const values = charValue.split(',').map(v => v.trim());
+                isCorrect = values.includes(cell.value);
+            }
+            
+            cell.locked = true;
+            cell.correct = isCorrect;
+            
+            if (isCorrect) {
+                correctCells++;
+                // Verificar victoria
+                if (correctCells === 12) {
+                    setTimeout(() => endGame(true), 500);
+                } else {
+                    // Nuevo personaje automáticamente
+                    setTimeout(() => selectRandomCharacter(), 500);
+                }
+            }
+            
             renderGame();
         }
 
-        function checkAnswers() {
-            let correctCount = 0;
-            
-            bingoGrid.forEach(cell => {
-                if (cell.selected) {
-                    const charValue = currentCharacter[cell.category];
-                    if (charValue && charValue !== '---') {
-                        const values = charValue.split(',').map(v => v.trim());
-                        cell.correct = values.includes(cell.value);
-                    } else {
-                        cell.correct = false;
-                    }
-                    
-                    if (cell.correct) correctCount++;
-                }
-            });
-            
-            score += correctCount;
-            
-            setTimeout(() => {
-                bingoGrid.forEach(cell => {
-                    cell.selected = false;
-                    cell.correct = null;
-                });
-                selectRandomCharacter();
-                renderGame();
-            }, 2000);
+        function skipCharacter() {
+            selectRandomCharacter();
         }
 
-        function endGame() {
+        function endGame(won) {
+            gameEnded = true;
             clearInterval(timerInterval);
-            alert(`🎉 ¡Juego terminado!\n\nPuntuación: ${score} aciertos`);
-            timeLeft = 180;
-            score = 0;
+            
+            setTimeout(() => {
+                if (won) {
+                    alert(`🎉 ¡BINGO COMPLETADO!\n\nTiempo: ${formatTime(120 - timeLeft)}\nAciertos: ${correctCells}/12`);
+                } else {
+                    alert(`⏱️ ¡Se acabó el tiempo!\n\nAciertos: ${correctCells}/12`);
+                }
+            }, 300);
+        }
+
+        function restartGame() {
+            timeLeft = 120;
             gameStarted = false;
-            timerInterval = null;
+            gameEnded = false;
+            correctCells = 0;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             generateBingoGrid();
         }
 
@@ -237,33 +283,28 @@
                 <div class="timer">${formatTime(timeLeft)}</div>
                 
                 <div class="character-display">
-                    <img src="${currentCharacter.Imagen}" alt="${currentCharacter.Nombre}" onerror="this.style.display='none'">
+                    <img src="${currentCharacter.Imagen}" alt="${currentCharacter.Nombre}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.marginTop='0';">
                     <h2>${currentCharacter.Nombre}</h2>
-                    <p style="font-size: 1.2rem; color: #666;">Puntuación: ${score}</p>
+                    <p class="score">Aciertos: ${correctCells}/12</p>
                 </div>
 
                 <div class="bingo-grid">
                     ${bingoGrid.map((cell, idx) => `
-                        <div class="bingo-cell ${cell.selected ? 'selected' : ''} ${cell.correct === true ? 'correct' : ''} ${cell.correct === false ? 'incorrect' : ''}" 
-                             onclick="toggleCell(${idx})">
-                            <div class="icon">${cell.icon}</div>
-                            <div class="category">${cell.category}</div>
-                            <div class="value">${cell.value}</div>
+                        <div class="bingo-cell ${cell.locked ? 'locked' : ''} ${cell.correct === true ? 'correct' : ''} ${cell.correct === false ? 'incorrect' : ''}" 
+                             onclick="clickCell(${idx})">
+                            <div style="font-size: 2rem;">${cell.icon}</div>
+                            <div class="label">${cell.category}</div>
+                            <div class="label" style="font-weight: 700;">${cell.value}</div>
                         </div>
                     `).join('')}
                 </div>
 
-                <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 1.3rem;" 
-                            onclick="checkAnswers()">
-                        ✓ Verificar
+                <div class="controls">
+                    <button class="skip-btn" onclick="skipCharacter()" ${gameEnded ? 'disabled' : ''}>
+                        ⏭️ SKIP
                     </button>
-                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.3rem;" 
-                            onclick="selectRandomCharacter(); renderGame();">
-                        ⏭️ Siguiente
-                    </button>
-                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 1.3rem;" 
-                            onclick="endGame()">
+                    <button class="restart-btn" onclick="restartGame()">
                         🔄 Reiniciar
                     </button>
                 </div>
