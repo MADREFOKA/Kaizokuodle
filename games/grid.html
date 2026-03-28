@@ -8,106 +8,45 @@
     <link rel="stylesheet" href="../css/common.css">
     <style>
         .grid-container {
-            max-width: 900px;
+            max-width: 700px;
             margin: 0 auto;
         }
-        .game-grid {
-            display: grid;
-            grid-template-columns: 150px repeat(3, 1fr);
-            grid-template-rows: 150px repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 15px;
-        }
-        .grid-header {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1rem;
-            text-align: center;
-            padding: 0.5rem;
-        }
-        .grid-cell {
+        .input-section {
             background: rgba(255, 255, 255, 0.95);
-            border: 3px solid rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 0.5rem;
-            color: #1a1a2e;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
-        .grid-cell:hover {
-            transform: scale(1.05);
-            border-color: #f59e0b;
-        }
-        .grid-cell.filled {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border-color: #3b82f6;
-            color: white;
-            cursor: default;
-        }
-        .grid-cell.correct {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-color: #10b981;
-            color: white;
-        }
-        .grid-cell.incorrect {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            border-color: #ef4444;
-            color: white;
-        }
-        .grid-cell img {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-            margin-bottom: 0.25rem;
-        }
-        .grid-cell .name {
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-align: center;
-        }
-        .input-container {
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-        .input-container input {
+        .input-section input {
             width: 100%;
-            padding: 1rem;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.95);
-            font-size: 1.1rem;
+            padding: 0.9rem;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            font-size: 1rem;
             font-weight: 600;
             text-align: center;
             color: #1a1a2e;
         }
-        .input-container input:focus {
+        .input-section input:focus {
             outline: none;
             border-color: #f59e0b;
         }
         .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
             background: white;
-            border-radius: 10px;
+            border-radius: 8px;
             margin-top: 0.5rem;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
         }
         .suggestion-item {
-            padding: 0.75rem 1rem;
+            padding: 0.7rem 1rem;
             cursor: pointer;
             border-bottom: 1px solid #e5e7eb;
             color: #1a1a2e;
@@ -117,6 +56,76 @@
             background: #f59e0b;
             color: white;
         }
+        .game-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(3, 1fr);
+            grid-template-rows: 100px repeat(3, 1fr);
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        .grid-header {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 0.4rem;
+        }
+        .grid-cell {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0.3rem;
+            color: #1a1a2e;
+        }
+        .grid-cell:hover:not(.filled) {
+            transform: scale(1.05);
+            border-color: #f59e0b;
+        }
+        .grid-cell.selected {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-color: #3b82f6;
+            color: white;
+            font-weight: 700;
+        }
+        .grid-cell.filled.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            color: white;
+            cursor: default;
+        }
+        .grid-cell.filled.incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            color: white;
+            cursor: default;
+        }
+        .grid-cell img {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-bottom: 0.2rem;
+        }
+        .grid-cell .name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+        }
     </style>
     <script src="../report-system.js"></script>
 </head>
@@ -125,11 +134,11 @@
     <div class="grid-container">
         <a href="../index.html" style="position: fixed; top: 20px; left: 20px; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; z-index: 1000; backdrop-filter: blur(10px);">← Volver</a>
         
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">GRID CHALLENGE</h1>
-            <div style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; display: inline-block; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
-                <p style="font-size: 1.1rem; color: #1a1a2e; margin-bottom: 0.5rem; font-weight: 600;">Aciertos</p>
-                <p id="score" style="font-size: 3rem; font-weight: 800; color: #fbbf24;">0/9</p>
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <h1 class="title-font" style="font-size: 2rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">GRID CHALLENGE</h1>
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 1rem 1.5rem; border-radius: 12px; display: inline-block; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
+                <p style="font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; font-weight: 600;">Aciertos</p>
+                <p id="score" style="font-size: 2rem; font-weight: 800; color: #fbbf24;">0/9</p>
             </div>
         </div>
 
@@ -161,12 +170,10 @@
                 { field: 'Saga', label: 'Saga' }
             ];
 
-            // Seleccionar 2 categorías diferentes
             const shuffled = categories.sort(() => 0.5 - Math.random());
             const cat1 = shuffled[0];
             const cat2 = shuffled[1];
 
-            // Agrupar personajes
             const grouped1 = {};
             const grouped2 = {};
 
@@ -191,19 +198,10 @@
                 }
             });
 
-            // Seleccionar 3 valores de cada categoría
             const values1 = Object.keys(grouped1).filter(v => grouped1[v].length >= 3).sort(() => 0.5 - Math.random()).slice(0, 3);
             const values2 = Object.keys(grouped2).filter(v => grouped2[v].length >= 3).sort(() => 0.5 - Math.random()).slice(0, 3);
 
-            grid = {
-                cat1,
-                cat2,
-                values1,
-                values2,
-                grouped1,
-                grouped2
-            };
-
+            grid = { cat1, cat2, values1, values2, grouped1, grouped2 };
             userAnswers = Array(9).fill(null);
             selectedCell = null;
             renderGame();
@@ -212,45 +210,33 @@
         function getValidCharacters(row, col) {
             const val1 = grid.values1[row];
             const val2 = grid.values2[col];
-            
             const chars1 = grid.grouped1[val1] || [];
             const chars2 = grid.grouped2[val2] || [];
-            
             return chars1.filter(c => chars2.some(c2 => c2.Nombre === c.Nombre));
         }
 
         function selectCell(row, col) {
             const index = row * 3 + col;
             if (userAnswers[index]) return;
-            
             selectedCell = { row, col, index };
             currentInput = '';
             renderGame();
+            setTimeout(() => document.getElementById('charInput')?.focus(), 100);
         }
 
         function filterCharacters(query) {
             if (!selectedCell || !query) return [];
-            
             const valid = getValidCharacters(selectedCell.row, selectedCell.col);
-            return valid.filter(c => 
-                c.Nombre.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 10);
+            return valid.filter(c => c.Nombre.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
         }
 
         function selectCharacter(char) {
             if (!selectedCell) return;
-            
             const valid = getValidCharacters(selectedCell.row, selectedCell.col);
             const isCorrect = valid.some(c => c.Nombre === char.Nombre);
-            
-            userAnswers[selectedCell.index] = {
-                char,
-                correct: isCorrect
-            };
-            
+            userAnswers[selectedCell.index] = { char, correct: isCorrect };
             selectedCell = null;
             currentInput = '';
-            
             updateScore();
             renderGame();
         }
@@ -258,12 +244,14 @@
         function updateScore() {
             const correct = userAnswers.filter(a => a && a.correct).length;
             document.getElementById('score').textContent = `${correct}/9`;
-            
             if (correct === 9) {
-                setTimeout(() => {
-                    alert('🎉 ¡PERFECTO! ¡Completaste el Grid Challenge!');
-                }, 500);
+                setTimeout(() => alert('🎉 ¡PERFECTO! ¡Completaste el Grid!'), 500);
             }
+        }
+
+        function handleInput(value) {
+            currentInput = value;
+            renderGame();
         }
 
         function renderGame() {
@@ -273,13 +261,12 @@
             if (selectedCell !== null) {
                 const suggestions = filterCharacters(currentInput);
                 inputHtml = `
-                    <div class="input-container">
+                    <div class="input-section">
                         <input type="text" 
                                id="charInput" 
-                               placeholder="Escribe el nombre del personaje..." 
+                               placeholder="Escribe el nombre..." 
                                value="${currentInput}"
-                               oninput="handleInput(this.value)"
-                               autofocus>
+                               oninput="handleInput(this.value)">
                         ${suggestions.length > 0 ? `
                             <div class="suggestions">
                                 ${suggestions.map(c => `
@@ -299,20 +286,16 @@
                 <div class="game-grid">
                     <div style="grid-column: 1; grid-row: 1;"></div>
                     ${grid.values2.map((val, i) => `
-                        <div class="grid-header" style="grid-column: ${i + 2}; grid-row: 1;">
-                            ${val}
-                        </div>
+                        <div class="grid-header" style="grid-column: ${i + 2}; grid-row: 1;">${val}</div>
                     `).join('')}
                     
                     ${grid.values1.map((val1, row) => `
-                        <div class="grid-header" style="grid-column: 1; grid-row: ${row + 2};">
-                            ${val1}
-                        </div>
+                        <div class="grid-header" style="grid-column: 1; grid-row: ${row + 2};">${val1}</div>
                         ${[0, 1, 2].map(col => {
                             const index = row * 3 + col;
                             const answer = userAnswers[index];
                             return `
-                                <div class="grid-cell ${answer ? (answer.correct ? 'correct' : 'incorrect') : selectedCell && selectedCell.index === index ? 'filled' : ''}"
+                                <div class="grid-cell ${answer ? (answer.correct ? 'filled correct' : 'filled incorrect') : selectedCell && selectedCell.index === index ? 'selected' : ''}"
                                      style="grid-column: ${col + 2}; grid-row: ${row + 2};"
                                      onclick="selectCell(${row}, ${col})">
                                     ${answer ? `
@@ -326,17 +309,12 @@
                 </div>
 
                 <div style="text-align: center;">
-                    <button style="padding: 1.25rem 3rem; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; font-size: 1.3rem;" 
+                    <button style="padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; font-size: 1.1rem;" 
                             onclick="generateGrid()">
                         🔄 Nuevo Grid
                     </button>
                 </div>
             `;
-        }
-
-        function handleInput(value) {
-            currentInput = value;
-            renderGame();
         }
     </script>
 </body>

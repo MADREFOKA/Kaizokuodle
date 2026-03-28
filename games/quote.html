@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote Quiz - One Piece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        .quote-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .quote-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .quote-box::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 4rem;
+            color: #f59e0b;
+            font-family: Georgia, serif;
+        }
+        .quote-text {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: #1a1a2e;
+            font-weight: 600;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .option-btn:hover {
+            transform: translateY(-5px);
+            border-color: #f59e0b;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+        .option-btn.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            color: white;
+        }
+        .option-btn.incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            color: white;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+    <script src="../report-system.js"></script>
+</head>
+<body>
+<script>const reporter = new ErrorReporter("Quote Quiz");</script>
+    <div class="quote-container">
+        <a href="../index.html" style="position: fixed; top: 20px; left: 20px; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; z-index: 1000; backdrop-filter: blur(10px);">← Volver</a>
+        
+        <h1 class="title-font" style="font-size: 2.5rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">QUOTE QUIZ</h1>
+        <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem;">¿Quién dijo esta frase?</p>
+
+        <div style="background: rgba(255, 255, 255, 0.95); padding: 1rem 1.5rem; border-radius: 12px; display: inline-block; margin-bottom: 2rem; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
+            <p style="font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; font-weight: 600;">Puntuación</p>
+            <p id="score" style="font-size: 2rem; font-weight: 800; color: #fbbf24;">0</p>
+        </div>
+
+        <div id="app">Cargando...</div>
+    </div>
+
+    <script>
+        const quotes = [
+            { quote: "¡Voy a ser el Rey de los Piratas!", character: "Monkey D. Luffy" },
+            { quote: "Nada pasó.", character: "Roronoa Zoro" },
+            { quote: "Quiero vivir!", character: "Nico Robin" },
+            { quote: "Hazte más fuerte por mí, Luffy. Voy a hacerme fuerte", character: "Portgas D. Ace" },
+            { quote: "La gente muere cuando se le dispara.", character: "Pell" },
+            { quote: "Me convertiré en el mejor espadachín del mundo!", character: "Roronoa Zoro" },
+            { quote: "Voy a encontrar el All Blue!", character: "Sanji" },
+            { quote: "Quiero ser un bravo guerrero del mar!", character: "Usopp" },
+            { quote: "Voy a dibujar un mapa del mundo entero!", character: "Nami" },
+            { quote: "Quiero curar cualquier enfermedad!", character: "Tony Tony Chopper" },
+            { quote: "Los piratas son malvados? La Marine es la justicia? Estos términos han cambiado muchas veces a través de la historia.", character: "Donquixote Doflamingo" },
+            { quote: "El amor siempre es un huracán!", character: "Boa Hancock" },
+            { quote: "Mierda! Mierda! Mierda!", character: "Eustass Kid" },
+            { quote: "Justicia absoluta.", character: "Sakazuki" }
+        ];
+
+        let characters = [];
+        let currentQuote = null;
+        let options = [];
+        let score = 0;
+        let answered = false;
+
+        fetch('../characters.json')
+            .then(r => r.json())
+            .then(data => {
+                characters = data.filter(c => c.Nombre);
+                newQuestion();
+            });
+
+        function newQuestion() {
+            answered = false;
+            currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            
+            // Generar opciones
+            const correctChar = characters.find(c => c.Nombre === currentQuote.character);
+            const wrongChars = characters
+                .filter(c => c.Nombre !== currentQuote.character)
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3);
+            
+            options = [correctChar, ...wrongChars]
+                .filter(c => c)
+                .sort(() => 0.5 - Math.random());
+            
+            renderGame();
+        }
+
+        function selectAnswer(char) {
+            if (answered) return;
+            answered = true;
+            
+            const correct = char.Nombre === currentQuote.character;
+            if (correct) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+            
+            renderGame();
+            
+            setTimeout(() => {
+                newQuestion();
+            }, 2000);
+        }
+
+        function renderGame() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <div class="quote-box">
+                    <div class="quote-text">${currentQuote.quote}</div>
+                </div>
+
+                <div class="options-grid">
+                    ${options.map(char => {
+                        const isCorrect = char.Nombre === currentQuote.character;
+                        const className = answered ? (isCorrect ? 'correct' : 'incorrect') : '';
+                        return `
+                            <button class="option-btn ${className}" 
+                                    onclick='selectAnswer(${JSON.stringify(char)})'
+                                    ${answered ? 'disabled' : ''}>
+                                ${char.Nombre}
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+
+                <button style="padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.1rem;" 
+                        onclick="score = 0; document.getElementById('score').textContent = '0'; newQuestion();">
+                    🔄 Reiniciar
+                </button>
+            `;
+        }
+    </script>
+</body>
+</html>

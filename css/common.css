@@ -17,7 +17,7 @@ body {
     color: #fff;
     padding: 1.5rem;
     position: relative;
-    zoom: 0.9;
+    zoom: 0.85;
 }
 
 body::before {
