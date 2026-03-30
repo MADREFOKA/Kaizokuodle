@@ -9,6 +9,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
+            font-family: 'Outfit', sans-serif;
+            background: url("../images/background.webp") center center / cover no-repeat fixed;
+            position: relative;
+            min-height: 100vh;
+            color: #fff;
+            padding: 1.5rem;
+            zoom: 0.75;
         }
         body::before {
             content: "";
@@ -19,9 +26,6 @@
             height: 100%;
             background: rgba(10, 25, 41, 0.85);
             z-index: -1;
-            font-family: 'Outfit', sans-serif;
-            background: url("../images/background.webp") center center / cover no-repeat fixed; position: relative;
-            min-height: 100vh; color: #fff; padding: 1.5rem; zoom: 0.85;
         }
         .title-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
         .difficulty-btn {

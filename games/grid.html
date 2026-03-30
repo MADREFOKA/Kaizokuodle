@@ -160,48 +160,102 @@
             });
 
         function generateGrid() {
-            const categories = [
-                { field: 'Afiliación', label: 'Afiliación' },
-                { field: 'Fruta del diablo', label: 'Tipo Fruta' },
-                { field: 'Haki', label: 'Haki' },
-                { field: 'Ocupación', label: 'Ocupación' },
-                { field: 'Estado', label: 'Estado' },
-                { field: 'Raza', label: 'Raza' },
-                { field: 'Saga', label: 'Saga' }
+            // Categorías disponibles para filas (cat1) y columnas (cat2)
+            // Siempre deben ser categorías DISTINTAS entre sí
+            const allCategories = [
+                { field: 'Afiliación',       label: 'Afiliación',    minCount: 2 },
+                { field: 'Saga',             label: 'Saga',          minCount: 5 },
+                { field: 'Raza',             label: 'Raza',          minCount: 3 },
+                { field: 'Sexo',             label: 'Sexo',          minCount: 5 },
+                { field: 'Estado',           label: 'Estado',        minCount: 5 },
+                { field: 'Origen',           label: 'Origen',        minCount: 3 },
+                { field: 'Ocupación',        label: 'Ocupación',     minCount: 3 },
+                { field: 'Haki',             label: 'Haki',          minCount: 2 },
+                { field: 'Fruta del diablo', label: 'Tipo Fruta',    minCount: 2 }
             ];
 
-            const shuffled = categories.sort(() => 0.5 - Math.random());
-            const cat1 = shuffled[0];
-            const cat2 = shuffled[1];
-
-            const grouped1 = {};
-            const grouped2 = {};
-
-            characters.forEach(c => {
-                const val1 = c[cat1.field];
-                const val2 = c[cat2.field];
-
-                if (val1 && val1 !== '---') {
-                    val1.split(',').forEach(v => {
+            // Construir índice para cada categoría: valor → lista de personajes
+            function buildIndex(field) {
+                const idx = {};
+                characters.forEach(c => {
+                    const val = c[field];
+                    if (!val || val === '---') return;
+                    val.split(',').forEach(v => {
                         v = v.trim();
-                        if (!grouped1[v]) grouped1[v] = [];
-                        grouped1[v].push(c);
+                        if (!v) return;
+                        if (!idx[v]) idx[v] = [];
+                        idx[v].push(c);
                     });
+                });
+                return idx;
+            }
+
+            // Dado un índice, devuelve valores con al menos minCount personajes, barajados
+            function validValues(idx, minCount) {
+                return Object.keys(idx)
+                    .filter(v => idx[v].length >= minCount)
+                    .sort(() => 0.5 - Math.random());
+            }
+
+            // Comprobar que los 9 cruces entre 3 valores de filas y 3 de columnas
+            // tienen al menos 1 personaje válido (que aparece en ambos grupos)
+            function crossesAreValid(vals1, idx1, vals2, idx2) {
+                for (const v1 of vals1) {
+                    const set1 = new Set(idx1[v1].map(c => c.Nombre));
+                    for (const v2 of vals2) {
+                        const set2 = new Set(idx2[v2].map(c => c.Nombre));
+                        const inter = [...set1].filter(n => set2.has(n));
+                        if (inter.length === 0) return false;
+                    }
                 }
+                return true;
+            }
 
-                if (val2 && val2 !== '---') {
-                    val2.split(',').forEach(v => {
-                        v = v.trim();
-                        if (!grouped2[v]) grouped2[v] = [];
-                        grouped2[v].push(c);
-                    });
+            // Intentar encontrar una combinación válida barajando categorías y valores
+            let found = false;
+            let attempts = 0;
+            const maxAttempts = 200;
+
+            while (!found && attempts < maxAttempts) {
+                attempts++;
+                // Barajar y escoger 2 categorías distintas
+                const shuffled = [...allCategories].sort(() => 0.5 - Math.random());
+                const cat1 = shuffled[0];
+                const cat2 = shuffled[1];
+
+                const idx1 = buildIndex(cat1.field);
+                const idx2 = buildIndex(cat2.field);
+
+                const pool1 = validValues(idx1, cat1.minCount);
+                const pool2 = validValues(idx2, cat2.minCount);
+
+                if (pool1.length < 3 || pool2.length < 3) continue;
+
+                // Intentar varias combinaciones de 3 valores de cada pool
+                let innerAttempts = 0;
+                while (innerAttempts < 30) {
+                    innerAttempts++;
+                    const vals1 = pool1.sort(() => 0.5 - Math.random()).slice(0, 3);
+                    const vals2 = pool2.sort(() => 0.5 - Math.random()).slice(0, 3);
+                    if (crossesAreValid(vals1, idx1, vals2, idx2)) {
+                        grid = { cat1, cat2, values1: vals1, values2: vals2, grouped1: idx1, grouped2: idx2 };
+                        found = true;
+                        break;
+                    }
                 }
-            });
+            }
 
-            const values1 = Object.keys(grouped1).filter(v => grouped1[v].length >= 3).sort(() => 0.5 - Math.random()).slice(0, 3);
-            const values2 = Object.keys(grouped2).filter(v => grouped2[v].length >= 3).sort(() => 0.5 - Math.random()).slice(0, 3);
+            if (!found) {
+                // Fallback garantizado: Saga (filas) × Afiliación (columnas) con valores muy comunes
+                const cat1 = { field: 'Saga', label: 'Saga' };
+                const cat2 = { field: 'Afiliación', label: 'Afiliación' };
+                const idx1 = buildIndex(cat1.field);
+                const idx2 = buildIndex(cat2.field);
+                const vals1 = validValues(idx1, 3).slice(0, 3);
+                const vals2 = validValues(idx2, 3).slice(0, 3);
+                grid = { cat1, cat2, values1: vals1, values2: vals2, grouped1: idx1, grouped2: idx2 };
+            }
 
-            grid = { cat1, cat2, values1, values2, grouped1, grouped2 };
             userAnswers = Array(9).fill(null);
             selectedCell = null;
             renderGame();
@@ -226,8 +280,10 @@
 
         function filterCharacters(query) {
             if (!selectedCell || !query) return [];
-            const valid = getValidCharacters(selectedCell.row, selectedCell.col);
-            return valid.filter(c => c.Nombre.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
+            // Buscar en TODOS los personajes (el jugador debe adivinar sin pistas)
+            return characters
+                .filter(c => c.Nombre.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 8);
         }
 
         function selectCharacter(char) {
@@ -284,7 +340,10 @@
                 ${inputHtml}
                 
                 <div class="game-grid">
-                    <div style="grid-column: 1; grid-row: 1;"></div>
+                    <div style="grid-column: 1; grid-row: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
+                        <div style="font-size:0.6rem; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; text-align:center;">${grid.cat2.label}</div>
+                        <div style="font-size:0.6rem; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; text-align:center; transform:rotate(-90deg); white-space:nowrap;">${grid.cat1.label} →</div>
+                    </div>
                     ${grid.values2.map((val, i) => `
                         <div class="grid-header" style="grid-column: ${i + 2}; grid-row: 1;">${val}</div>
                     `).join('')}

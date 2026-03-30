@@ -93,413 +93,420 @@
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Age Age",
-    "MODELO": "Edad Edad",
+    "MODELO": "Edad",
     "USUARIO": "Jewelry Bonney",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
+    "NOMBRE": "Aro Aro",
+    "MODELO": "Flecha",
+    "USUARIO": "Manmayer Gunko",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Paramecia",
     "NOMBRE": "Ato Ato",
-    "MODELO": "Arte Arte",
+    "MODELO": "Arte",
     "USUARIO": "Giolla",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Awa Awa",
-    "MODELO": "",
+    "MODELO": "Burbuja",
     "USUARIO": "Kalifa",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Baku Baku",
-    "MODELO": "",
+    "MODELO": "Come",
     "USUARIO": "Wapol",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Bane Bane",
-    "MODELO": "",
+    "MODELO": "Resorte",
     "USUARIO": "Bellamy",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Bara Bara",
-    "MODELO": "",
+    "MODELO": "Parte",
     "USUARIO": "Buggy",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Bari Bari",
-    "MODELO": "",
-    "USUARIO": "Kurozumi Semimaru",
-    "ANTERIOR USUARIO": ""
-  },
-  {
-    "TIPO": "Paramecia",
-    "NOMBRE": "Bari Bari",
-    "MODELO": "",
+    "MODELO": "Barrera",
     "USUARIO": "Bartolomeo",
     "ANTERIOR USUARIO": "Kurozumi Semimaru"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Bata Bata",
-    "MODELO": "",
+    "MODELO": "Mantequilla",
     "USUARIO": "Charlotte Galette",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Beri Beri",
-    "MODELO": "",
+    "MODELO": "Baya",
     "USUARIO": "Very Good",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Beta Beta",
-    "MODELO": "",
+    "MODELO": "Pegajoso",
     "USUARIO": "Trebol",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Bisu Bisu",
-    "MODELO": "",
+    "MODELO": "Galleta",
     "USUARIO": "Charlotte Cracker",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Bomu Bomu",
-    "MODELO": "",
+    "MODELO": "Bomba",
     "USUARIO": "Gem",
     "ANTERIOR USUARIO": "Ganzui"
   },
   {
     "TIPO": "Paramecia",
-    "NOMBRE": "Brain Brain",
-    "MODELO": "",
-    "USUARIO": "Vegapunk",
-    "ANTERIOR USUARIO": ""
-  },
-  {
-    "TIPO": "Paramecia",
     "NOMBRE": "Buki Buki",
-    "MODELO": "",
+    "MODELO": "Arma",
     "USUARIO": "Baby 5",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Buku Buku",
-    "MODELO": "",
+    "MODELO": "Libro",
     "USUARIO": "Charlotte Mont-d'Or",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Chiyu Chiyu",
-    "MODELO": "",
+    "MODELO": "Curar",
     "USUARIO": "Mansherry",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Choki Choki",
-    "MODELO": "",
+    "MODELO": "Corte",
     "USUARIO": "Inazuma",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Deka Deka",
-    "MODELO": "",
+    "MODELO": "Gigante",
     "USUARIO": "San Juan Wolf",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Doa Doa",
-    "MODELO": "",
+    "MODELO": "Puerta",
     "USUARIO": "Blueno",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Doku Doku",
-    "MODELO": "",
+    "MODELO": "Veneno",
     "USUARIO": "Magellan",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Doru Doru",
-    "MODELO": "",
+    "MODELO": "Vela",
     "USUARIO": "Galdino",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Fude Fude",
-    "MODELO": "",
+    "MODELO": "Tinta",
     "USUARIO": "Kanjuro",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Fuku Fuku",
-    "MODELO": "",
+    "MODELO": "Vestir",
     "USUARIO": "Kin'emon",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Fuwa Fuwa",
-    "MODELO": "",
+    "MODELO": "Flotar",
     "USUARIO": "Shiki",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Gabu Gabu",
-    "MODELO": "",
+    "MODELO": "Licor",
     "USUARIO": "Vasco Shot",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Giro Giro",
-    "MODELO": "",
+    "MODELO": "Mirar",
     "USUARIO": "Viola",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Gunyo Gunyo",
-    "MODELO": "",
+    "MODELO": "Arcilla",
     "USUARIO": "Prince Grus",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Gura Gura",
-    "MODELO": "",
+    "MODELO": "Temblor",
     "USUARIO": "Marshall D. Teach",
     "ANTERIOR USUARIO": "Edward Newgate"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Guru Guru",
-    "MODELO": "",
+    "MODELO": "Giro",
     "USUARIO": "Buffalo",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Hana Hana",
-    "MODELO": "",
+    "MODELO": "Florecer",
     "USUARIO": "Nico Robin",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Hira Hira",
-    "MODELO": "",
+    "MODELO": "Ondear",
     "USUARIO": "Diamante",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Hobi Hobi",
-    "MODELO": "",
+    "MODELO": "Hobby",
     "USUARIO": "Sugar",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
-    "NOMBRE": "Hon Hon",
-    "MODELO": "",
-    "USUARIO": "Charlotte Mont-d'Or",
-    "ANTERIOR USUARIO": ""
-  },
-  {
-    "TIPO": "Paramecia",
     "NOMBRE": "Horo Horo",
-    "MODELO": "",
+    "MODELO": "Vacío",
     "USUARIO": "Perona",
     "ANTERIOR USUARIO": "Gil Bastard"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Horu Horu",
-    "MODELO": "",
+    "MODELO": "Hormona",
     "USUARIO": "Emporio Ivankov",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Hoya Hoya",
-    "MODELO": "",
+    "MODELO": "Lámpara",
     "USUARIO": "Charlotte Daifuku",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
+    "NOMBRE": "Iba Iba",
+    "MODELO": "Espina",
+    "USUARIO": "Shepherd Sommers",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Paramecia",
+    "NOMBRE": "Iku Iku",
+    "MODELO": "Cultivo",
+    "USUARIO": "Biblo",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Paramecia",
     "NOMBRE": "Ishi Ishi",
-    "MODELO": "",
+    "MODELO": "Piedra",
     "USUARIO": "Pica",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Ito Ito",
-    "MODELO": "",
+    "MODELO": "Hilo",
     "USUARIO": "Donquixote Doflamingo",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Jake Jake",
-    "MODELO": "",
+    "MODELO": "Chaqueta",
     "USUARIO": "Kelly Funk",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Jiki Jiki",
-    "MODELO": "",
+    "MODELO": "Magnetismo",
     "USUARIO": "Eustass Kid",
     "ANTERIOR USUARIO": "Captain John"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Juku Juku",
-    "MODELO": "",
+    "MODELO": "Madurar",
     "USUARIO": "Shinobu",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kage Kage",
-    "MODELO": "",
+    "MODELO": "Sombra",
     "USUARIO": "Gecko Moria",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kibi Kibi",
-    "MODELO": "",
+    "MODELO": "Mijo",
     "USUARIO": "Otama",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kilo Kilo",
-    "MODELO": "",
+    "MODELO": "Kilo",
     "USUARIO": "Miss Valentine",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kira Kira",
-    "MODELO": "",
+    "MODELO": "Brillante",
     "USUARIO": "Jozu",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kobu Kobu",
-    "MODELO": "",
+    "MODELO": "Ánimo",
     "USUARIO": "Belo Betty",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kuku Kuku",
-    "MODELO": "",
+    "MODELO": "Cocinero",
     "USUARIO": "Streusen",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Kuri Kuri",
-    "MODELO": "",
+    "MODELO": "Crema",
     "USUARIO": "Charlotte Opera",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Maki Maki",
-    "MODELO": "",
+    "MODELO": "Pergamino",
     "USUARIO": "Raizo",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Mane Mane",
-    "MODELO": "",
+    "MODELO": "Imitación",
     "USUARIO": "Bon Clay",
     "ANTERIOR USUARIO": "Kurozumi Higurashi"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Mato Mato",
-    "MODELO": "",
+    "MODELO": "Objetivo",
     "USUARIO": "Vander Decken IX",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Memo Memo",
-    "MODELO": "",
+    "MODELO": "Memoria",
     "USUARIO": "Charlotte Pudding",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Mero Mero",
-    "MODELO": "",
+    "MODELO": "Enamorar",
     "USUARIO": "Boa Hancock",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Mira Mira",
-    "MODELO": "",
+    "MODELO": "Espejo",
     "USUARIO": "Charlotte Brulee",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
+    "NOMBRE": "Mochi Mochi",
+    "MODELO": "Mochi",
+    "USUARIO": "Charlotte Katakuri",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Paramecia",
     "NOMBRE": "Muchi Muchi",
-    "MODELO": "",
+    "MODELO": "Doma",
     "USUARIO": "Kujaku",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Nagi Nagi",
-    "MODELO": "",
+    "MODELO": "Calma",
     "USUARIO": "Donquixote Rosinante",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Netsu Netsu",
-    "MODELO": "",
+    "MODELO": "Calor",
     "USUARIO": "Charlotte Oven",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Nikyu Nikyu",
-    "MODELO": "",
+    "MODELO": "Zarpa",
     "USUARIO": "Bartholomew Kuma",
     "ANTERIOR USUARIO": ""
   },
@@ -513,210 +520,217 @@
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Nori Nori",
-    "MODELO": "",
+    "MODELO": "Monta",
     "USUARIO": "Bluegrass",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Noro Noro",
-    "MODELO": "",
+    "MODELO": "Lento",
     "USUARIO": "Foxy",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Nui Nui",
-    "MODELO": "",
+    "MODELO": "Coser",
     "USUARIO": "Leo",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Ope Ope",
-    "MODELO": "",
+    "MODELO": "Operación",
     "USUARIO": "Trafalgar D. Water Law",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Ori Ori",
-    "MODELO": "",
+    "MODELO": "Jaula",
     "USUARIO": "Hina",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Oshi Oshi",
-    "MODELO": "",
+    "MODELO": "Empujar",
     "USUARIO": "Morley",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Oto Oto",
-    "MODELO": "",
+    "MODELO": "Sonido",
     "USUARIO": "Scratchmen Apoo",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Pamu Pamu",
-    "MODELO": "",
+    "MODELO": "Ruptura",
     "USUARIO": "Gladius",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Pero Pero",
-    "MODELO": "",
+    "MODELO": "Lamer",
     "USUARIO": "Charlotte Perospero",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
+    "NOMBRE": "Poke Poke",
+    "MODELO": "Bolsillo",
+    "USUARIO": "Blamenco",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Paramecia",
     "NOMBRE": "Riki Riki",
-    "MODELO": "",
+    "MODELO": "Fuerza",
     "USUARIO": "Jesus Burgess",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Sabi Sabi",
-    "MODELO": "",
+    "MODELO": "Óxido",
     "USUARIO": "Shu",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
-    "NOMBRE": "Scroll Scroll",
-    "MODELO": "",
-    "USUARIO": "Raizo",
-    "ANTERIOR USUARIO": ""
-  },
-  {
-    "TIPO": "Paramecia",
     "NOMBRE": "Shari Shari",
-    "MODELO": "",
+    "MODELO": "Rueda",
     "USUARIO": "Sharinguru",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Shibo Shibo",
-    "MODELO": "",
+    "MODELO": "Exprimir",
     "USUARIO": "Charlotte Smoothie",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Shiku Shiku",
-    "MODELO": "",
+    "MODELO": "Enfermo",
     "USUARIO": "Doc Q",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Shima Shima",
-    "MODELO": "",
+    "MODELO": "Isla",
     "USUARIO": "Avalo Pizarro",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Shiro Shiro",
-    "MODELO": "",
+    "MODELO": "Castillo",
     "USUARIO": "Capone Bege",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Soru Soru",
-    "MODELO": "",
+    "MODELO": "Alma",
     "USUARIO": "Charlotte Linlin",
     "ANTERIOR USUARIO": "Mother Carmel"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Soshi Soshi",
-    "MODELO": "",
+    "MODELO": "Musuclo",
     "USUARIO": "Urouge",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Sube Sube",
-    "MODELO": "",
+    "MODELO": "Liso",
     "USUARIO": "Alvida",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Sui Sui",
-    "MODELO": "",
+    "MODELO": "Nadar",
     "USUARIO": "Senor Pink",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Suke Suke",
-    "MODELO": "",
+    "MODELO": "Transparente",
     "USUARIO": "Shiryu",
     "ANTERIOR USUARIO": "Absalom"
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Supa Supa",
-    "MODELO": "",
+    "MODELO": "Filo",
     "USUARIO": "Daz Bonez",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Toge Toge",
-    "MODELO": "",
+    "MODELO": "Espina",
     "USUARIO": "Miss Doublefinger",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Toki Toki",
-    "MODELO": "",
+    "MODELO": "Tiempo",
     "USUARIO": "Kozuki Toki",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Ton Ton",
-    "MODELO": "",
+    "MODELO": "Tonelada",
     "USUARIO": "Machvise",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Toshi Toshi",
-    "MODELO": "",
+    "MODELO": "Edad",
     "USUARIO": "Jewelry Bonney",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
+    "NOMBRE": "Tsutsu Tsutsu",
+    "MODELO": "Cañon",
+    "USUARIO": "Urban",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Paramecia",
     "NOMBRE": "Wapu Wapu",
-    "MODELO": "",
+    "MODELO": "Deforma",
     "USUARIO": "Van Augur",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Wara Wara",
-    "MODELO": "",
+    "MODELO": "Paja",
     "USUARIO": "Basil Hawkins",
     "ANTERIOR USUARIO": ""
   },
   {
     "TIPO": "Paramecia",
     "NOMBRE": "Yomi Yomi",
-    "MODELO": "",
+    "MODELO": "Renacer",
     "USUARIO": "Brook",
     "ANTERIOR USUARIO": ""
   },
@@ -728,17 +742,17 @@
     "ANTERIOR USUARIO": ""
   },
   {
-    "TIPO": "Paramecia",
-    "NOMBRE": "Mochi Mochi",
-    "MODELO": "",
-    "USUARIO": "Charlotte Katakuri",
+    "TIPO": "Smile Paramecia",
+    "NOMBRE": "Defectuosa",
+    "MODELO": "Defectuosa",
+    "USUARIO": "Killer",
     "ANTERIOR USUARIO": ""
   },
   {
-    "TIPO": "Paramecia Defectuosa",
-    "NOMBRE": "Smile",
-    "MODELO": "",
-    "USUARIO": "Killer",
+    "TIPO": "Smile Zoan",
+    "NOMBRE": "Agehacho Agehacho",
+    "MODELO": "Mariposa",
+    "USUARIO": "Ageha Woman",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -746,6 +760,20 @@
     "NOMBRE": "Armadillo Armadillo",
     "MODELO": "Armadillo",
     "USUARIO": "Marillo-man",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Smile Zoan",
+    "NOMBRE": "Arupaka Arupaka",
+    "MODELO": "Alpaca",
+    "USUARIO": "Alpacaman",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Smile Zoan",
+    "NOMBRE": "Bachi Bachi",
+    "MODELO": "Abeja",
+    "USUARIO": "Beegirl",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -806,6 +834,13 @@
   },
   {
     "TIPO": "Smile Zoan",
+    "NOMBRE": "Hebi Hebi",
+    "MODELO": "Pitón",
+    "USUARIO": "Bishonure-Onna",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Smile Zoan",
     "NOMBRE": "Hippo Hippo",
     "MODELO": "Hipopótamo",
     "USUARIO": "Dobon",
@@ -816,6 +851,13 @@
     "NOMBRE": "Horse Horse",
     "MODELO": "Caballo",
     "USUARIO": "Speed",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Smile Zoan",
+    "NOMBRE": "Kurumabatta",
+    "MODELO": "Saltamontes",
+    "USUARIO": "Battaman",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -837,6 +879,13 @@
     "NOMBRE": "Mouse Mouse",
     "MODELO": "Ratón",
     "USUARIO": "Mouseman",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Smile Zoan",
+    "NOMBRE": "Mushi Mushi",
+    "MODELO": "Escarabajo Rinoceronte",
+    "USUARIO": "Beetleman",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -868,6 +917,13 @@
     "ANTERIOR USUARIO": ""
   },
   {
+    "TIPO": "Smile Zoan",
+    "NOMBRE": "Zumi Zumi",
+    "MODELO": "Erizo",
+    "USUARIO": "Bisley",
+    "ANTERIOR USUARIO": ""
+  },
+  {
     "TIPO": "Zoan",
     "NOMBRE": "Hebi Hebi",
     "MODELO": "Cobra Real",
@@ -886,20 +942,6 @@
     "NOMBRE": "Hito Hito",
     "MODELO": "Humano",
     "USUARIO": "Tony Tony Chopper",
-    "ANTERIOR USUARIO": ""
-  },
-  {
-    "TIPO": "Zoan",
-    "NOMBRE": "Inu Inu",
-    "MODELO": "Chacal",
-    "USUARIO": "Chaka",
-    "ANTERIOR USUARIO": ""
-  },
-  {
-    "TIPO": "Zoan",
-    "NOMBRE": "Inu Inu",
-    "MODELO": "Dachshund",
-    "USUARIO": "Lassoo",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -927,7 +969,21 @@
     "TIPO": "Zoan",
     "NOMBRE": "Mushi Mushi",
     "MODELO": "Escarabajo Rinoceronte",
-    "USUARIO": "Cub",
+    "USUARIO": "Kabu",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Neko Neko",
+    "MODELO": "Leopardo",
+    "USUARIO": "Rob Lucci",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Rako Rako",
+    "MODELO": "Nutria",
+    "USUARIO": "Pomsky",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -981,16 +1037,107 @@
   },
   {
     "TIPO": "Zoan",
-    "NOMBRE": "Neko Neko",
-    "MODELO": "Leopardo",
-    "USUARIO": "Rob Lucci",
+    "NOMBRE": "Buru Buru",
+    "MODELO": "Toro",
+    "USUARIO": "Minotaurus",
     "ANTERIOR USUARIO": ""
   },
   {
-    "TIPO": "Zoan ",
+    "TIPO": "Zoan",
+    "NOMBRE": "Inu Inu",
+    "MODELO": "Chacal",
+    "USUARIO": "Chaka",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Inu Inu",
+    "MODELO": "Dachshund",
+    "USUARIO": "Lassoo",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Inu Inu",
+    "MODELO": "Dalmata",
+    "USUARIO": "Dalmatian",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
     "NOMBRE": "Inu Inu",
     "MODELO": "Lobo",
     "USUARIO": "Jabra",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Inu Inu",
+    "MODELO": "Tanuki",
+    "USUARIO": "Bunbuku",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Inu Inu",
+    "MODELO": "Chihuahua",
+    "USUARIO": "Minochihuahua",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Inu Inu",
+    "MODELO": "Sabueso",
+    "USUARIO": "Hound",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Koara Koara",
+    "MODELO": "Koala",
+    "USUARIO": "Minokoala",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Kumo Kumo",
+    "MODELO": "Araña Negra",
+    "USUARIO": "Onigumo",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Pira Pira",
+    "MODELO": "Oruga",
+    "USUARIO": "Epoida",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Rino RIno",
+    "MODELO": "Rinoceronte",
+    "USUARIO": "Minorhinoceros",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Tori Tori",
+    "MODELO": "Albatros",
+    "USUARIO": "Morgans",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan",
+    "NOMBRE": "Zebu Zebu",
+    "MODELO": "Zebra",
+    "USUARIO": "Minozebra",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan Mitológica",
+    "NOMBRE": "Cerberus",
+    "MODELO": "Cerber0",
+    "USUARIO": "Cerberus",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -1016,6 +1163,13 @@
   },
   {
     "TIPO": "Zoan Mitológica",
+    "NOMBRE": "Hito hito",
+    "MODELO": "Nika",
+    "USUARIO": "Monkey D. Luffy",
+    "ANTERIOR USUARIO": "Joy Boy"
+  },
+  {
+    "TIPO": "Zoan Mitológica",
     "NOMBRE": "Inu Inu",
     "MODELO": "Kyubi",
     "USUARIO": "Catarina Devon",
@@ -1026,6 +1180,27 @@
     "NOMBRE": "Inu Inu",
     "MODELO": "Okuchi no Makami",
     "USUARIO": "Yamato",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan Mitológica",
+    "NOMBRE": "Ryu Ryu",
+    "MODELO": "Nidhoggr",
+    "USUARIO": "Loki",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan Mitológica",
+    "NOMBRE": "Ryu Ryu",
+    "MODELO": "Kirin",
+    "USUARIO": "Rimoshifu Kiringham",
+    "ANTERIOR USUARIO": ""
+  },
+  {
+    "TIPO": "Zoan Mitológica",
+    "NOMBRE": "Ryu Ryu",
+    "MODELO": "Kirin",
+    "USUARIO": "Rimoshifu Kiringham",
     "ANTERIOR USUARIO": ""
   },
   {
@@ -1050,13 +1225,6 @@
     "ANTERIOR USUARIO": ""
   },
   {
-    "TIPO": "Zoan Mitológica",
-    "NOMBRE": "Hito hito",
-    "MODELO": "Nika",
-    "USUARIO": "Monkey D. Luffy",
-    "ANTERIOR USUARIO": "Joy Boy"
-  },
-  {
     "TIPO": "Zoan Mitológica Smile",
     "NOMBRE": "Uo Uo",
     "MODELO": "Dragón Rosado",
@@ -1066,7 +1234,7 @@
   {
     "TIPO": "Zoan Prehistorica",
     "NOMBRE": "Kumo Kumo",
-    "MODELO": "Rosamygale Grauvogeli ",
+    "MODELO": "Rosamygale Grauvogeli",
     "USUARIO": "Black Maria",
     "ANTERIOR USUARIO": ""
   },

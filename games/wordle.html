@@ -95,8 +95,34 @@
             if (g === t) return { status: 'correct', arrow: null };
             
             if (['Primera Aparición', 'Altura', 'Edad', 'Recompensa'].includes(field)) {
-                const gNum = parseFloat(g.replace(/[^\d.]/g, ''));
-                const tNum = parseFloat(t.replace(/[^\d.]/g, ''));
+                // Parser de números en formato español: puntos = separador miles, coma = decimal
+                // Ej: "1,85" → 1.85 | "550.000.000฿" → 550000000 | "2,12" → 2.12
+                const parseSpanishNum = (s) => {
+                    if (!s || s === '---') return NaN;
+                    // Quitar símbolo de berries y espacios
+                    let clean = s.replace(/฿/g, '').trim();
+                    // Si tiene coma: formato altura "1,85" → coma es decimal
+                    if (clean.includes(',') && !clean.includes('.')) {
+                        return parseFloat(clean.replace(',', '.'));
+                    }
+                    // Si tiene puntos y coma: "1.234,56" → quitar puntos, coma→punto
+                    if (clean.includes(',') && clean.includes('.')) {
+                        return parseFloat(clean.replace(/\./g, '').replace(',', '.'));
+                    }
+                    // Si solo puntos como separador de miles: "550.000.000" → quitar puntos
+                    if (clean.includes('.')) {
+                        // ¿Es separador de miles? (grupos de 3 dígitos tras el punto)
+                        const parts = clean.split('.');
+                        if (parts.length > 1 && parts[parts.length-1].length === 3) {
+                            return parseFloat(clean.replace(/\./g, ''));
+                        }
+                        // Es decimal real
+                        return parseFloat(clean);
+                    }
+                    return parseFloat(clean.replace(/[^\d]/g, ''));
+                };
+                const gNum = parseSpanishNum(g);
+                const tNum = parseSpanishNum(t);
                 if (!isNaN(gNum) && !isNaN(tNum)) {
                     return { status: 'incorrect', arrow: gNum < tNum ? '↑' : '↓' };
                 }
@@ -231,7 +257,7 @@
                                     <tr>
                                         ${fields.map(f => {
                                             if (f === 'Imagen') {
-                                                return `<td class="imagen"><img src="${g.Imagen}" onerror="this.style.display='none'" /></td>`;
+                                                return `<td class="imagen"><img src="${g.Imagen}" onerror="this.src=g.Imagen2||'';" /></td>`;
                                             }
                                             
                                             const comp = f === 'Nombre' 
@@ -263,7 +289,7 @@
                     
                     ${gameOver ? `
                         <div class="${won ? 'result-box-win' : 'result-box-lose'}" style="max-width: 600px; margin: 3rem auto; text-align: center; padding: 2rem; border-radius: 20px; color: black;">
-                            <img src="${target.Imagen}" class="result-image" onerror="this.style.display='none'" />
+                            <img src="${target.Imagen}" class="result-image" onerror="this.src=target.Imagen2||'';" />
                             <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: ${won ? '#059669' : '#dc2626'};">${won ? '🎉 ¡GANASTE! 🎉' : '😢 PERDISTE 😢'}</h2>
                             <p style="font-size: 1.5rem; margin-bottom: 2rem;">El personaje era: <strong style="color: #ff6b35;">${target.Nombre}</strong></p>
                             <button class="btn btn-primary" onclick="startGame()" style="font-size: 1.25rem; padding: 1rem 2rem;">Jugar de nuevo</button>
@@ -292,7 +318,7 @@
                     <div class="suggestions">
                         ${filtered.map(c => `
                             <div class="suggestion-item" onclick="selectCharacter('${c.Nombre.replace(/'/g, "\\'")}')">
-                                <img src="${c.Imagen}" onerror="this.style.display='none'" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; margin-right: 0.75rem;" />
+                                <img src="${c.Imagen}" onerror="this.src=c.Imagen2||'';" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; margin-right: 0.75rem;" />
                                 ${c.Nombre}
                             </div>
                         `).join('')}
