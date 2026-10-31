@@ -230,3 +230,63 @@ body {
     background: linear-gradient(135deg, #fee2e2, #fecaca);
     border: 3px solid #ef4444;
 }
+
+/* ===== FIX MOVIL: tabla con scroll horizontal usable y celdas compactas ===== */
+.table-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    padding-bottom: 0.75rem;
+    scrollbar-width: thin;
+}
+
+.table-scroll .game-table { margin: 0 auto; }
+
+.scroll-hint {
+    display: none;
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-bottom: 0.5rem;
+}
+
+.game-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.legend-container { flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
+
+@media (max-width: 768px) {
+    body { padding: 0.75rem; }
+    .scroll-hint { display: block; }
+    .game-table { border-spacing: 0.3rem; }
+    .game-table th, .game-table td {
+        width: 76px; height: 64px;
+        font-size: 0.7rem; padding: 0.25rem;
+        border-radius: 8px; border-width: 1px;
+    }
+    .game-table th { font-size: 0.72rem; }
+    .game-table th.imagen, .game-table td.imagen { width: 64px; }
+    .game-table th.nombre, .game-table td.nombre { width: 88px; }
+    .game-table th.recompensa, .game-table td.recompensa { width: 96px; }
+    .game-table img { width: 44px; height: 44px; }
+    .arrow { font-size: 1.05rem; margin-left: 0.1rem; }
+    .legend-badge { padding: 0.5rem 0.75rem; font-size: 0.85rem; margin: 0.15rem; }
+    .input-field { font-size: 1rem; padding: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+    .game-table { border-spacing: 0.25rem; }
+    .game-table th, .game-table td {
+        width: 66px; height: 58px;
+        font-size: 0.64rem; padding: 0.2rem;
+    }
+    .game-table th { font-size: 0.64rem; }
+    .game-table th.imagen, .game-table td.imagen { width: 56px; }
+    .game-table th.nombre, .game-table td.nombre { width: 76px; }
+    .game-table th.recompensa, .game-table td.recompensa { width: 84px; }
+    .game-table img { width: 38px; height: 38px; }
+}
