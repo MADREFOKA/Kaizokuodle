@@ -77,6 +77,10 @@
             font-size: 0.85rem;
             text-align: center;
             padding: 0.4rem;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            line-height: 1.15;
         }
         .grid-cell {
             background: rgba(255, 255, 255, 0.95);
@@ -91,6 +95,7 @@
             transition: all 0.3s;
             padding: 0.3rem;
             color: #1a1a2e;
+            min-width: 0;
         }
         .grid-cell:hover:not(.filled) {
             transform: scale(1.05);
@@ -125,6 +130,47 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-align: center;
+            overflow-wrap: anywhere;
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        /* ===== FIX MOVIL: grid legible y completo en pantallas estrechas ===== */
+        @media (max-width: 600px) {
+            .back-btn {
+                position: static;
+                display: inline-block;
+                margin-bottom: 1rem;
+                backdrop-filter: none;
+            }
+            .game-grid {
+                grid-template-columns: 76px repeat(3, 1fr);
+                grid-template-rows: 92px repeat(3, 1fr);
+                gap: 0.3rem;
+                padding: 0.5rem;
+            }
+            .grid-header { font-size: 0.72rem; padding: 0.25rem; }
+            .grid-cell { min-height: 84px; }
+            .grid-cell img { width: 42px; height: 42px; }
+            .grid-cell .name { font-size: 0.64rem; }
+        }
+        @media (max-width: 480px) {
+            .game-grid { grid-template-columns: 64px repeat(3, 1fr); }
+            .grid-header { font-size: 0.66rem; }
+            .grid-cell { min-height: 78px; }
+            .grid-cell img { width: 36px; height: 36px; }
+            .grid-cell .name { font-size: 0.58rem; }
         }
     </style>
     <script src="../report-system.js"></script>
@@ -132,7 +178,7 @@
 <body>
 <script>const reporter = new ErrorReporter("Grid Challenge");</script>
     <div class="grid-container">
-        <a href="../index.html" style="position: fixed; top: 20px; left: 20px; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; z-index: 1000; backdrop-filter: blur(10px);">← Volver</a>
+        <a href="../index.html" class="back-btn">← Volver</a>
         
         <div style="text-align: center; margin-bottom: 1.5rem;">
             <h1 class="title-font" style="font-size: 2rem; background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">GRID CHALLENGE</h1>
