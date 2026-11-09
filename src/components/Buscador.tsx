@@ -58,7 +58,7 @@ export function Buscador({ personajes, excluir, onElegir, deshabilitado }: Props
           if (e.key === 'Enter') { e.preventDefault(); elegir(resultados[activo]) }
           if (e.key === 'Escape') setTexto('')
         }}
-        className="w-full rounded-xl border-2 border-tinta-2 bg-tinta px-4 py-3 text-lg text-papel placeholder:text-niebla/70 focus:border-berry focus-visible:outline-none disabled:opacity-50"
+        className="w-full rounded-xl border-2 border-tinta-2 bg-tinta/90 px-4 py-3 text-lg shadow-lg shadow-black/30 backdrop-blur text-papel placeholder:text-niebla/70 focus:border-berry focus-visible:outline-none disabled:opacity-50"
       />
       {abierto && (
         <ul id={`${id}-lista`} role="listbox"

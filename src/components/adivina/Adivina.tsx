@@ -79,7 +79,7 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div role="tablist" aria-label="Modo de juego" className="inline-flex rounded-full bg-tinta p-1">
+        <div role="tablist" aria-label="Modo de juego" className="inline-flex rounded-full bg-tinta/80 p-1 backdrop-blur">
           {(['diario', 'libre'] as const).map((m) => (
             <button key={m} role="tab" aria-selected={modo === m} onClick={() => cambiarModo(m)}
               className={`rounded-full px-5 py-2 font-display font-bold transition ${modo === m ? 'bg-papel text-mar' : 'text-niebla hover:text-papel'}`}>

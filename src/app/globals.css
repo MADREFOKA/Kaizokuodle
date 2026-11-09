@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
-/* Paleta: carta de navegación del Grand Line */
+/* Paleta: atardecer en el Grand Line */
 :root {
-  --mar: #0f2c40;        /* fondo */
-  --tinta: #16384f;      /* paneles */
-  --tinta-2: #1d4660;    /* paneles elevados, bordes */
-  --papel: #eef3f6;      /* texto principal */
-  --niebla: #a9bfcc;     /* texto secundario */
-  --sombrero: #d7263d;   /* acento */
-  --berry: #f2b134;      /* recompensas, foco */
-  --acierto: #2f9e6b;
-  --parcial: #e39b2d;
-  --fallo: #3a5468;
+  --mar: #0e1530;        /* fondo: mar de noche */
+  --tinta: #1a2347;      /* paneles */
+  --tinta-2: #2a3566;    /* paneles elevados, bordes */
+  --papel: #f1f2f8;      /* texto principal */
+  --niebla: #aab2d3;     /* texto secundario */
+  --sombrero: #e0343f;   /* acento */
+  --berry: #f5b83d;      /* recompensas, foco */
+  --acierto: #2c9f68;
+  --parcial: #e8a23a;
+  --fallo: #b93a46;
 }
 
 @theme inline {
@@ -35,11 +35,6 @@ html {
 
 body {
   background-color: var(--mar);
-  /* Retícula de carta náutica, muy tenue */
-  background-image:
-    linear-gradient(rgb(238 243 246 / 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(238 243 246 / 0.035) 1px, transparent 1px);
-  background-size: 48px 48px;
   color: var(--papel);
   font-family: var(--font-sans);
 }
@@ -63,4 +58,9 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .casilla-nueva { animation: none; }
+}
+
+/* Casilla con relieve: brillo arriba, canto oscuro abajo */
+.ficha {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), inset 0 -3px 0 rgb(0 0 0 / 0.28);
 }
