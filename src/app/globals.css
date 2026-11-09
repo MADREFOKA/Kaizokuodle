@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+/* Paleta: carta de navegación del Grand Line */
+:root {
+  --mar: #0f2c40;        /* fondo */
+  --tinta: #16384f;      /* paneles */
+  --tinta-2: #1d4660;    /* paneles elevados, bordes */
+  --papel: #eef3f6;      /* texto principal */
+  --niebla: #a9bfcc;     /* texto secundario */
+  --sombrero: #d7263d;   /* acento */
+  --berry: #f2b134;      /* recompensas, foco */
+  --acierto: #2f9e6b;
+  --parcial: #e39b2d;
+  --fallo: #3a5468;
+}
+
+@theme inline {
+  --color-mar: var(--mar);
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-papel: var(--papel);
+  --color-niebla: var(--niebla);
+  --color-sombrero: var(--sombrero);
+  --color-berry: var(--berry);
+  --color-acierto: var(--acierto);
+  --color-parcial: var(--parcial);
+  --color-fallo: var(--fallo);
+  --font-display: "Bricolage Grotesque Variable", system-ui, sans-serif;
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--mar);
+  /* Retícula de carta náutica, muy tenue */
+  background-image:
+    linear-gradient(rgb(238 243 246 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(238 243 246 / 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: var(--papel);
+  font-family: var(--font-sans);
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--berry);
+    outline-offset: 2px;
+  }
+}
+
+/* Volteo de casillas al revelar un intento (única animación automática) */
+@keyframes voltear {
+  0% { transform: rotateX(90deg); opacity: 0; }
+  100% { transform: rotateX(0); opacity: 1; }
+}
+.casilla-nueva {
+  animation: voltear 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 110ms);
+  backface-visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .casilla-nueva { animation: none; }
+}
