@@ -1,9 +1,10 @@
 'use client'
+import { useRegistrarDiario } from '@/lib/estadisticas'
 import { useMemo, useState } from 'react'
 import type { Personaje } from '@/lib/types'
-import { barajar, hoy, rngDiario } from '@/lib/azar'
+import { barajar, hoy } from '@/lib/azar'
 import { guardarDiario, leerDiario } from '@/lib/guardado'
-import { bancoDeCondiciones, generarConexiones } from '@/lib/juegos/condiciones'
+import { bancoDeCondiciones, generarConSemilla, generarConexiones, type Condicion } from '@/lib/juegos/condiciones'
 import { Retrato } from '../Retrato'
 import { Boton, PanelFinal, SelectorModo, copiar, type Modo } from '../ui'
 
@@ -17,12 +18,21 @@ const PISTAS = 2
 
 export function Conexiones({ personajes }: { personajes: Personaje[] }) {
   const banco = useMemo(() => bancoDeCondiciones(personajes), [personajes])
+  const posible = useMemo(() => !!generarConSemilla('conexiones', hoy(), (r) => generarConexiones(personajes, banco, r)), [personajes, banco])
+  return posible ? <ConexionesJuego personajes={personajes} banco={banco} /> : (
+      <p className="mx-auto max-w-xl rounded-2xl bg-tinta/90 p-5 text-center text-niebla">
+        Con los personajes conocidos hasta tu capítulo no hay datos suficientes para este juego. Prueba con un capítulo más avanzado.
+      </p>
+  )
+}
+
+function ConexionesJuego({ personajes, banco }: { personajes: Personaje[]; banco: Condicion[] }) {
   const nuevo = (semilla: string): Estado => ({ semilla, resueltos: [], intentos: [], fallos: 0 })
   const diario = () => { const f = hoy(); return leerDiario<Estado>('conexiones', f) ?? nuevo(f) }
 
   const [modo, setModo] = useState<Modo>('diario')
   const [estado, setEstado] = useState<Estado>(diario)
-  const grupos = useMemo(() => generarConexiones(personajes, banco, rngDiario('conexiones', estado.semilla))!, [personajes, banco, estado.semilla])
+  const grupos = useMemo(() => generarConSemilla('conexiones', estado.semilla, (r) => generarConexiones(personajes, banco, r))!, [personajes, banco, estado.semilla])
   const grupoDe = useMemo(() => new Map(grupos.flatMap((g, i) => g.personajes.map((p) => [p.id, i] as const))), [grupos])
   const [orden, setOrden] = useState<number[]>(() => barajar(grupos.flatMap((g) => g.personajes.map((p) => p.id)), Math.random))
   const [seleccion, setSeleccion] = useState<number[]>([])
@@ -32,6 +42,7 @@ export function Conexiones({ personajes }: { personajes: Personaje[] }) {
   const porId = new Map(grupos.flatMap((g) => g.personajes).map((p) => [p.id, p]))
   const perdido = estado.fallos >= FALLOS
   const terminado = perdido || estado.resueltos.length === 4
+  useRegistrarDiario('conexiones', modo === 'diario' && terminado, estado.semilla, { gano: !perdido, valor: estado.fallos })
   // Al perder se muestran todos los grupos que faltaban.
   const visibles = terminado ? [...estado.resueltos, ...[0, 1, 2, 3].filter((i) => !estado.resueltos.includes(i))] : estado.resueltos
   const sueltos = orden.filter((id) => !visibles.includes(grupoDe.get(id)!))
@@ -68,7 +79,7 @@ export function Conexiones({ personajes }: { personajes: Personaje[] }) {
   const cambiarModo = (m: Modo) => {
     const e = m === 'diario' ? diario() : nuevo(`libre-${Math.random()}`)
     setModo(m); setEstado(e); setSeleccion([]); setAviso(null)
-    const g = generarConexiones(personajes, banco, rngDiario('conexiones', e.semilla))!
+    const g = generarConSemilla('conexiones', e.semilla, (r) => generarConexiones(personajes, banco, r))!
     setOrden(barajar(g.flatMap((x) => x.personajes.map((p) => p.id)), Math.random))
   }
 

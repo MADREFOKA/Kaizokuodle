@@ -1,4 +1,5 @@
 'use client'
+import { useRegistrarDiario } from '@/lib/estadisticas'
 import { useState } from 'react'
 import { hoy, rngDiario } from '@/lib/azar'
 import { guardarDiario, leerDiario } from '@/lib/guardado'
@@ -27,6 +28,7 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
   const orden = estado.orden.map((id) => porId.get(id)!).filter(Boolean)
   const ultimo = estado.intentos.at(-1)
   const resuelto = !!ultimo && ultimo.every(Boolean)
+  useRegistrarDiario('cronologia', modo === 'diario' && resuelto, fecha, { gano: true, valor: estado.intentos.length })
 
   const actualizar = (e: Estado) => {
     setEstado(e)

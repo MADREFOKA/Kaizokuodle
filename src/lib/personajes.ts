@@ -15,27 +15,40 @@ export function getPersonajes(): Promise<Personaje[]> {
 async function cargar(): Promise<Personaje[]> {
   if (!process.env.DATABASE_URL) throw new Error('Falta DATABASE_URL: no se pueden leer los datos de OPBD al compilar.')
   const { rows } = await pool.query(SQL_PERSONAJES)
-  return rows.map((r) => ({
-    id: Number(r.id),
-    nombre: r.nombre,
-    imagen: r.imagen,
-    sexo: r.sexo,
-    estado: r.estado,
-    altura: num(r.altura) || null, // 0 = desconocida
-    edad: num(r.edad),
-    cumpleanos: r.cumpleanos,
-    origen: r.origen,
-    islaOrigen: r.isla_origen,
-    recompensa: num(r.recompensa),
-    debutCap: num(r.debut_cap),
-    debutArco: r.debut_arco,
-    debutSaga: r.debut_saga,
-    dificultad: Number(r.dificultad),
-    razas: r.razas,
-    frutas: r.frutas,
-    frutaTipos: r.fruta_tipos,
-    haki: r.haki,
-    afiliaciones: r.afiliaciones,
-    ocupaciones: r.ocupaciones,
-  }))
+  return rows.map((r) => {
+    const alias: [string, number | null][] = r.alias
+    return {
+      id: Number(r.id),
+      nombre: r.nombre,
+      imagen: r.imagen,
+      sexo: r.sexo,
+      estado: r.estado,
+      altura: num(r.altura) || null, // 0 = desconocida
+      edad: num(r.edad),
+      cumpleanos: r.cumpleanos,
+      origen: r.origen,
+      islaOrigen: r.isla_origen,
+      recompensa: num(r.recompensa),
+      debutCap: num(r.debut_cap),
+      debutArco: r.debut_arco,
+      debutSaga: r.debut_saga,
+      dificultad: Number(r.dificultad),
+      razas: r.razas,
+      frutas: r.frutas,
+      frutaTipos: r.fruta_tipos,
+      haki: r.haki,
+      afiliaciones: r.afiliaciones,
+      ocupaciones: r.ocupaciones,
+      alias: alias.map(([n]) => n),
+      hist: {
+        recompensaBase: num(r.recompensa_base),
+        recompensas: r.recompensas_hist.map(([c, v]: [unknown, unknown]) => [Number(c), Number(v)]),
+        afiliaciones: r.afiliaciones_hist.map((a: { n: string; d: unknown; h: unknown; a: boolean; f: boolean }) => ({ ...a, d: num(a.d), h: num(a.h) })),
+        frutas: r.frutas_hist.map((f: { n: string; t: string; d: unknown; m: boolean }) => ({ ...f, d: num(f.d) })),
+        haki: r.haki_hist.map(([n, c]: [string, unknown]) => [n, num(c)]),
+        muerteCap: num(r.muerte_cap),
+        alias: alias.map(([n, c]) => [n, num(c)]),
+      },
+    }
+  })
 }

@@ -1,5 +1,5 @@
 import type { Personaje } from '@/lib/types'
-import { barajar } from '@/lib/azar'
+import { barajar, rngDiario } from '@/lib/azar'
 
 /**
  * Banco de condiciones sobre personajes, generado a partir de los datos (nunca a mano):
@@ -137,14 +137,33 @@ export function generarConexiones(personajes: Personaje[], banco: Condicion[], r
 /** Cartón de bingo 4×4: condiciones distintas con suficientes personajes conocidos cada una. */
 export function generarCarton(personajes: Personaje[], banco: Condicion[], r: () => number): Condicion[] {
   const pool = personajes.filter((p) => p.dificultad <= 3)
+  // Con todos los personajes se piden ~12 por casilla; con menos (modo sin spoilers), proporcionalmente menos.
+  const minimo = Math.max(5, Math.min(12, Math.round(pool.length * 0.02)))
+  const validas = barajar(banco.filter((c) => { const n = respuestas(pool, c).length; return n >= minimo && n < pool.length * 0.4 }), r)
   const porFamilia = new Map<string, number>()
   const carton: Condicion[] = []
-  for (const c of barajar(banco.filter((c) => { const n = respuestas(pool, c).length; return n >= 12 && n < pool.length * 0.4 }), r)) {
+  for (const c of validas) {
     const n = porFamilia.get(c.familia) ?? 0
     if (n >= (c.familia === 'afiliacion' || c.familia === 'debut' ? 3 : 2)) continue
     porFamilia.set(c.familia, n + 1)
     carton.push(c)
+    if (carton.length === 16) return carton
+  }
+  // Si no llega con variedad de familias, se completa con las que queden.
+  for (const c of validas) {
     if (carton.length === 16) break
+    if (!carton.includes(c)) carton.push(c)
   }
   return carton
 }
+
+/** Genera con la semilla dada; si con esos datos no sale (p. ej. pocos personajes en modo sin spoilers), prueba variantes. */
+export function generarConSemilla<T>(juego: string, semilla: string, gen: (r: () => number) => T | null): T | null {
+  for (let i = 0; i < 6; i++) {
+    const t = gen(rngDiario(juego, i ? `${semilla}#${i}` : semilla))
+    if (t) return t
+  }
+  return null
+}
+
+export const cartonCompleto = (c: Condicion[]) => (c.length === 16 ? c : null)

@@ -1,9 +1,10 @@
 'use client'
+import { useRegistrarDiario } from '@/lib/estadisticas'
 import { useMemo, useState } from 'react'
 import type { Personaje } from '@/lib/types'
 import { barajar, hoy, rngDiario } from '@/lib/azar'
 import { guardarDiario, leerDiario } from '@/lib/guardado'
-import { bancoDeCondiciones, generarCarton } from '@/lib/juegos/condiciones'
+import { bancoDeCondiciones, cartonCompleto, generarCarton, generarConSemilla, type Condicion } from '@/lib/juegos/condiciones'
 import { Retrato } from '../Retrato'
 import { Boton, PanelFinal, SelectorModo, copiar, type Modo } from '../ui'
 
@@ -14,6 +15,15 @@ const PISTAS = 3
 
 export function Bingo({ personajes }: { personajes: Personaje[] }) {
   const banco = useMemo(() => bancoDeCondiciones(personajes), [personajes])
+  const posible = useMemo(() => !!generarConSemilla('bingo', hoy(), (r) => cartonCompleto(generarCarton(personajes, banco, r))), [personajes, banco])
+  return posible ? <BingoJuego personajes={personajes} banco={banco} /> : (
+      <p className="mx-auto max-w-xl rounded-2xl bg-tinta/90 p-5 text-center text-niebla">
+        Con los personajes conocidos hasta tu capítulo no hay datos suficientes para este juego. Prueba con un capítulo más avanzado.
+      </p>
+  )
+}
+
+function BingoJuego({ personajes, banco }: { personajes: Personaje[]; banco: Condicion[] }) {
   const nuevo = (semilla: string): Estado => ({ semilla, casillas: Array(16).fill(null), turno: 0, fallos: 0 })
   const diario = () => { const f = hoy(); return leerDiario<Estado>('bingo', f) ?? nuevo(f) }
 
@@ -22,7 +32,7 @@ export function Bingo({ personajes }: { personajes: Personaje[] }) {
   const [aviso, setAviso] = useState<{ texto: string; ok: boolean } | null>(null)
   const [copiado, setCopiado] = useState(false)
 
-  const carton = useMemo(() => generarCarton(personajes, banco, rngDiario('bingo', estado.semilla)), [personajes, banco, estado.semilla])
+  const carton = useMemo(() => generarConSemilla('bingo', estado.semilla, (r) => cartonCompleto(generarCarton(personajes, banco, r)))!, [personajes, banco, estado.semilla])
   const mazo = useMemo(
     () => barajar(personajes.filter((p) => p.dificultad <= 3), rngDiario('bingo-mazo', estado.semilla)).slice(0, MAZO),
     [personajes, estado.semilla],
@@ -31,6 +41,7 @@ export function Bingo({ personajes }: { personajes: Personaje[] }) {
 
   const llenas = estado.casillas.filter((x) => x !== null).length
   const terminado = llenas === 16 || estado.turno >= mazo.length
+  useRegistrarDiario('bingo', modo === 'diario' && terminado, estado.semilla, { gano: llenas === 16, valor: llenas })
   const actual = terminado ? null : mazo[estado.turno]
 
   const actualizar = (e: Estado) => { setEstado(e); if (modo === 'diario') guardarDiario('bingo', e.semilla, e) }

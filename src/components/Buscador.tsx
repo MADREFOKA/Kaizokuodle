@@ -3,7 +3,7 @@ import { useId, useMemo, useState } from 'react'
 import { normalizar } from '@/lib/texto'
 import { Retrato } from './Retrato'
 
-type Opcion = { id: number; nombre: string; imagen: string | null; sub?: string }
+type Opcion = { id: number; nombre: string; imagen: string | null; sub?: string; alias?: string[] }
 
 type Props<T extends Opcion> = {
   opciones: T[]
@@ -20,19 +20,25 @@ export function Buscador<T extends Opcion>({ opciones, excluir, onElegir, deshab
   const [activo, setActivo] = useState(0)
   const id = useId()
 
-  const indice = useMemo(() => opciones.map((p) => ({ p, n: normalizar(p.nombre) })), [opciones])
+  const indice = useMemo(() => opciones.map((p) => ({ p, n: normalizar(p.nombre), a: (p.alias ?? []).map((x) => ({ x, n: normalizar(x) })) })), [opciones])
 
+  // Busca en el nombre y en alias y epítetos («Barbablanca», «Lucy»…). Primero lo que empieza igual.
   const resultados = useMemo(() => {
     const q = normalizar(texto)
     if (!q) return []
     return indice
-      .filter(({ p, n }) => !excluir?.has(p.id) && n.includes(q))
-      .sort((a, b) => Number(!a.n.startsWith(q)) - Number(!b.n.startsWith(q)) || a.n.length - b.n.length)
+      .filter(({ p }) => !excluir?.has(p.id))
+      .map(({ p, n, a }) => {
+        if (n.includes(q)) return { p, por: null as string | null, rango: n.startsWith(q) ? 0 : 1, largo: n.length }
+        const al = a.find((x) => x.n.includes(q))
+        return al ? { p, por: al.x, rango: al.n.startsWith(q) ? 0.5 : 1.5, largo: al.n.length } : null
+      })
+      .filter((x): x is NonNullable<typeof x> => !!x)
+      .sort((x, y) => x.rango - y.rango || x.largo - y.largo)
       .slice(0, 8)
-      .map(({ p }) => p)
   }, [texto, indice, excluir])
 
-  const elegir = (p: T) => {
+  const elegir = ({ p }: { p: T }) => {
     onElegir(p)
     setTexto('')
     setActivo(0)
@@ -68,15 +74,18 @@ export function Buscador<T extends Opcion>({ opciones, excluir, onElegir, deshab
       {abierto && (
         <ul id={`${id}-lista`} role="listbox"
           className="absolute z-20 mt-2 max-h-96 w-full overflow-auto rounded-xl border border-tinta-2 bg-tinta p-1 shadow-2xl shadow-black/40">
-          {resultados.map((p, i) => (
+          {resultados.map((r, i) => {
+            const p = r.p
+            return (
             <li key={p.id} id={`${id}-${i}`} role="option" aria-selected={i === activo}
               onMouseEnter={() => setActivo(i)}
-              onMouseDown={(e) => { e.preventDefault(); elegir(p) }}
+              onMouseDown={(e) => { e.preventDefault(); elegir(r) }}
               className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 ${i === activo ? 'bg-tinta-2' : ''}`}>
               <Retrato src={p.imagen} alt="" size={36} />
-              <span className="flex flex-col leading-tight">{p.nombre}{p.sub && <span className="text-xs text-niebla">{p.sub}</span>}</span>
+              <span className="flex flex-col leading-tight">{p.nombre}{(r.por || p.sub) && <span className="text-xs text-niebla">{r.por ? `También «${r.por}»` : p.sub}</span>}</span>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </div>

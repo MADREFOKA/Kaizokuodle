@@ -1,8 +1,11 @@
 'use client'
+import { useRegistrarDiario } from '@/lib/estadisticas'
 import { useMemo, useState } from 'react'
 import type { Personaje } from '@/lib/types'
 import { comparar } from '@/lib/juegos/adivina'
-import { elegir, hash, hoy, rng } from '@/lib/azar'
+import { elegir, hoy, rngDiario } from '@/lib/azar'
+import { guardarDiario, leer } from '@/lib/guardado'
+import { sufijoSpoiler } from '@/lib/contexto'
 import { Buscador } from '../Buscador'
 import { Retrato } from '../Retrato'
 import { TablaIntentos } from './TablaIntentos'
@@ -10,17 +13,12 @@ import { Boton, PanelFinal, Pistas, SelectorModo, copiar, type Pista } from '../
 
 type Modo = 'diario' | 'libre'
 const UMBRALES = [4, 7, 10] // intentos para desbloquear cada pista
-const CLAVE_DIARIO = 'fokagames:adivina:diario'
 const DIFICULTAD_DIARIO = 2 // el reto diario sale de los personajes más conocidos
 
-function leerDiario(fecha: string): number[] {
-  try {
-    const g = JSON.parse(localStorage.getItem(CLAVE_DIARIO) ?? 'null')
-    return g?.fecha === fecha && Array.isArray(g.intentos) ? g.intentos : []
-  } catch { return [] }
-}
-function guardarDiario(fecha: string, intentos: number[]) {
-  try { localStorage.setItem(CLAVE_DIARIO, JSON.stringify({ fecha, intentos })) } catch {}
+function leerIntentos(fecha: string): number[] {
+  // Formato antiguo {fecha, intentos} o el común {fecha, estado}.
+  const g = leer<{ fecha: string; estado?: number[]; intentos?: number[] } | null>(`adivina:diario${sufijoSpoiler()}`, null)
+  return g?.fecha === fecha ? (g.estado ?? g.intentos ?? []) : []
 }
 
 const emoji = { acierto: '🟩', parcial: '🟨', fallo: '🟥' } as const
@@ -29,8 +27,9 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
   const porId = useMemo(() => new Map(personajes.map((p) => [p.id, p])), [personajes])
   const retoDiario = () => {
     const f = hoy()
-    const pool = personajes.filter((p) => p.dificultad <= DIFICULTAD_DIARIO)
-    return { fecha: f, objetivoId: elegir(pool, rng(hash(`adivina:${f}`))).id, intentos: leerDiario(f) }
+    const conocidos = personajes.filter((p) => p.dificultad <= DIFICULTAD_DIARIO)
+    const pool = conocidos.length >= 10 ? conocidos : personajes
+    return { fecha: f, objetivoId: elegir(pool, rngDiario('adivina', f)).id, intentos: leerIntentos(f) }
   }
   // Se monta solo en el cliente (ver SoloCliente): la fecha de España y el progreso guardado se leen al iniciar.
   const [inicial] = useState(retoDiario)
@@ -44,7 +43,8 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
   const [copiado, setCopiado] = useState(false)
 
   const nuevaPartidaLibre = (max = dificultadMax) => {
-    const pool = personajes.filter((p) => p.dificultad <= max)
+    const filtrados = personajes.filter((p) => p.dificultad <= max)
+    const pool = filtrados.length ? filtrados : personajes
     setObjetivoId(elegir(pool, Math.random).id)
     setIntentos([])
     setRendido(false)
@@ -55,12 +55,13 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
   const lista = intentos.map((id) => porId.get(id)).filter((p): p is Personaje => !!p)
   const acertado = intentos.includes(objetivoId)
   const terminado = acertado || rendido
+  useRegistrarDiario('adivina', modo === 'diario' && terminado, fecha, { gano: acertado, valor: lista.length })
 
   const intentar = (p: Personaje) => {
     const siguientes = [...intentos, p.id]
     setIntentos(siguientes)
     setNuevo(p.id)
-    if (modo === 'diario') guardarDiario(fecha, siguientes)
+    if (modo === 'diario') guardarDiario('adivina', fecha, siguientes)
   }
 
   const compartir = async () => {

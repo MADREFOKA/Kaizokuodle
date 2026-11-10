@@ -1,4 +1,5 @@
 'use client'
+import { useRegistrarDiario } from '@/lib/estadisticas'
 import { useMemo, useState } from 'react'
 import { hoy, rngDiario } from '@/lib/azar'
 import { guardarDiario, leerDiario } from '@/lib/guardado'
@@ -34,6 +35,7 @@ export function AdivinaFruta({ frutas, personajes }: { frutas: FrutaJuego[]; per
   const cerrada = (i: number) => acertada(i) || estado.respuestas[i].length >= INTENTOS
   const actual = estado.preguntas.findIndex((_, i) => !cerrada(i))
   const aciertos = estado.preguntas.filter((_, i) => acertada(i)).length
+  useRegistrarDiario('fruta', modo === 'diario' && actual === -1, fecha, { gano: aciertos >= 3, valor: aciertos })
 
   const responder = (id: number) => {
     const respuestas = estado.respuestas.map((r, i) => (i === actual ? [...r, id] : r))

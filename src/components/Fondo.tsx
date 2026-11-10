@@ -1,5 +1,5 @@
 /** Ilustración decorativa: atardecer en el Grand Line. Original, sin personajes ni barcos de la obra. */
-export function Escena() {
+export function Fondo() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[460px] overflow-hidden">
       <svg viewBox="0 0 1440 460" preserveAspectRatio="xMaxYMax slice" className="h-full w-full">

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { JUEGOS } from '@/lib/juegos/catalogo'
 import { Icono } from '@/components/Icono'
+import { EtiquetaDiario } from '@/components/EtiquetaDiario'
 
 export default function Inicio() {
   const listos = JUEGOS.filter((j) => j.listo)
@@ -31,7 +32,7 @@ export default function Inicio() {
                 <span aria-hidden className="absolute -right-10 -top-10 size-36 rounded-full opacity-15 blur-2xl transition group-hover:opacity-30" style={{ background: j.color }} />
                 <span className="flex items-center justify-between">
                   <span className="grid size-14 place-items-center rounded-xl bg-mar/70"><Icono id={j.id} color={j.color} size={36} /></span>
-                  {j.diario && <span className="rounded-full bg-mar/70 px-3 py-1 text-xs font-bold" style={{ color: j.color }}>Reto diario</span>}
+                  {j.diario && <EtiquetaDiario id={j.id} color={j.color} />}
                 </span>
                 <span className="font-display text-xl font-extrabold group-hover:[color:var(--c)]">{j.nombre}</span>
                 <span className={`text-niebla ${j.ancho ? 'text-base' : 'text-sm'}`}>{j.descripcion}</span>

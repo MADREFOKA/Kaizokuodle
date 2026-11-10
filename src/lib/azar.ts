@@ -1,3 +1,5 @@
+import { sufijoSpoiler } from './contexto'
+
 /** Generador determinista (mulberry32): mismo día → misma partida para todos. */
 export function rng(semilla: number) {
   let a = semilla >>> 0
@@ -32,4 +34,4 @@ export function barajar<T>(lista: readonly T[], r: () => number): T[] {
 }
 
 /** Generador del reto diario de un juego: mismo juego + mismo día = misma partida. */
-export const rngDiario = (juego: string, fecha = hoy()) => rng(hash(`${juego}:${fecha}`))
+export const rngDiario = (juego: string, fecha = hoy()) => rng(hash(`${juego}:${fecha}${sufijoSpoiler()}`))

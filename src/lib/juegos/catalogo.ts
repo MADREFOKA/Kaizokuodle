@@ -12,13 +12,15 @@ export type Juego = {
   /** Pasos de «Cómo se juega». */
   reglas: string[]
   pistas?: string
+  /** Qué mide el valor del resultado diario (para las estadísticas). */
+  valor?: string
   /** Ocupa dos columnas en la portada. */
   ancho?: boolean
 }
 
 export const JUEGOS: Juego[] = [
   {
-    id: 'adivina', ruta: '/adivina', nombre: 'Adivina el personaje', color: '#f5b83d', listo: true, diario: true, ancho: true,
+    id: 'adivina', valor: 'Intentos', ruta: '/adivina', nombre: 'Adivina el personaje', color: '#f5b83d', listo: true, diario: true, ancho: true,
     descripcion: 'Descubre al personaje oculto comparando sus datos con los tuyos.',
     reglas: [
       'Escribe el nombre de cualquier personaje y elígelo de la lista.',
@@ -29,7 +31,7 @@ export const JUEGOS: Juego[] = [
     pistas: 'A los 4, 7 y 10 intentos se desbloquean pistas: un dato que no sale en la tabla, la inicial de su nombre y su retrato difuminado.',
   },
   {
-    id: 'grid', ruta: '/grid', nombre: 'Grid', color: '#4fb8d9', listo: true, diario: true,
+    id: 'grid', valor: 'Casillas acertadas', ruta: '/grid', nombre: 'Grid', color: '#4fb8d9', listo: true, diario: true,
     descripcion: 'Un tablero 3×3 donde cada casilla cruza dos condiciones.',
     reglas: [
       'Cada casilla pide un personaje que cumpla la condición de su fila y la de su columna a la vez.',
@@ -40,7 +42,7 @@ export const JUEGOS: Juego[] = [
     pistas: 'Tienes 3 pistas por tablero: al abrir una casilla, te enseñan la inicial y el arco de debut de una respuesta válida.',
   },
   {
-    id: 'conexiones', ruta: '/conexiones', nombre: 'Conexiones', color: '#8a5bd6', listo: true, diario: true,
+    id: 'conexiones', valor: 'Fallos', ruta: '/conexiones', nombre: 'Conexiones', color: '#8a5bd6', listo: true, diario: true,
     descripcion: 'Dieciséis personajes, cuatro grupos con algo en común.',
     reglas: [
       'Selecciona cuatro personajes que creas que comparten algo y pulsa Enviar.',
@@ -50,7 +52,7 @@ export const JUEGOS: Juego[] = [
     pistas: 'Dos pistas por partida: cada una revela qué tiene en común uno de los grupos que te faltan.',
   },
   {
-    id: 'bingo', ruta: '/bingo', nombre: 'Bingo', color: '#2c9f68', listo: true, diario: true,
+    id: 'bingo', valor: 'Casillas completadas', ruta: '/bingo', nombre: 'Bingo', color: '#2c9f68', listo: true, diario: true,
     descripcion: 'Coloca a cada personaje que sale en una casilla que cumpla.',
     reglas: [
       'Van saliendo personajes de un mazo de 40, de uno en uno.',
@@ -61,7 +63,7 @@ export const JUEGOS: Juego[] = [
     pistas: 'Tres pistas por cartón: iluminan las casillas donde encaja el personaje que ha salido.',
   },
   {
-    id: 'fruta', ruta: '/fruta', nombre: 'Adivina la fruta', color: '#e0343f', listo: true, diario: true,
+    id: 'fruta', valor: 'Aciertos', ruta: '/fruta', nombre: 'Adivina la fruta', color: '#e0343f', listo: true, diario: true,
     descripcion: 'De la fruta del diablo a su usuario, y al revés.',
     reglas: [
       'Son cinco preguntas. En unas te damos una fruta y escribes quién la comió; en otras, al revés.',
@@ -71,6 +73,25 @@ export const JUEGOS: Juego[] = [
     pistas: 'Cada fallo te da una pista: primero el arco o el tipo, después las primeras letras de la respuesta.',
   },
   {
+    id: 'escena', valor: 'Aciertos', ruta: '/escena', nombre: 'Recuerda esta escena', color: '#7fb3ff', listo: true, diario: true,
+    descripcion: 'Una escena a la que le faltan personajes: ¿quiénes eran?',
+    reglas: [
+      'Te enseñamos una escena del anime en la que se han borrado uno o varios personajes.',
+      'Escribe quiénes faltan, de uno en uno.',
+      'Puedes fallar tres veces. Al terminar verás la escena completa.',
+    ],
+    pistas: 'Al primer fallo aparece la frase de la escena; al segundo, la inicial de uno de los que faltan.',
+  },  {
+    id: 'pasapalabra', valor: 'Aciertos', ruta: '/pasapalabra', nombre: 'Pasapalabra', color: '#2f5bd3', listo: true, diario: true, ancho: true,
+    descripcion: 'Un rosco de la A a la Z con personajes de One Piece.',
+    reglas: [
+      'Cada letra tiene una definición: la respuesta empieza por esa letra (o la contiene, si así se indica).',
+      'Escribe la respuesta y pulsa Responder. Con un personaje vale su nombre completo o uno de sus nombres.',
+      'Si no la sabes, di Pasapalabra: volverás a ella en la siguiente vuelta.',
+      'Tienes 5 minutos para completar el rosco.',
+    ],
+    pistas: 'Tres pistas por rosco: muestran las dos primeras letras de la respuesta y su longitud.',
+  },  {
     id: 'recompensas', ruta: '/recompensas', nombre: 'Mayor o menor', color: '#f08a4b', listo: true, diario: false, ancho: true,
     descripcion: 'Dos carteles de Se Busca: ¿cuál vale más?',
     reglas: [
@@ -81,7 +102,7 @@ export const JUEGOS: Juego[] = [
     pistas: 'Un comodín por racha: te dice a qué afiliación pertenece el personaje del segundo cartel y en qué arco debutó.',
   },
   {
-    id: 'cronologia', ruta: '/cronologia', nombre: 'Cronología', color: '#5fc9a8', listo: true, diario: true,
+    id: 'cronologia', valor: 'Intentos', ruta: '/cronologia', nombre: 'Cronología', color: '#5fc9a8', listo: true, diario: true,
     descripcion: 'Ordena a seis personajes por su primera aparición.',
     reglas: [
       'Ordena a los seis personajes del que apareció antes en el manga al que apareció después.',
@@ -90,14 +111,10 @@ export const JUEGOS: Juego[] = [
     ],
     pistas: 'Tras el primer fallo puedes ver el arco de debut de cada personaje.',
   },
-  {
-    id: 'escena', ruta: '/escena', nombre: 'Recuerda esta escena', color: '#aab2d3', listo: false, diario: true,
-    descripcion: '¿Quién falta en la viñeta?', reglas: [],
-  },
-  {
-    id: 'pasapalabra', ruta: '/pasapalabra', nombre: 'Pasapalabra', color: '#aab2d3', listo: false, diario: true,
-    descripcion: 'Un rosco completo de la A a la Z.', reglas: [],
-  },
+
+
+
+
 ]
 
 export const juego = (id: IdJuego) => JUEGOS.find((j) => j.id === id)!

@@ -1,9 +1,10 @@
 'use client'
+import { useRegistrarDiario } from '@/lib/estadisticas'
 import { useMemo, useState } from 'react'
 import type { Personaje } from '@/lib/types'
-import { hoy, rngDiario } from '@/lib/azar'
+import { hoy } from '@/lib/azar'
 import { guardarDiario, leerDiario } from '@/lib/guardado'
-import { bancoDeCondiciones, generarGrid, respuestas, type Tablero } from '@/lib/juegos/condiciones'
+import { bancoDeCondiciones, generarConSemilla, generarGrid, respuestas, type Condicion, type Tablero } from '@/lib/juegos/condiciones'
 import { Buscador } from '../Buscador'
 import { Modal } from '../Modal'
 import { Retrato } from '../Retrato'
@@ -15,14 +16,23 @@ type Estado = { semilla: string; casillas: (number | null)[]; fallos: number; pi
 const PISTAS = 3
 
 export function Grid({ personajes }: { personajes: Personaje[] }) {
-  const porId = useMemo(() => new Map(personajes.map((p) => [p.id, p])), [personajes])
   const banco = useMemo(() => bancoDeCondiciones(personajes), [personajes])
+  const posible = useMemo(() => !!generarConSemilla('grid', hoy(), (r) => generarGrid(personajes, banco, r)), [personajes, banco])
+  return posible ? <GridJuego personajes={personajes} banco={banco} /> : (
+      <p className="mx-auto max-w-xl rounded-2xl bg-tinta/90 p-5 text-center text-niebla">
+        Con los personajes conocidos hasta tu capítulo no hay datos suficientes para este juego. Prueba con un capítulo más avanzado.
+      </p>
+  )
+}
+
+function GridJuego({ personajes, banco }: { personajes: Personaje[]; banco: Condicion[] }) {
+  const porId = useMemo(() => new Map(personajes.map((p) => [p.id, p])), [personajes])
   const nuevoEstado = (semilla: string): Estado => ({ semilla, casillas: Array(9).fill(null), fallos: 0 })
   const diario = () => { const f = hoy(); return leerDiario<Estado>('grid', f) ?? nuevoEstado(f) }
 
   const [modo, setModo] = useState<Modo>('diario')
   const [estado, setEstado] = useState<Estado>(diario)
-  const tablero: Tablero = useMemo(() => generarGrid(personajes, banco, rngDiario('grid', estado.semilla))!, [personajes, banco, estado.semilla])
+  const tablero: Tablero = useMemo(() => generarConSemilla('grid', estado.semilla, (r) => generarGrid(personajes, banco, r))!, [personajes, banco, estado.semilla])
   const [celda, setCelda] = useState<number | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [verSoluciones, setVerSoluciones] = useState(false)
@@ -33,6 +43,7 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
   const aciertos = usados.size
   const intentosUsados = aciertos + estado.fallos
   const terminado = aciertos === 9 || intentosUsados >= INTENTOS
+  useRegistrarDiario('grid', modo === 'diario' && terminado, estado.semilla, { gano: aciertos === 9, valor: aciertos })
   const condiciones = (i: number) => [tablero.filas[Math.floor(i / 3)], tablero.columnas[i % 3]] as const
 
   const actualizar = (e: Estado) => { setEstado(e); if (modo === 'diario') guardarDiario('grid', e.semilla, e) }
