@@ -12,7 +12,7 @@ export function Modal({ abierto, onCerrar, titulo, children }: { abierto: boolea
   }, [abierto])
   return (
     <dialog ref={ref} onClose={onCerrar} onClick={(e) => e.target === ref.current && onCerrar()}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] overflow-visible rounded-2xl border border-tinta-2 bg-tinta p-5 text-papel shadow-2xl backdrop:bg-black/60">
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] overflow-visible rounded-2xl text-left border border-tinta-2 bg-tinta p-5 text-papel shadow-2xl backdrop:bg-black/60">
       <div className="mb-4 flex items-start justify-between gap-4">
         <h2 className="font-display text-xl font-bold leading-tight">{titulo}</h2>
         <button onClick={onCerrar} aria-label="Cerrar" className="-m-1 grid size-8 shrink-0 place-items-center rounded-lg text-niebla hover:bg-tinta-2 hover:text-papel">✕</button>

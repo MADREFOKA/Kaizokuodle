@@ -23,6 +23,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             <Link href="/" className="font-display text-xl font-extrabold tracking-tight">
               Foka<span className="text-berry">games</span>
             </Link>
+            <Link href="/" className="rounded-full px-4 py-1.5 text-sm font-bold text-niebla ring-1 ring-tinta-2 hover:text-papel">Todos los juegos</Link>
           </nav>
         </header>
         <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 py-8">{children}</main>

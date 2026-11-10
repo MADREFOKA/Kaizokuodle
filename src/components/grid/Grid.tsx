@@ -11,7 +11,8 @@ import { Boton, PanelFinal, SelectorModo, copiar, type Modo } from '../ui'
 
 const INTENTOS = 12
 /** casillas[fila * 3 + col] = id del personaje colocado; fallos = intentos incorrectos. */
-type Estado = { semilla: string; casillas: (number | null)[]; fallos: number }
+type Estado = { semilla: string; casillas: (number | null)[]; fallos: number; pistas?: number }
+const PISTAS = 3
 
 export function Grid({ personajes }: { personajes: Personaje[] }) {
   const porId = useMemo(() => new Map(personajes.map((p) => [p.id, p])), [personajes])
@@ -25,6 +26,7 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
   const [celda, setCelda] = useState<number | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [verSoluciones, setVerSoluciones] = useState(false)
+  const [pista, setPista] = useState<string | null>(null)
   const [copiado, setCopiado] = useState(false)
 
   const usados = new Set(estado.casillas.filter((x): x is number => x !== null))
@@ -34,6 +36,18 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
   const condiciones = (i: number) => [tablero.filas[Math.floor(i / 3)], tablero.columnas[i % 3]] as const
 
   const actualizar = (e: Estado) => { setEstado(e); if (modo === 'diario') guardarDiario('grid', e.semilla, e) }
+
+  const pistasUsadas = estado.pistas ?? 0
+  const usarPista = () => {
+    if (celda === null || pistasUsadas >= PISTAS) return
+    const [f, c] = condiciones(celda)
+    const r = respuestas(personajes, f, c).filter((p) => !usados.has(p.id)).sort((a, b) => a.dificultad - b.dificultad)[0]
+    if (!r) return setPista('No quedan respuestas libres para esta casilla.')
+    setPista(`Una respuesta empieza por «${r.nombre.slice(0, 2)}» y debuta en ${r.debutArco ?? 'un arco desconocido'}.`)
+    actualizar({ ...estado, pistas: pistasUsadas + 1 })
+  }
+
+  const abrir = (i: number) => { setCelda(i); setPista(null) }
 
   const intentar = (p: Personaje) => {
     if (celda === null) return
@@ -64,10 +78,12 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+      <div className="flex flex-col items-center gap-3">
         <SelectorModo modo={modo} onCambiar={cambiarModo} />
         <p className="text-niebla">
           Intentos: <strong className="tabular-nums text-papel">{Math.max(0, INTENTOS - intentosUsados)}</strong> de {INTENTOS}
+          <span className="mx-3 text-tinta-2">|</span>
+          Pistas: <strong className="tabular-nums text-papel">{PISTAS - pistasUsadas}</strong>
         </p>
       </div>
 
@@ -84,9 +100,9 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
         </PanelFinal>
       )}
 
-      <p aria-live="polite" className="min-h-6 text-parcial">{aviso}</p>
+      <p aria-live="polite" className="min-h-6 text-center text-parcial">{aviso}</p>
 
-      <div className="grid max-w-2xl grid-cols-[minmax(0,0.8fr)_repeat(3,minmax(0,1fr))] gap-2">
+      <div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,0.8fr)_repeat(3,minmax(0,1fr))] gap-2">
         <div />
         {tablero.columnas.map((c) => <div key={c.id} className={cabecera}>{c.texto}</div>)}
         {tablero.filas.map((f, fi) => (
@@ -97,7 +113,7 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
               const p = estado.casillas[i] !== null ? porId.get(estado.casillas[i]!) : undefined
               const total = respuestas(personajes, f, c)
               return (
-                <button key={c.id} disabled={!!p || terminado} onClick={() => setCelda(i)}
+                <button key={c.id} disabled={!!p || terminado} onClick={() => abrir(i)}
                   aria-label={p ? `${f.texto} y ${c.texto}: ${p.nombre}` : `Casilla ${f.texto} y ${c.texto}`}
                   className={`ficha relative flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-xl p-1 text-center transition ${p ? 'bg-acierto' : 'bg-tinta/90 hover:bg-tinta-2 disabled:hover:bg-tinta/90'} backdrop-blur`}>
                   {p ? (
@@ -123,7 +139,11 @@ export function Grid({ personajes }: { personajes: Personaje[] }) {
       <Modal abierto={celda !== null} onCerrar={() => setCelda(null)}
         titulo={celda !== null ? `${condiciones(celda)[0].texto} + ${condiciones(celda)[1].texto}` : ''}>
         <Buscador opciones={personajes} excluir={usados} onElegir={intentar} autoFocus />
-        <p className="mt-3 text-sm text-niebla">Cada personaje solo se puede usar una vez. Un fallo gasta un intento.</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-niebla">Cada personaje solo se puede usar una vez. Un fallo gasta un intento.</p>
+          {!pista && <Boton onClick={usarPista} disabled={pistasUsadas >= PISTAS}>💡 Pista ({PISTAS - pistasUsadas})</Boton>}
+        </div>
+        {pista && <p className="mt-3 rounded-xl bg-berry/15 p-3 text-sm ring-1 ring-berry/50">{pista}</p>}
       </Modal>
     </div>
   )

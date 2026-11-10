@@ -22,6 +22,7 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
   const [estado, setEstado] = useState<Estado>(inicial.estado)
   const [arrastrando, setArrastrando] = useState<number | null>(null)
   const [copiado, setCopiado] = useState(false)
+  const [verArcos, setVerArcos] = useState(false)
 
   const orden = estado.orden.map((id) => porId.get(id)!).filter(Boolean)
   const ultimo = estado.intentos.at(-1)
@@ -43,11 +44,11 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
   const comprobar = () => actualizar({ ...estado, intentos: [...estado.intentos, corregir(orden)] })
 
   const cambiarModo = (m: Modo) => {
-    setModo(m)
+    setModo(m); setVerArcos(false)
     if (m === 'diario') { const d = diaria(); setFecha(d.fecha); setEstado(d.estado) }
     else nuevaLibre()
   }
-  const nuevaLibre = () => setEstado({ orden: generarRonda(personajes, Math.random, 4).map((p) => p.id), intentos: [] })
+  const nuevaLibre = () => { setVerArcos(false); return setEstado({ orden: generarRonda(personajes, Math.random, 4).map((p) => p.id), intentos: [] }) }
 
   // Tras comprobar, cada posición se marca hasta que vuelvas a mover algo.
   const marcas = ultimo && estado.intentos.length && corregir(orden).every((v, i) => v === ultimo[i]) ? ultimo : null
@@ -61,7 +62,7 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
 
   return (
     <div className="space-y-6">
-      <SelectorModo modo={modo} onCambiar={cambiarModo} />
+      <div className="flex justify-center"><SelectorModo modo={modo} onCambiar={cambiarModo} /></div>
 
       {resuelto && (
         <PanelFinal titulo="¡Orden correcto!"
@@ -73,7 +74,7 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
         </PanelFinal>
       )}
 
-      <div className="max-w-xl space-y-2">
+      <div className="mx-auto max-w-xl space-y-2">
         <p className="text-sm text-niebla">Primera aparición</p>
         <ol className="space-y-2">
           {orden.map((p, i) => {
@@ -91,7 +92,8 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
                 <Retrato src={p.imagen} alt="" size={48} />
                 <span className="flex-1 font-display font-bold leading-tight">
                   {p.nombre}
-                  {resuelto && <span className="block font-sans text-sm font-normal opacity-85">{p.debutArco}, cap. {p.debutCap}</span>}
+                  {resuelto ? <span className="block font-sans text-sm font-normal opacity-85">{p.debutArco}, cap. {p.debutCap}</span>
+                    : verArcos && <span className="block font-sans text-sm font-normal opacity-85">Debuta en {p.debutArco}</span>}
                 </span>
                 {!resuelto && (
                   <span className="flex gap-1">
@@ -109,8 +111,9 @@ export function Cronologia({ personajes }: { personajes: ConDebut[] }) {
       </div>
 
       {!resuelto && (
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <Boton variante="primario" onClick={comprobar}>Comprobar</Boton>
+          {estado.intentos.length > 0 && !verArcos && <Boton onClick={() => setVerArcos(true)}>💡 Ver arcos de debut</Boton>}
           <span className="text-sm text-niebla">
             {estado.intentos.length ? `${estado.intentos.length} ${estado.intentos.length === 1 ? 'intento' : 'intentos'}` : 'Arrastra o usa las flechas para ordenar.'}
           </span>

@@ -1,7 +1,7 @@
 import { barajar } from '@/lib/azar'
 
 export type FrutaJuego = { id: number; nombre: string; tipo: string; usuarios: number[] }
-export type UsuarioJuego = { id: number; nombre: string; imagen: string | null; dificultad: number }
+export type UsuarioJuego = { id: number; nombre: string; imagen: string | null; dificultad: number; debutArco: string | null }
 
 /** Pregunta: «¿Quién comió X?» (respuesta: personaje) o «¿Qué fruta comió Y?» (respuesta: fruta). */
 export type Pregunta = { tipo: 'usuario'; frutaId: number } | { tipo: 'fruta'; personajeId: number }

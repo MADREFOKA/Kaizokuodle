@@ -65,7 +65,7 @@ export function Escena() {
         </g>
 
         {/* Barco pirata genérico a contraluz */}
-        <g transform="translate(930 270) scale(0.85)" fill="#0b1126">
+        <g transform="translate(240 300) scale(0.85)" fill="#0b1126">
           <path d="M-70 62 C-52 84 52 84 74 62 L80 50 H-78 Z" />
           <rect x="-3" y="-34" width="5" height="88" />
           <rect x="-40" y="-6" width="4" height="58" />

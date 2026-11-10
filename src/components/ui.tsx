@@ -1,5 +1,5 @@
 'use client'
-import type { ButtonHTMLAttributes } from 'react'
+import { useState, type ButtonHTMLAttributes } from 'react'
 
 type Variante = 'primario' | 'acento' | 'secundario'
 const estilos: Record<Variante, string> = {
@@ -33,14 +33,15 @@ export function SelectorModo({ modo, onCambiar }: { modo: Modo; onCambiar: (m: M
 }
 
 /** Recuadro de fin de partida. */
-export function PanelFinal({ titulo, children, acciones }: { titulo: string; children?: React.ReactNode; acciones?: React.ReactNode }) {
+export function PanelFinal({ titulo, children, acciones, icono }: { titulo: string; children?: React.ReactNode; acciones?: React.ReactNode; icono?: React.ReactNode }) {
   return (
-    <section aria-live="polite" className="flex flex-col gap-4 rounded-2xl border-2 border-berry/60 bg-tinta/90 p-5 backdrop-blur sm:flex-row sm:items-center">
+    <section aria-live="polite" className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 rounded-2xl border-2 border-berry/60 bg-tinta/90 p-5 text-center backdrop-blur sm:flex-row sm:text-left">
+      {icono}
       <div className="flex-1">
         <p className="font-display text-2xl font-extrabold">{titulo}</p>
         {children && <div className="text-niebla">{children}</div>}
       </div>
-      {acciones && <div className="flex flex-wrap gap-2">{acciones}</div>}
+      {acciones && <div className="flex flex-wrap justify-center gap-2">{acciones}</div>}
     </section>
   )
 }
@@ -52,4 +53,30 @@ export async function copiar(texto: string) {
   } catch {
     return false
   }
+}
+
+export type Pista = { titulo: string; contenido: React.ReactNode; /** Si existe, la pista está bloqueada y se explica por qué. */ bloqueo?: string }
+
+/** Fila de pistas: cada una se destapa al pulsarla cuando está desbloqueada. */
+export function Pistas({ pistas, className = '' }: { pistas: Pista[]; className?: string }) {
+  const [vistas, setVistas] = useState<Set<number>>(new Set())
+  return (
+    <div className={`flex flex-wrap justify-center gap-2 ${className}`}>
+      {pistas.map((p, i) =>
+        vistas.has(i) && !p.bloqueo ? (
+          <div key={i} className="flex items-center gap-2 rounded-xl bg-berry/15 px-4 py-2 text-sm ring-1 ring-berry/50">
+            <span className="font-bold text-berry">{p.titulo}:</span>
+            <span>{p.contenido}</span>
+          </div>
+        ) : (
+          <button key={i} disabled={!!p.bloqueo} onClick={() => setVistas((v) => new Set(v).add(i))}
+            className="flex items-center gap-2 rounded-xl bg-tinta/80 px-4 py-2 text-sm ring-1 ring-tinta-2 backdrop-blur transition enabled:hover:ring-berry disabled:opacity-60">
+            <span aria-hidden>{p.bloqueo ? '🔒' : '💡'}</span>
+            <span className="font-bold">{p.titulo}</span>
+            {p.bloqueo && <span className="text-niebla">· {p.bloqueo}</span>}
+          </button>
+        ),
+      )}
+    </div>
+  )
 }

@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Conexiones' }
 
 export default async function Pagina() {
   return (
-    <PaginaJuego titulo="Conexiones" descripcion="Dieciséis personajes, cuatro grupos de cuatro. Encuentra qué tienen en común. Puedes fallar cuatro veces.">
+    <PaginaJuego id="conexiones">
       <Conexiones personajes={await getPersonajes()} />
     </PaginaJuego>
   )

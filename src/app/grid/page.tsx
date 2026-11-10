@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Grid' }
 
 export default async function Pagina() {
   return (
-    <PaginaJuego titulo="Grid" descripcion="Cada casilla pide un personaje que cumpla a la vez la condición de su fila y la de su columna. Tienes 12 intentos para las 9 casillas.">
+    <PaginaJuego id="grid">
       <Grid personajes={await getPersonajes()} />
     </PaginaJuego>
   )

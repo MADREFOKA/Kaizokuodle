@@ -7,8 +7,7 @@ export const metadata: Metadata = { title: 'Adivina el personaje' }
 
 export default async function Pagina() {
   return (
-    <PaginaJuego titulo="Adivina el personaje"
-      descripcion="Escribe el nombre de cualquier personaje. Cada intento te dice qué datos comparte con el personaje oculto.">
+    <PaginaJuego id="adivina">
       <Adivina personajes={await getPersonajes()} />
     </PaginaJuego>
   )

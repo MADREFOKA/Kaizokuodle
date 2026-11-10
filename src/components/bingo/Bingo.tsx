@@ -9,7 +9,8 @@ import { Boton, PanelFinal, SelectorModo, copiar, type Modo } from '../ui'
 
 const MAZO = 40
 /** casillas[i] = id colocado; turno = posición en el mazo; fallos = personajes mal colocados. */
-type Estado = { semilla: string; casillas: (number | null)[]; turno: number; fallos: number }
+type Estado = { semilla: string; casillas: (number | null)[]; turno: number; fallos: number; pistas?: number }
+const PISTAS = 3
 
 export function Bingo({ personajes }: { personajes: Personaje[] }) {
   const banco = useMemo(() => bancoDeCondiciones(personajes), [personajes])
@@ -46,6 +47,15 @@ export function Bingo({ personajes }: { personajes: Personaje[] }) {
     }
   }
 
+  const pistasUsadas = estado.pistas ?? 0
+  const [iluminar, setIluminar] = useState<number | null>(null) // turno en el que se pidió la pista
+  const pedirPista = () => {
+    if (pistasUsadas >= PISTAS) return
+    actualizar({ ...estado, pistas: pistasUsadas + 1 })
+    setIluminar(estado.turno)
+  }
+  const encaja = (i: number) => iluminar === estado.turno && !!actual && estado.casillas[i] === null && carton[i].cumple(actual)
+
   const pasar = () => { actualizar({ ...estado, turno: estado.turno + 1 }); setAviso(null) }
 
   const cambiarModo = (m: Modo) => { setModo(m); setAviso(null); setEstado(m === 'diario' ? diario() : nuevo(`libre-${Math.random()}`)) }
@@ -59,7 +69,7 @@ export function Bingo({ personajes }: { personajes: Personaje[] }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+      <div className="flex flex-col items-center gap-3">
         <SelectorModo modo={modo} onCambiar={cambiarModo} />
         <p className="text-niebla">Quedan <strong className="tabular-nums text-papel">{mazo.length - estado.turno}</strong> personajes en el mazo</p>
       </div>
@@ -72,26 +82,29 @@ export function Bingo({ personajes }: { personajes: Personaje[] }) {
           {llenas === 16 ? `Con ${estado.turno} personajes y ${estado.fallos} ${estado.fallos === 1 ? 'fallo' : 'fallos'}.` : 'Se ha acabado el mazo.'}
         </PanelFinal>
       ) : actual && (
-        <div className="flex max-w-xl items-center gap-4 rounded-2xl border-2 border-berry/60 bg-tinta/90 p-4 backdrop-blur">
+        <div className="mx-auto flex max-w-xl flex-wrap items-center gap-4 rounded-2xl border-2 border-berry/60 bg-tinta/90 p-4 backdrop-blur">
           <Retrato src={actual.imagen} alt="" size={72} />
           <div className="flex-1">
             <p className="text-sm text-niebla">Sale…</p>
             <p className="font-display text-2xl font-extrabold leading-tight">{actual.nombre}</p>
             <p className="text-sm text-niebla">Elige una casilla que cumpla o pasa.</p>
           </div>
-          <Boton onClick={pasar}>Pasar</Boton>
+          <div className="flex gap-2">
+            <Boton onClick={pedirPista} disabled={pistasUsadas >= PISTAS || iluminar === estado.turno} aria-label={`Pista: quedan ${PISTAS - pistasUsadas}`}>💡 {PISTAS - pistasUsadas}</Boton>
+            <Boton onClick={pasar}>Pasar</Boton>
+          </div>
         </div>
       )}
 
-      <p aria-live="polite" className={`min-h-6 ${aviso?.ok ? 'text-acierto' : 'text-parcial'}`}>{aviso?.texto}</p>
+      <p aria-live="polite" className={`min-h-6 text-center ${iluminar === estado.turno && !terminado ? 'text-berry' : aviso?.ok ? 'text-acierto' : 'text-parcial'}`}>{iluminar === estado.turno && !terminado ? (carton.some((_, i) => encaja(i)) ? 'Encaja en las casillas iluminadas.' : 'No encaja en ninguna casilla libre: pásalo.') : aviso?.texto}</p>
 
-      <div className="grid max-w-xl grid-cols-4 gap-2">
+      <div className="mx-auto grid max-w-xl grid-cols-4 gap-2">
         {carton.map((c, i) => {
           const p = estado.casillas[i] !== null ? porId.get(estado.casillas[i]!) : undefined
           return (
             <button key={c.id} disabled={!!p || terminado} onClick={() => colocar(i)}
               aria-label={p ? `${c.texto}: ${p.nombre}` : c.texto}
-              className={`ficha flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-xl p-1.5 text-center transition backdrop-blur ${p ? 'bg-acierto' : 'bg-tinta/90 enabled:hover:bg-tinta-2'}`}>
+              className={`ficha flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-xl p-1.5 text-center transition backdrop-blur ${p ? 'bg-acierto' : encaja(i) ? 'bg-berry/30 ring-2 ring-berry' : 'bg-tinta/90 enabled:hover:bg-tinta-2'}`}>
               {p ? (
                 <>
                   <Retrato src={p.imagen} alt="" size={48} />

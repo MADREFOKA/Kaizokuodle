@@ -8,9 +8,9 @@ export const metadata: Metadata = { title: 'Mayor o menor' }
 export default async function Pagina() {
   const personajes: ConRecompensa[] = (await getPersonajes())
     .filter((p) => p.recompensa)
-    .map(({ id, nombre, imagen, recompensa, dificultad }) => ({ id, nombre, imagen, recompensa: recompensa!, dificultad }))
+    .map(({ id, nombre, imagen, recompensa, dificultad, afiliaciones, debutArco }) => ({ id, nombre, imagen, recompensa: recompensa!, dificultad, afiliaciones, debutArco }))
   return (
-    <PaginaJuego titulo="Mayor o menor" descripcion="¿El siguiente cartel vale más o menos que el anterior? Encadena aciertos para batir tu récord.">
+    <PaginaJuego id="recompensas">
       <MayorMenor personajes={personajes} />
     </PaginaJuego>
   )

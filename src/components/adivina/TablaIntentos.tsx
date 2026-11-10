@@ -24,7 +24,7 @@ export function TablaIntentos({ intentos, objetivo, nuevo }: { intentos: Persona
   const ancho = ANCHO_PERSONAJE + COLUMNAS.reduce((t, c) => t + c.ancho + 4, 0)
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-3 [perspective:900px]">
-      <table className="table-fixed border-separate border-spacing-1 text-center text-[13px]" style={{ width: ancho }}>
+      <table className="mx-auto table-fixed border-separate border-spacing-1 text-center text-[13px]" style={{ width: ancho }}>
         <colgroup>
           <col style={{ width: ANCHO_PERSONAJE }} className="max-sm:!w-16" />
           {COLUMNAS.map((c) => <col key={c.clave} style={{ width: c.ancho }} />)}

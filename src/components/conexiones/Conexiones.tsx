@@ -12,7 +12,8 @@ const COLORES = ['bg-berry text-mar', 'bg-acierto', 'bg-[#4a7fd6]', 'bg-[#8a5bd6
 const EMOJI = ['🟨', '🟩', '🟦', '🟪']
 
 /** resueltos: índices de grupo en orden de acierto; intentos: cada envío (ids) para compartir. */
-type Estado = { semilla: string; resueltos: number[]; intentos: number[][]; fallos: number }
+type Estado = { semilla: string; resueltos: number[]; intentos: number[][]; fallos: number; pistas?: number[] }
+const PISTAS = 2
 
 export function Conexiones({ personajes }: { personajes: Personaje[] }) {
   const banco = useMemo(() => bancoDeCondiciones(personajes), [personajes])
@@ -36,6 +37,12 @@ export function Conexiones({ personajes }: { personajes: Personaje[] }) {
   const sueltos = orden.filter((id) => !visibles.includes(grupoDe.get(id)!))
 
   const actualizar = (e: Estado) => { setEstado(e); if (modo === 'diario') guardarDiario('conexiones', e.semilla, e) }
+
+  const pistas = estado.pistas ?? []
+  const pedirPista = () => {
+    const g = [0, 1, 2, 3].find((i) => !estado.resueltos.includes(i) && !pistas.includes(i))
+    if (g !== undefined) actualizar({ ...estado, pistas: [...pistas, g] })
+  }
 
   const alternar = (id: number) => {
     setAviso(null)
@@ -73,8 +80,8 @@ export function Conexiones({ personajes }: { personajes: Personaje[] }) {
   }
 
   return (
-    <div className="max-w-3xl space-y-5">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="flex flex-col items-center gap-3">
         <SelectorModo modo={modo} onCambiar={cambiarModo} />
         <p className="flex items-center gap-2 text-niebla">
           Fallos restantes:
@@ -112,7 +119,17 @@ export function Conexiones({ personajes }: { personajes: Personaje[] }) {
         </div>
       )}
 
-      <p aria-live="polite" className="min-h-6 text-parcial">{aviso}</p>
+      {!terminado && pistas.filter((g) => !estado.resueltos.includes(g)).length > 0 && (
+        <ul className="flex flex-wrap justify-center gap-2">
+          {pistas.filter((g) => !estado.resueltos.includes(g)).map((g) => (
+            <li key={g} className="rounded-xl bg-berry/15 px-4 py-2 text-sm ring-1 ring-berry/50">
+              <span className="font-bold text-berry">Pista:</span> uno de los grupos es «{grupos[g].condicion.texto}»
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <p aria-live="polite" className="min-h-6 text-center text-parcial">{aviso}</p>
 
       {terminado ? (
         <PanelFinal titulo={perdido ? 'Sin más fallos' : '¡Los cuatro grupos!'}
@@ -122,8 +139,9 @@ export function Conexiones({ personajes }: { personajes: Personaje[] }) {
           {perdido ? 'Arriba tienes los grupos que faltaban.' : `Con ${estado.fallos} ${estado.fallos === 1 ? 'fallo' : 'fallos'}.`}
         </PanelFinal>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           <Boton onClick={() => setOrden((o) => barajar(o, Math.random))}>Mezclar</Boton>
+          <Boton onClick={pedirPista} disabled={pistas.length >= PISTAS}>💡 Pista ({PISTAS - pistas.length})</Boton>
           <Boton onClick={() => setSeleccion([])} disabled={!seleccion.length}>Deseleccionar</Boton>
           <Boton variante="primario" onClick={enviar} disabled={seleccion.length !== 4}>Enviar</Boton>
         </div>

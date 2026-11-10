@@ -6,8 +6,10 @@ import { elegir, hash, hoy, rng } from '@/lib/azar'
 import { Buscador } from '../Buscador'
 import { Retrato } from '../Retrato'
 import { TablaIntentos } from './TablaIntentos'
+import { Boton, PanelFinal, Pistas, SelectorModo, copiar, type Pista } from '../ui'
 
 type Modo = 'diario' | 'libre'
+const UMBRALES = [4, 7, 10] // intentos para desbloquear cada pista
 const CLAVE_DIARIO = 'fokagames:adivina:diario'
 const DIFICULTAD_DIARIO = 2 // el reto diario sale de los personajes más conocidos
 
@@ -21,7 +23,7 @@ function guardarDiario(fecha: string, intentos: number[]) {
   try { localStorage.setItem(CLAVE_DIARIO, JSON.stringify({ fecha, intentos })) } catch {}
 }
 
-const emoji = { acierto: '🟩', parcial: '🟨', fallo: '⬛' } as const
+const emoji = { acierto: '🟩', parcial: '🟨', fallo: '🟥' } as const
 
 export function Adivina({ personajes }: { personajes: Personaje[] }) {
   const porId = useMemo(() => new Map(personajes.map((p) => [p.id, p])), [personajes])
@@ -65,7 +67,7 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
     if (!objetivo) return
     const filas = lista.map((p) => comparar(p, objetivo).map((c) => emoji[c.estado]).join(''))
     const texto = `Adivina el personaje · ${fecha}\n${lista.length} ${lista.length === 1 ? 'intento' : 'intentos'}\n${filas.join('\n')}\n${location.origin}${process.env.NEXT_PUBLIC_BASE_PATH}/adivina/`
-    try { await navigator.clipboard.writeText(texto); setCopiado(true); setTimeout(() => setCopiado(false), 2000) } catch {}
+    if (await copiar(texto)) { setCopiado(true); setTimeout(() => setCopiado(false), 2000) }
   }
 
   const cambiarModo = (m: Modo) => {
@@ -76,17 +78,16 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
     setFecha(r.fecha); setObjetivoId(r.objetivoId); setIntentos(r.intentos); setRendido(false); setNuevo(null)
   }
 
+  const pistas: Pista[] = objetivo ? [
+    { titulo: 'Un dato', contenido: datoExtra(objetivo) },
+    { titulo: 'Inicial', contenido: `Empieza por «${objetivo.nombre[0]}» (${objetivo.nombre.split(' ').length} ${objetivo.nombre.split(' ').length === 1 ? 'palabra' : 'palabras'})` },
+    { titulo: 'Retrato', contenido: <span className="inline-block overflow-hidden rounded-md align-middle [&_img]:blur-[6px]"><Retrato src={objetivo.imagen} alt="Retrato difuminado" size={56} /></span> },
+  ].map((p, i) => (lista.length >= UMBRALES[i] ? p : { ...p, bloqueo: `en ${UMBRALES[i] - lista.length} ${UMBRALES[i] - lista.length === 1 ? 'intento' : 'intentos'}` })) : []
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div role="tablist" aria-label="Modo de juego" className="inline-flex rounded-full bg-tinta/80 p-1 backdrop-blur">
-          {(['diario', 'libre'] as const).map((m) => (
-            <button key={m} role="tab" aria-selected={modo === m} onClick={() => cambiarModo(m)}
-              className={`rounded-full px-5 py-2 font-display font-bold transition ${modo === m ? 'bg-papel text-mar' : 'text-niebla hover:text-papel'}`}>
-              {m === 'diario' ? 'Reto diario' : 'Partida libre'}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-col items-center gap-3">
+        <SelectorModo modo={modo} onCambiar={cambiarModo} />
         {modo === 'libre' && (
           <fieldset className="flex items-center gap-2">
             <legend className="sr-only">Dificultad máxima</legend>
@@ -102,50 +103,45 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
         )}
       </div>
 
-      {!objetivo ? null : terminado ? (
-        <section aria-live="polite" className="flex flex-col gap-4 rounded-2xl border-2 border-berry/60 bg-tinta p-5 sm:flex-row sm:items-center">
-          <Retrato src={objetivo.imagen} alt={objetivo.nombre} size={88} />
-          <div className="flex-1">
-            <p className="font-display text-2xl font-extrabold">
-              {acertado ? `¡Era ${objetivo.nombre}!` : `Era ${objetivo.nombre}`}
-            </p>
-            <p className="text-niebla">
-              {acertado
-                ? `Lo has encontrado en ${lista.length} ${lista.length === 1 ? 'intento' : 'intentos'}.`
-                : 'Te has rendido esta vez.'}
-              {modo === 'diario' && ' El próximo reto llega a medianoche.'}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {modo === 'diario' && acertado && (
-              <button onClick={compartir} className="rounded-full bg-berry px-5 py-2 font-display font-bold text-mar hover:brightness-110">
-                {copiado ? 'Copiado' : 'Copiar resultado'}
-              </button>
-            )}
-            {modo === 'libre' && (
-              <button onClick={() => nuevaPartidaLibre()} className="rounded-full bg-sombrero px-5 py-2 font-display font-bold hover:brightness-110">
-                Otro personaje
-              </button>
-            )}
-          </div>
-        </section>
-      ) : (
-        <div className="space-y-2">
-          <Buscador opciones={personajes} excluir={new Set(intentos)} onElegir={intentar} />
-          <div className="flex items-center justify-between text-sm text-niebla">
-            <span>{lista.length ? `${lista.length} ${lista.length === 1 ? 'intento' : 'intentos'}` : 'Empieza por cualquier personaje.'}</span>
-            {modo === 'libre' && lista.length > 0 && (
-              <button onClick={() => setRendido(true)} className="underline underline-offset-4 hover:text-papel">Rendirse</button>
-            )}
-          </div>
-        </div>
-      )}
+      <div className="mx-auto max-w-2xl space-y-4">
+        {!objetivo ? null : terminado ? (
+          <PanelFinal titulo={acertado ? `¡Era ${objetivo.nombre}!` : `Era ${objetivo.nombre}`}
+            icono={<Retrato src={objetivo.imagen} alt={objetivo.nombre} size={88} />}
+            acciones={<>
+              {modo === 'diario' && acertado && <Boton variante="acento" onClick={compartir}>{copiado ? 'Copiado' : 'Copiar resultado'}</Boton>}
+              {modo === 'libre' && <Boton variante="primario" onClick={() => nuevaPartidaLibre()}>Otro personaje</Boton>}
+            </>}>
+            {acertado ? `Lo has encontrado en ${lista.length} ${lista.length === 1 ? 'intento' : 'intentos'}.` : 'Te has rendido esta vez.'}
+            {modo === 'diario' && ' El próximo reto llega a medianoche.'}
+          </PanelFinal>
+        ) : (
+          <>
+            <Buscador opciones={personajes} excluir={new Set(intentos)} onElegir={intentar} />
+            <div className="flex items-center justify-between text-sm text-niebla">
+              <span>{lista.length ? `${lista.length} ${lista.length === 1 ? 'intento' : 'intentos'}` : 'Empieza por cualquier personaje.'}</span>
+              {modo === 'libre' && lista.length > 0 && (
+                <button onClick={() => setRendido(true)} className="underline underline-offset-4 hover:text-papel">Rendirse</button>
+              )}
+            </div>
+            <Pistas key={`${modo}-${objetivoId}`} pistas={pistas} />
+          </>
+        )}
+      </div>
 
       {objetivo && <TablaIntentos intentos={lista} objetivo={objetivo} nuevo={nuevo} />}
 
       <Leyenda />
     </div>
   )
+}
+
+/** Primera pista: un dato que no está en las columnas. */
+function datoExtra(p: Personaje) {
+  if (p.islaOrigen) return `Nació en ${p.islaOrigen}`
+  const oc = p.ocupaciones.find((o) => !['Pirata', 'Civil', 'Animal'].includes(o))
+  if (oc) return `Es ${oc.toLowerCase()}`
+  if (p.frutas.length) return `Comió la ${p.frutas[0]}`
+  return `Debuta en el capítulo ${p.debutCap}`
 }
 
 function Leyenda() {
@@ -155,7 +151,7 @@ function Leyenda() {
     ['bg-fallo', 'No coincide'],
   ] as const
   return (
-    <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-niebla">
+    <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-niebla">
       {items.map(([c, t]) => (
         <li key={t} className="flex items-center gap-2"><span className={`size-4 rounded ${c}`} />{t}</li>
       ))}

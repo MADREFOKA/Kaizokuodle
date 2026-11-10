@@ -61,11 +61,21 @@ export function AdivinaFruta({ frutas, personajes }: { frutas: FrutaJuego[]; per
   const p = actual >= 0 ? estado.preguntas[actual] : null
   const fallos = actual >= 0 ? estado.respuestas[actual] : []
 
+  // Pistas progresivas: una por cada fallo en la pregunta actual.
+  const pistas = (q: Pregunta): string[] => {
+    if (q.tipo === 'usuario') {
+      const u = frutaPorId.get(q.frutaId)!.usuarios.map((id) => porId.get(id)!).filter(Boolean).sort((a, b) => a.dificultad - b.dificultad)[0]
+      return [u.debutArco ? `Su usuario debuta en ${u.debutArco}.` : 'Su usuario no tiene arco de debut conocido.', `Empieza por «${u.nombre.slice(0, 3)}».`]
+    }
+    const f = frutas.find((x) => x.usuarios.includes(q.personajeId))!
+    return [`Es de tipo ${f.tipo}.`, `Empieza por «${f.nombre.slice(0, 4)}».`]
+  }
+
   return (
     <div className="space-y-6">
-      <SelectorModo modo={modo} onCambiar={cambiarModo} />
+      <div className="flex justify-center"><SelectorModo modo={modo} onCambiar={cambiarModo} /></div>
 
-      <ol className="flex max-w-2xl gap-2" aria-label="Progreso">
+      <ol className="mx-auto flex max-w-2xl gap-2" aria-label="Progreso">
         {estado.preguntas.map((_, i) => (
           <li key={i} aria-label={`Pregunta ${i + 1}: ${cerrada(i) ? (acertada(i) ? 'acertada' : 'fallada') : i === actual ? 'actual' : 'pendiente'}`}
             className={`h-2 flex-1 rounded-full ${cerrada(i) ? (acertada(i) ? 'bg-acierto' : 'bg-fallo') : i === actual ? 'bg-berry' : 'bg-tinta-2'}`} />
@@ -73,7 +83,7 @@ export function AdivinaFruta({ frutas, personajes }: { frutas: FrutaJuego[]; per
       </ol>
 
       {p ? (
-        <section className="max-w-2xl space-y-4 rounded-2xl bg-tinta/90 p-5 backdrop-blur">
+        <section className="mx-auto max-w-2xl space-y-4 rounded-2xl bg-tinta/90 p-5 backdrop-blur">
           <p className="text-sm text-niebla">Pregunta {actual + 1} de {estado.preguntas.length}</p>
           {p.tipo === 'usuario' ? (
             <div>
@@ -98,6 +108,9 @@ export function AdivinaFruta({ frutas, personajes }: { frutas: FrutaJuego[]; per
               ? `No es ${fallos.map((id) => (p.tipo === 'usuario' ? porId.get(id)?.nombre : frutaPorId.get(id)?.nombre)).join(' ni ')}. Te quedan ${INTENTOS - fallos.length}.`
               : `Tienes ${INTENTOS} intentos.`}
           </p>
+          {pistas(p).slice(0, fallos.length).map((t, i) => (
+            <p key={i} className="rounded-xl bg-berry/15 px-4 py-2 text-sm ring-1 ring-berry/50"><span className="font-bold text-berry">Pista {i + 1}:</span> {t}</p>
+          ))}
         </section>
       ) : (
         <PanelFinal titulo={`${aciertos} de ${estado.preguntas.length} aciertos`}
@@ -109,7 +122,7 @@ export function AdivinaFruta({ frutas, personajes }: { frutas: FrutaJuego[]; per
       )}
 
       {estado.preguntas.some((_, i) => cerrada(i)) && (
-        <ul className="max-w-2xl space-y-2">
+        <ul className="mx-auto max-w-2xl space-y-2">
           {estado.preguntas.map((q, i) => cerrada(i) && (
             <li key={i} className={`ficha rounded-xl px-4 py-3 ${acertada(i) ? 'bg-acierto' : 'bg-fallo'}`}>
               <span className="font-bold">{q.tipo === 'usuario' ? frutaPorId.get(q.frutaId)!.nombre : porId.get(q.personajeId)?.nombre}</span>

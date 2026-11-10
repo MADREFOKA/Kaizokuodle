@@ -11,7 +11,7 @@ export default async function Pagina() {
     .filter((p) => p.debutCap && p.debutArco)
     .map(({ id, nombre, imagen, debutCap, debutArco, dificultad }) => ({ id, nombre, imagen, debutCap: debutCap!, debutArco: debutArco!, dificultad }))
   return (
-    <PaginaJuego titulo="Cronología" descripcion="Ordena a los personajes según el capítulo en que aparecen por primera vez en el manga.">
+    <PaginaJuego id="cronologia">
       <Cronologia personajes={personajes} />
     </PaginaJuego>
   )

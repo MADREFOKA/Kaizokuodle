@@ -6,7 +6,7 @@ import { formatoBerry } from '@/lib/texto'
 import { Cartel } from '../Cartel'
 import { Boton, PanelFinal } from '../ui'
 
-export type ConRecompensa = { id: number; nombre: string; imagen: string | null; recompensa: number; dificultad: number }
+export type ConRecompensa = { id: number; nombre: string; imagen: string | null; recompensa: number; dificultad: number; afiliaciones: string[]; debutArco: string | null }
 
 type Fase = 'pregunta' | 'acierto' | 'fallo'
 
@@ -20,6 +20,7 @@ export function MayorMenor({ personajes }: { personajes: ConRecompensa[] }) {
   const [racha, setRacha] = useState(0)
   const [record, setRecord] = useState(() => leer('recompensas:record', 0))
   const [fase, setFase] = useState<Fase>('pregunta')
+  const [comodin, setComodin] = useState<'libre' | 'activo' | 'gastado'>('libre') // uno por racha
 
   const izq = baraja[pos]
   const der = baraja[pos + 1]
@@ -39,6 +40,7 @@ export function MayorMenor({ personajes }: { personajes: ConRecompensa[] }) {
         setPos(0)
       } else setPos(pos + 1)
       setFase('pregunta')
+      setComodin((c) => (c === 'activo' ? 'gastado' : c))
     }, 1100)
   }
 
@@ -47,11 +49,12 @@ export function MayorMenor({ personajes }: { personajes: ConRecompensa[] }) {
     setPos(0)
     setRacha(0)
     setFase('pregunta')
+    setComodin('libre')
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-lg">
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-lg">
         <p>Racha: <strong className="font-display text-2xl text-berry tabular-nums">{racha}</strong></p>
         <p className="text-niebla">Récord: <strong className="tabular-nums text-papel">{record}</strong></p>
         <label className="flex cursor-pointer items-center gap-2 text-base text-niebla">
@@ -83,6 +86,14 @@ export function MayorMenor({ personajes }: { personajes: ConRecompensa[] }) {
                 <Boton variante="acento" onClick={() => responder(true)}>▲ Mayor</Boton>
                 <Boton variante="acento" onClick={() => responder(false)}>▼ Menor</Boton>
               </div>
+              {comodin === 'activo' ? (
+                <p className="rounded-xl bg-berry/15 px-3 py-2 text-left text-sm ring-1 ring-berry/50">
+                  {der.afiliaciones.length ? `De ${der.afiliaciones.join(', ')}. ` : 'Sin afiliación conocida. '}
+                  {der.debutArco ? `Debuta en ${der.debutArco}.` : ''}
+                </p>
+              ) : comodin === 'libre' && (
+                <button onClick={() => setComodin('activo')} className="text-sm text-niebla underline underline-offset-4 hover:text-papel">💡 Usar comodín (1 por racha)</button>
+              )}
             </div>
           ) : (
             <p aria-live="polite" className="font-display text-2xl font-extrabold tabular-nums text-berry">{formatoBerry(der.recompensa)}</p>
