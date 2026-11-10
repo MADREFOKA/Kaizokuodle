@@ -12,6 +12,17 @@ export type Condicion = {
   cumple: (p: Personaje) => boolean
 }
 
+/**
+ * Altura para las condiciones: la de OPBD o, si no se sabe, la que da la raza cuando no hay duda
+ * (los tontatta miden unos 20 cm; los gigantes, más de 10 m). Si no, desconocida.
+ */
+export function alturaEstimada(p: Personaje): number | null {
+  if (p.altura != null) return p.altura
+  if (p.razas.includes('Tontatta')) return 0.2
+  if (p.razas.includes('Gigante') || p.razas.includes('Gigante Ancestral')) return 10
+  return null
+}
+
 const contar = <T,>(lista: T[]) => {
   const m = new Map<T, number>()
   for (const x of lista) m.set(x, (m.get(x) ?? 0) + 1)
@@ -39,8 +50,8 @@ export function bancoDeCondiciones(personajes: Personaje[], minimo = 6): Condici
     { id: 'rc:alguna', familia: 'recompensa', texto: 'Tiene recompensa', cumple: (p) => (p.recompensa ?? 0) > 0 },
     { id: 'es:muerto', familia: 'estado', texto: 'Ha muerto', cumple: (p) => p.estado === 'Muerto' },
     { id: 'sx:mujer', familia: 'sexo', texto: 'Mujer', cumple: (p) => p.sexo === 'Femenino' },
-    { id: 'al:3', familia: 'altura', texto: 'Mide más de 3 m', cumple: (p) => (p.altura ?? 0) > 3 },
-    { id: 'al:menos', familia: 'altura', texto: 'Mide menos de 1,60 m', cumple: (p) => p.altura != null && p.altura < 1.6 },
+    { id: 'al:3', familia: 'altura', texto: 'Mide más de 3 m', cumple: (p) => (alturaEstimada(p) ?? 0) > 3 },
+    { id: 'al:menos', familia: 'altura', texto: 'Mide menos de 1,60 m', cumple: (p) => { const a = alturaEstimada(p); return a != null && a < 1.6 } },
   )
 
   for (const o of ['East Blue', 'North Blue', 'West Blue', 'South Blue', 'Grand Line'])
