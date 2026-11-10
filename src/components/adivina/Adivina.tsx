@@ -131,7 +131,7 @@ export function Adivina({ personajes }: { personajes: Personaje[] }) {
         </section>
       ) : (
         <div className="space-y-2">
-          <Buscador personajes={personajes} excluir={new Set(intentos)} onElegir={intentar} />
+          <Buscador opciones={personajes} excluir={new Set(intentos)} onElegir={intentar} />
           <div className="flex items-center justify-between text-sm text-niebla">
             <span>{lista.length ? `${lista.length} ${lista.length === 1 ? 'intento' : 'intentos'}` : 'Empieza por cualquier personaje.'}</span>
             {modo === 'libre' && lista.length > 0 && (

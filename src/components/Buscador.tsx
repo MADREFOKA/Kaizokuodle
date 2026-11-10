@@ -1,34 +1,38 @@
 'use client'
 import { useId, useMemo, useState } from 'react'
-import type { Personaje } from '@/lib/types'
 import { normalizar } from '@/lib/texto'
 import { Retrato } from './Retrato'
 
-type Props = {
-  personajes: Personaje[]
-  excluir: Set<number>
-  onElegir: (p: Personaje) => void
+type Opcion = { id: number; nombre: string; imagen: string | null; sub?: string }
+
+type Props<T extends Opcion> = {
+  opciones: T[]
+  excluir?: Set<number>
+  onElegir: (p: T) => void
   deshabilitado?: boolean
+  placeholder?: string
+  autoFocus?: boolean
 }
 
-export function Buscador({ personajes, excluir, onElegir, deshabilitado }: Props) {
+/** Combobox de búsqueda por nombre (sin acentos), para personajes o frutas. */
+export function Buscador<T extends Opcion>({ opciones, excluir, onElegir, deshabilitado, placeholder = 'Escribe un personaje…', autoFocus }: Props<T>) {
   const [texto, setTexto] = useState('')
   const [activo, setActivo] = useState(0)
   const id = useId()
 
-  const indice = useMemo(() => personajes.map((p) => ({ p, n: normalizar(p.nombre) })), [personajes])
+  const indice = useMemo(() => opciones.map((p) => ({ p, n: normalizar(p.nombre) })), [opciones])
 
   const resultados = useMemo(() => {
     const q = normalizar(texto)
     if (!q) return []
     return indice
-      .filter(({ p, n }) => !excluir.has(p.id) && n.includes(q))
+      .filter(({ p, n }) => !excluir?.has(p.id) && n.includes(q))
       .sort((a, b) => Number(!a.n.startsWith(q)) - Number(!b.n.startsWith(q)) || a.n.length - b.n.length)
       .slice(0, 8)
       .map(({ p }) => p)
   }, [texto, indice, excluir])
 
-  const elegir = (p: Personaje) => {
+  const elegir = (p: T) => {
     onElegir(p)
     setTexto('')
     setActivo(0)
@@ -49,7 +53,8 @@ export function Buscador({ personajes, excluir, onElegir, deshabilitado }: Props
         autoComplete="off"
         disabled={deshabilitado}
         value={texto}
-        placeholder="Escribe un personaje…"
+        placeholder={placeholder}
+        autoFocus={autoFocus}
         onChange={(e) => { setTexto(e.target.value); setActivo(0) }}
         onKeyDown={(e) => {
           if (!abierto) return
@@ -69,7 +74,7 @@ export function Buscador({ personajes, excluir, onElegir, deshabilitado }: Props
               onMouseDown={(e) => { e.preventDefault(); elegir(p) }}
               className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 ${i === activo ? 'bg-tinta-2' : ''}`}>
               <Retrato src={p.imagen} alt="" size={36} />
-              <span>{p.nombre}</span>
+              <span className="flex flex-col leading-tight">{p.nombre}{p.sub && <span className="text-xs text-niebla">{p.sub}</span>}</span>
             </li>
           ))}
         </ul>

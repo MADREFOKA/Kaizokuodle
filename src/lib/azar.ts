@@ -20,3 +20,16 @@ export function hash(s: string) {
 export const hoy = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date())
 
 export const elegir = <T,>(lista: T[], r: () => number) => lista[Math.floor(r() * lista.length)]
+
+/** Copia barajada (Fisher-Yates) con el generador dado. */
+export function barajar<T>(lista: readonly T[], r: () => number): T[] {
+  const a = [...lista]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/** Generador del reto diario de un juego: mismo juego + mismo día = misma partida. */
+export const rngDiario = (juego: string, fecha = hoy()) => rng(hash(`${juego}:${fecha}`))
