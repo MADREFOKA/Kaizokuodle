@@ -8,7 +8,7 @@ async function consultar<T>(sql: string, mapear: (r: Record<string, unknown>) =>
     const { rows } = await pool.query(sql)
     return rows.map(mapear)
   } catch (e) {
-    if ((e as { code?: string }).code === '42P01') return [] // tabla inexistente
+    if ((e as { code?: string }).code === '42P01') { console.warn(`[contenido] tabla no encontrada: ${(e as Error).message}`); return [] } // tabla inexistente
     throw e
   }
 }

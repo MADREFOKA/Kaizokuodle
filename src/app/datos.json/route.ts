@@ -8,5 +8,7 @@ export const dynamic = 'force-static'
 /** Un único JSON con todo lo que usan los juegos: el navegador lo descarga una vez y lo reutiliza. */
 export async function GET() {
   const [personajes, frutas, escenas, roscos] = await Promise.all([getPersonajes(), getFrutas(), getEscenas(), getRoscos()])
+  // Resumen en el log de GitHub Actions para comprobar qué se ha publicado.
+  console.log(`[datos.json] personajes ${personajes.length}, frutas ${frutas.length}, escenas ${escenas.length}, roscos ${roscos.length}`)
   return Response.json({ personajes, frutas, escenas, roscos } satisfies Datos)
 }
